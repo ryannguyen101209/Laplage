@@ -137,11 +137,11 @@ Everyone subscribed to that topic gets the alerts, so share it only with admins.
 if that happens, change the topic in `firebase-config.js` to a new long random word and subscribe to the new one.
 
 ## Alert emails (new message / new pre-order)
-Create a mailbox for alerts (e.g. a new Gmail) and put it in \`NOTIFY_EMAIL\` in \`firebase-config.js\`. Then in EmailJS (the same account as above) create a template:
-To Email \`{{to_email}}\`, Subject \`{{subject}}\`, Content:
-\`\`\`
+Create a mailbox for alerts (e.g. a new Gmail) and put it in `NOTIFY_EMAIL` in `firebase-config.js`. Then in EmailJS (the same account as above) create a template:
+To Email `{{to_email}}`, Subject `{{subject}}`, Content:
+```
 {{message}}
 
 Open the admin panel: {{link}}
-\`\`\`
-Paste its ID into \`ALERT_TEMPLATE_ID\`. Every new contact message and new pre-order then emails that inbox. The ntfy phone alerts keep working alongside it; set \`NTFY.TOPIC\` to \`''\` to turn them off.
+```
+Paste its ID into `ALERT_TEMPLATE_ID`. Every new contact message and new pre-order then emails that inbox. The ntfy phone alerts keep working alongside it; set `NTFY.TOPIC` to `''` to turn them off.
