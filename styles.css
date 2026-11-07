@@ -1922,3 +1922,6 @@ body { background: #0B3A5C; }
   .pack__fig:first-child { grid-column: 1 / -1; width: 78%; }
   .pack__fig:nth-child(2) { margin-top: 0; }
 }
+
+.access__auth { width: 100%; max-width: 440px; text-align: left; }
+.access__auth .pf-tabs { justify-content: center; }

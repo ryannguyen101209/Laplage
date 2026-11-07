@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@1,500&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
-  <link rel="stylesheet" href="styles.css?v=62">
+  <link rel="stylesheet" href="styles.css?v=63">
   <link rel="stylesheet" href="portal/portal.css?v=51">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
@@ -230,15 +230,8 @@
       <div class="access__inner wrap">
         <p class="label label--index label--center" data-animate="fade-up"><span>06</span> Private access</p>
         <h2 class="display-2" id="access-title" data-animate="words" data-delay="100">Before it opens to <em>everyone.</em></h2>
-        <p class="access__text" data-animate="fade-up" data-delay="300">Each drop is small. Pre-orders open on <strong>20 November</strong>. Leave your email and we will write the moment they do.</p>
-        <form class="access__form" novalidate data-access-form data-animate="fade-up" data-delay="420">
-          <label class="visually-hidden" for="access-email">Email address</label>
-          <input class="access__input" id="access-email" name="email" type="email" autocomplete="email" placeholder="Email address" required aria-describedby="access-status">
-          <button class="btn-outline" type="submit">Notify me</button>
-          <div class="access__trap" aria-hidden="true"><label>Leave this empty <input type="text" name="company" tabindex="-1" autocomplete="off"></label></div>
-          <label class="access__consent"><input type="checkbox" name="consent" required> <span>Yes, email me about pre-orders opening on 20 November and future drops. I can unsubscribe at any time. <a class="link link--underlined" href="privacy.html">Privacy Policy</a></span></label>
-        </form>
-        <p class="access__status" id="access-status" role="status" aria-live="polite"></p>
+        <p class="access__text" data-animate="fade-up" data-delay="300">Each drop is small. Pre-orders open on <strong>20 November</strong>. Create an account now and we will email you the moment they open.</p>
+        <div class="access__auth" data-access-auth data-animate="fade-up" data-delay="420"><p class="pf-hint">Loading…</p></div>
       </div>
     </section>
   </main>
@@ -346,8 +339,8 @@
   <script src="intro.js?v=47" defer></script>
   <script src="ocean.js?v=46" defer></script>
   <script src="piece3d.js?v=52" defer></script>
-  <script src="main.js?v=59" defer></script>
+  <script src="main.js?v=60" defer></script>
   <script src="firebase-config.js?v=54"></script>
-  <script type="module" src="portal/site.js?v=54"></script>
+  <script type="module" src="portal/site.js?v=56"></script>
 </body>
 </html>

@@ -28,6 +28,12 @@ const [
 // the mailing-list form on the home page (main.js) calls this
 if (subscribe) window.laPlageSubscribe = subscribe;
 
+// the "Private access" section: a normal account sign-up, right on the page
+const accessBox = document.querySelector('[data-access-auth]');
+if (accessBox) {
+  if (!isConfigured) accessBox.innerHTML = '<p class="pf-hint">Accounts open soon. Please check back shortly.</p>';
+}
+
 const links = [...document.querySelectorAll('[data-account-link]')];
 const setLinks = (label) => links.forEach((a) => { a.textContent = label; });
 
@@ -38,6 +44,10 @@ if (isConfigured) {
   onAuthStateChanged(auth, async (u) => {
     user = u; profile = null;
     setLinks(u ? 'Account' : 'Sign in');
+    if (accessBox) {
+      if (u) accessBox.innerHTML = '<p class="pf-auth__intro">You have an account. We will email you when pre-orders open on 20 November.</p><p><a class="link link--underlined" href="account.html">Go to my account</a></p>';
+      else renderAuthForm(accessBox, { mode: 'signup' });
+    }
     if (u) { try { profile = await loadProfile(u); } catch (e) { profile = null; } }
     if (overlay && !overlay.hidden) draw();
   });

@@ -1030,6 +1030,7 @@
   /* ---------------- Mailing list sign-up (saved by portal/mailing.js) ---------------- */
   const initAccess = () => {
     const form = document.querySelector('[data-access-form]');
+    if (!form) return;   // the sign-up is now an account form (portal/site.js)
     const input = form.querySelector('input');
     const status = document.getElementById('access-status');
     const btn = form.querySelector('button[type="submit"]');

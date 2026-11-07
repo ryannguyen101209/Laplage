@@ -196,8 +196,13 @@ function drawAccounts(panel) {
       <label class="pf-field"><span>Sort</span><select data-sort>
         ${[['newest', 'Newest first'], ['oldest', 'Oldest first'], ['name', 'Name A–Z'], ['orders', 'Most pre-orders']].map(([v, l]) => `<option value="${v}"${view.sort === v ? ' selected' : ''}>${l}</option>`).join('')}
       </select></label>
+      <button type="button" class="btn-outline pf-export" data-copy-emails>Copy all emails</button>
     </div>
     <div data-list></div>`;
+  panel.querySelector('[data-copy-emails]').addEventListener('click', async (e) => {
+    const list = [...new Set(users.filter((u) => u.gmail && !u.disabled).map((u) => u.gmail))].join(', ');
+    try { await navigator.clipboard.writeText(list); e.target.textContent = 'Copied'; } catch (x) { prompt('Copy these emails (paste into BCC):', list); }
+  });
   const list = panel.querySelector('[data-list]');
   const paint = () => {
     const q = view.q.trim().toLowerCase();
