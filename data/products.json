@@ -30,7 +30,7 @@
       "id": "rivage-short",
       "handle": "rivage-short",
       "title": "Rivage Short",
-      "price": 400000,
+      "price": 500000,
       "compareAtPrice": null,
       "color": {
         "name": "Blue Toile",
@@ -186,7 +186,7 @@
       "id": "lagon-short",
       "handle": "lagon-short",
       "title": "Lagon Short",
-      "price": 400000,
+      "price": 500000,
       "compareAtPrice": null,
       "color": {
         "name": "Blue Camo Hibiscus",
@@ -218,7 +218,7 @@
       "id": "corail-patch-short",
       "handle": "corail-patch-short",
       "title": "Corail Short",
-      "price": 400000,
+      "price": 500000,
       "compareAtPrice": null,
       "color": {
         "name": "Pink Floral",
@@ -250,7 +250,7 @@
       "id": "maree-short",
       "handle": "maree-short",
       "title": "Marée Short",
-      "price": 500000,
+      "price": 600000,
       "compareAtPrice": null,
       "color": {
         "name": "Blue Stripe",
@@ -282,7 +282,7 @@
       "id": "sable-short",
       "handle": "sable-short",
       "title": "Sable Short",
-      "price": 500000,
+      "price": 600000,
       "compareAtPrice": null,
       "color": {
         "name": "Sand Stripe",
@@ -314,7 +314,7 @@
       "id": "plage-short",
       "handle": "plage-short",
       "title": "Plage Short",
-      "price": 500000,
+      "price": 600000,
       "compareAtPrice": null,
       "color": {
         "name": "Pine Stripe",
@@ -347,7 +347,7 @@
       "id": "palmier-short",
       "handle": "palmier-short",
       "title": "Palmier Short",
-      "price": 400000,
+      "price": 500000,
       "compareAtPrice": null,
       "color": {
         "name": "Palm Print",
@@ -379,7 +379,7 @@
       "id": "esprit-cotier-tee",
       "handle": "esprit-cotier-tee",
       "title": "L'Esprit Côtier Tee",
-      "price": 400000,
+      "price": 500000,
       "compareAtPrice": null,
       "color": {
         "name": "White",
