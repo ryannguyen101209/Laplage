@@ -4,7 +4,7 @@
 import { isConfigured, db, esc, doc, getDoc, setDoc, updateDoc, serverTimestamp } from './firebase.js';
 import { newToken } from './mailing.js';
 import { notifyAdmins } from './notify.js';
-import { sendReplyEmail } from './emails.js';
+import { sendContactEmails, notifyNewCustomerMessage } from './emails.js';
 
 const root = document.querySelector('[data-contact]');
 const card = (html) => { root.innerHTML = `<div class="pf-card pf-card--narrow">${html}</div>`; };
@@ -58,7 +58,7 @@ function drawForm(note = '') {
     } catch (ex) { err.textContent = 'We could not send your message. Please check your connection and try again.'; btn.disabled = false; return; }
     remember(t, name);
     notifyAdmins({ title: `New message · ${name}`, message: text, path: '/admin.html#messages', tags: ['speech_balloon'] });
-    sendReplyEmail({ email, name, text: 'We have your message and will answer on your private page.', token: t }).catch(() => {});
+    sendContactEmails({ name, email, topic: TOPICS[f.topic] || 'General', text, token: t }).catch(() => {});
     history.replaceState(null, '', `contact.html?t=${t}`);
     load(t, 'Your message was sent. Keep this page (bookmark it): our answer will appear here.');
   });
@@ -96,6 +96,7 @@ async function load(t, note = '') {
       });
     } catch (ex) { err.textContent = 'We could not send that. Please try again.'; btn.disabled = false; return; }
     notifyAdmins({ title: `New message · ${m.name}`, message: text, path: '/admin.html#messages', tags: ['speech_balloon'] });
+    notifyNewCustomerMessage({ name: m.name, email: m.email, text, token: t });
     load(t, 'Sent.');
   });
 }

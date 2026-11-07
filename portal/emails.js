@@ -1,68 +1,65 @@
-/* LA PLAGE · pre-order emails, sent through EmailJS (https://www.emailjs.com).
-   One email to every admin in ADMIN_EMAILS, and one confirmation to the customer's Gmail.
-   Does nothing until the EMAILJS block in firebase-config.js is filled in. */
+/* LA PLAGE · every email the site sends, through EmailJS (https://www.emailjs.com), using one normal Gmail account and ONE template.
+   - a new pre-order: one email to every admin in ADMIN_EMAILS and a confirmation to the customer
+   - a new contact message: an email to the admins, and a "we got it" email to the customer
+   - an admin reply in Messages: an email to the customer with a link to the conversation
+   - joining the mailing list: a welcome email with the unsubscribe link
+   The template is just {{subject}} and {{message}} (+ {{link}}), so any of the above can use it.
+   Does nothing until EMAILJS in firebase-config.js is filled in. */
 import { CONFIG, ADMIN_EMAILS, fmtVND, fmtAddress } from './firebase.js';
 
 const E = CONFIG.EMAILJS || {};
-export const emailsReady = !!(E.PUBLIC_KEY && !/^PASTE_/.test(E.PUBLIC_KEY) && E.SERVICE_ID && E.ADMIN_TEMPLATE_ID && E.CUSTOMER_TEMPLATE_ID);
+const set = (v) => !!v && !/^PASTE_/.test(v);
+export const emailsReady = set(E.PUBLIC_KEY) && set(E.SERVICE_ID) && set(E.TEMPLATE_ID);
 
-const send = async (templateId, params) => {
+const send = async ({ to, subject, message, link = '', replyTo = '' }) => {
+  if (!emailsReady || !to) return;
   const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ service_id: E.SERVICE_ID, template_id: templateId, user_id: E.PUBLIC_KEY, template_params: params }),
+    body: JSON.stringify({
+      service_id: E.SERVICE_ID, template_id: E.TEMPLATE_ID, user_id: E.PUBLIC_KEY,
+      template_params: { to_email: Array.isArray(to) ? to.join(',') : to, reply_to: replyTo || ADMIN_EMAILS[0] || '', subject, message, link },
+    }),
   });
   if (!res.ok) throw new Error(`EmailJS ${res.status}: ${await res.text()}`);
 };
+const warn = (r) => r.forEach((x) => { if (x.status === 'rejected') console.warn('[LA PLAGE] email', x.reason); });
 
 export async function sendOrderEmails(order) {
-  if (!emailsReady) return;
-  // plain text only: EmailJS escapes these values in the email ({{ }} placeholders)
-  const params = {
-    order_id: order.id,
-    order_date: new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }),
-    customer_name: order.name,
-    customer_username: order.username,
-    customer_gmail: order.gmail,
-    customer_phone: order.phone,
-    shipping_address: fmtAddress(order.address),
-    items: order.items.map((it) => `${it.title}${it.color ? ` · ${it.color}` : ''} · size ${it.size} × ${it.quantity} = ${fmtVND(it.lineTotal)}`).join('\n'),
-    subtotal: fmtVND(order.subtotal),
-    shipping_fee: fmtVND(order.shippingFee),
-    total: fmtVND(order.total),
-    note: order.note || '—',
-    admin_link: `${location.origin}/admin`,
-    account_link: `${location.origin}/account`,
-  };
-  await Promise.allSettled([
-    // admins: one email, every admin on the To line
-    ADMIN_EMAILS.length ? send(E.ADMIN_TEMPLATE_ID, { ...params, to_email: ADMIN_EMAILS.join(',') }) : Promise.resolve(),
-    // the customer's confirmation, replies go to the first admin
-    send(E.CUSTOMER_TEMPLATE_ID, { ...params, to_email: order.gmail, reply_to: ADMIN_EMAILS[0] || '' }),
-  ]).then((r) => r.forEach((x) => { if (x.status === 'rejected') console.warn('[LA PLAGE] email', x.reason); }));
+  const when = new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' });
+  const lines = order.items.map((it) => `${it.title}${it.color ? ` · ${it.color}` : ''} · size ${it.size} × ${it.quantity} = ${fmtVND(it.lineTotal)}`).join('\n');
+  const sums = `Subtotal: ${fmtVND(order.subtotal)}\nShipping: ${fmtVND(order.shippingFee)}\nTotal: ${fmtVND(order.total)}`;
+  warn(await Promise.allSettled([
+    send({
+      to: ADMIN_EMAILS, replyTo: order.gmail, link: `${location.origin}/admin.html#orders`,
+      subject: `New pre-order from ${order.name} · ${fmtVND(order.total)}`,
+      message: `New pre-order ${order.id} on ${when}\n\nCustomer: ${order.name} (@${order.username})\nEmail: ${order.gmail}   Phone: ${order.phone}\nShip to: ${fmtAddress(order.address)}\n\n${lines}\n\n${sums}\nNote: ${order.note || '-'}\n\nOpen the admin panel:`,
+    }),
+    send({
+      to: order.gmail, link: `${location.origin}/account.html`,
+      subject: 'Your LA PLAGE pre-order is in',
+      message: `Hello ${order.name},\n\nThank you for your pre-order. It joins our next production batch. We will be in touch to confirm the details and arrange payment.\n\n${lines}\n\n${sums}\nShip to: ${fmtAddress(order.address)}\n\nFollow your pre-order:`,
+    }),
+  ]));
 }
 
-/* Welcome email for the mailing list (optional: needs SUBSCRIBER_TEMPLATE_ID). It carries the personal
-   unsubscribe link, so every email we send can be stopped in one click. */
-export const welcomeReady = !!(E.PUBLIC_KEY && !/^PASTE_/.test(E.PUBLIC_KEY) && E.SERVICE_ID && E.SUBSCRIBER_TEMPLATE_ID && !/^PASTE_/.test(E.SUBSCRIBER_TEMPLATE_ID));
-export async function sendWelcomeEmail({ email, unsubscribeLink }) {
-  if (!welcomeReady) return;
-  await send(E.SUBSCRIBER_TEMPLATE_ID, {
-    to_email: email,
-    reply_to: ADMIN_EMAILS[0] || '',
-    unsubscribe_link: unsubscribeLink,
-    preorder_date: '20 November 2026',
-    site_link: location.origin,
-  });
+/* a new contact message: tell the admins, and let the customer know it arrived */
+export async function sendContactEmails({ name, email, topic, text, token }) {
+  warn(await Promise.allSettled([
+    send({ to: ADMIN_EMAILS, replyTo: email, link: `${location.origin}/admin.html#messages`, subject: `New message from ${name}`, message: `${name} <${email}> wrote (${topic}):\n\n${text}\n\nRead and reply in the admin panel:` }),
+    send({ to: email, link: `${location.origin}/contact.html?t=${token}`, subject: 'We got your message · LA PLAGE', message: `Hello ${name},\n\nThank you for writing to us. We will answer on your private page, and email you when we do:` }),
+  ]));
+}
+export async function notifyNewCustomerMessage({ name, email, text, token }) {   // a follow-up on an existing conversation
+  await send({ to: ADMIN_EMAILS, replyTo: email, link: `${location.origin}/admin.html#messages`, subject: `New message from ${name}`, message: `${name} <${email}> wrote:\n\n${text}\n\nRead and reply in the admin panel:` }).catch((e) => console.warn('[LA PLAGE] email', e));
 }
 
-/* Email to a customer from the Messages tab (optional: needs REPLY_TEMPLATE_ID). Carries their private thread link,
-   because replies live on the site and not in an inbox. */
-export const replyReady = !!(E.PUBLIC_KEY && !/^PASTE_/.test(E.PUBLIC_KEY) && E.SERVICE_ID && E.REPLY_TEMPLATE_ID && !/^PASTE_/.test(E.REPLY_TEMPLATE_ID));
+/* an admin reply: email the customer with their private link, because replies live on the site */
 export async function sendReplyEmail({ email, name, text, token }) {
-  if (!replyReady) return;
-  await send(E.REPLY_TEMPLATE_ID, {
-    to_email: email, customer_name: name || '', reply_text: text,
-    thread_link: `${location.origin}/contact.html?t=${token}`, reply_to: ADMIN_EMAILS[0] || '',
-  });
+  await send({ to: email, link: `${location.origin}/contact.html?t=${token}`, subject: 'A reply from LA PLAGE', message: `Hello ${name || ''},\n\n${text}\n\nRead and answer here:` });
+}
+
+/* joining the mailing list: welcome + the personal unsubscribe link */
+export async function sendWelcomeEmail({ email, unsubscribeLink }) {
+  await send({ to: email, link: unsubscribeLink, subject: 'You are on the LA PLAGE list', message: 'Thank you for joining LA PLAGE.\n\nPre-orders open on 20 November 2026. We will write the moment they do.\n\nYou can unsubscribe at any time:' });
 }

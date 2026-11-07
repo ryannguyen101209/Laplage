@@ -40,50 +40,24 @@ Commit and push (Vercel deploys). Then:
 - **Disable** an account in /admin to stop new pre-orders. **Delete** removes the account record (their pre-orders stay); their username login still exists in Authentication until you delete it there too.
 - Prices are read from `data/products.json` in the browser. The rules check the 50.000 ₫ shipping and that total = subtotal + shipping, but cannot check each price, so glance at totals before confirming payment.
 
-## Emails (EmailJS, free up to 200 emails a month)
-Every pre-order sends two emails: one to all admins in `ADMIN_EMAILS`, and a confirmation to the customer's Gmail.
-1. Sign up at https://www.emailjs.com (free).
-2. **Email Services → Add New Service → Gmail → Connect account** with the Gmail that should send the emails. Note the **Service ID**.
-3. **Email Templates → Create New Template**, twice:
-   - **Admin template.** Settings: To Email `{{to_email}}`, Subject `New pre-order from {{customer_name}} · {{total}}`. Content:
-     ```
-     New pre-order {{order_id}} on {{order_date}}
-
-     Customer: {{customer_name}} (@{{customer_username}})
-     Gmail: {{customer_gmail}}   Phone: {{customer_phone}}
-     Ship to: {{shipping_address}}
-
-     {{items}}
-
-     Subtotal: {{subtotal}}
-     Shipping: {{shipping_fee}}
-     Total: {{total}}
-     Note: {{note}}
-
-     Open the admin panel: {{admin_link}}
-     ```
-   - **Customer template.** Settings: To Email `{{to_email}}`, Reply To `{{reply_to}}`, Subject `Your LA PLAGE pre-order is in`. Content:
-     ```
-     Hello {{customer_name}},
-
-     Thank you for your pre-order. It joins our next production batch.
-     We will be in touch to confirm the details and arrange payment.
-
-     {{items}}
-
-     Subtotal: {{subtotal}}
-     Shipping: {{shipping_fee}}
-     Total: {{total}}
-     Ship to: {{shipping_address}}
-
-     Follow your pre-order: {{account_link}}
-
-     LA PLAGE · made by students in Saigon
-     ```
-   Note each template's **Template ID**.
-4. **Account → General → Public Key**: copy it.
-5. **Account → Security**: tick "Allow EmailJS API for non-browser applications" OFF, and add `la-plage-eight.vercel.app` to the allowed domains, so nobody else can send with your key.
-6. Put the four values in the `EMAILJS` block of `firebase-config.js`.
+## Emails (one Gmail, one template)
+The site sends all its emails through **EmailJS** (free, 200 emails a month), which sends them from **your own normal Gmail** (a website cannot log in to Gmail by itself; EmailJS is the connector).
+What gets emailed:
+- **New pre-order:** to every admin in `ADMIN_EMAILS` (full details) and a confirmation to the customer.
+- **New contact message:** to the admins, and a "we got it" email to the customer. Your reply in /admin → Messages is emailed to them with a link to the conversation.
+- **Mailing-list sign-up:** a welcome email with the unsubscribe link.
+Setup (10 minutes):
+1. Create a free account at https://www.emailjs.com.
+2. **Email Services → Add New Service → Gmail → Connect Account**, and pick the Gmail the emails should come from (a normal one, e.g. the shop's address). Copy the **Service ID**.
+3. **Email Templates → Create New Template** (just one). Settings: To Email `{{to_email}}`, Reply To `{{reply_to}}`, Subject `{{subject}}`. In the content, switch to the code/HTML view and paste:
+   ```
+   <div style="white-space:pre-wrap;font-family:Arial,sans-serif;font-size:15px;line-height:1.6">{{message}}</div>
+   <p><a href="{{link}}">{{link}}</a></p>
+   ```
+   Save and copy the **Template ID**.
+4. **Account → API keys → Public key.**
+5. Put the three values in `firebase-config.js` under `EMAILJS` (`PUBLIC_KEY`, `SERVICE_ID`, `TEMPLATE_ID`) and push. Done: no other templates are needed.
+Who receives admin emails is `ADMIN_EMAILS` in `firebase-config.js`.
 
 ## Mailing list (sign-ups, unsubscribe, privacy and terms)
 The home page's "Notify me" form saves each address in Firestore (collection `subscribers`) under a long random token.
@@ -91,24 +65,12 @@ That token is the person's private unsubscribe key: `unsubscribe.html?t=TOKEN`. 
 
 1. **Publish the new `firestore.rules`** (Firestore Database → Rules → paste the whole file → Publish). It now has a `subscribers` section.
    Without this step sign-ups are refused and the form shows "We could not save your sign-up".
-2. **Optional welcome email (with the unsubscribe link).** In EmailJS create a third template:
-   To Email `{{to_email}}`, Reply To `{{reply_to}}`, Subject `You are on the LA PLAGE list`. Content:
-   ```
-   Thank you for joining LA PLAGE.
-
-   Pre-orders open on {{preorder_date}}. We will write the moment they do.
-
-   {{site_link}}
-
-   You can unsubscribe at any time: {{unsubscribe_link}}
-   ```
-   Paste its ID into `SUBSCRIBER_TEMPLATE_ID` in `firebase-config.js`.
-3. **Sending the 20 November announcement.** Open `/admin` → **Mailing list**.
+2. **Sending the 20 November announcement.** Open `/admin` → **Mailing list**.
    - "Copy subscribed emails" copies everyone currently subscribed (put them in **BCC**, never in To/CC).
    - "Export CSV" includes each person's own unsubscribe link, for mail-merge tools (Mailchimp, Brevo, Buttondown).
    - Every marketing email must contain a working unsubscribe link and your business name/contact. If you import the list into another mailing tool, use that tool's own unsubscribe, and then mark those people "Unsubscribe" here too so the lists stay in step.
    - Never email anyone listed as **unsubscribed**.
-4. **Legal pages.** `privacy.html` and `terms.html` use `lookmanfc@gmail.com` as the contact and "LA PLAGE, Ho Chi Minh City" as the operator.
+3. **Legal pages.** `privacy.html` and `terms.html` use `lookmanfc@gmail.com` as the contact and "LA PLAGE, Ho Chi Minh City" as the operator.
    Replace those with your registered business name, address and a business email, and have a lawyer check both pages before launch.
 
 ## Contact messages (internal inbox in the admin panel)
@@ -117,16 +79,6 @@ The footer's **Contact** link and the unsubscribe page lead to `contact.html`. A
 same screen, and the answer shows on the customer's private conversation page (`contact.html?t=…`, kept in their browser and in the
 confirmation). Nobody's personal email address is shown anywhere.
 1. **Publish the new `firestore.rules`** (it has a `messages` section), otherwise sending fails with "We could not send your message".
-2. **Optional: email the customer when you reply.** In EmailJS create a fourth template: To Email `{{to_email}}`, Reply To `{{reply_to}}`,
-   Subject `A message from LA PLAGE`. Content:
-   ```
-   Hello {{customer_name}},
-
-   {{reply_text}}
-
-   Read and answer here: {{thread_link}}
-   ```
-   Paste its ID into `REPLY_TEMPLATE_ID` in `firebase-config.js`. Without it, replies still work; the customer just opens their page.
 
 ## Phone notifications (ntfy)
 Every new message and every new pre-order sends a push to the free ntfy app.
@@ -136,12 +88,3 @@ Every new message and every new pre-order sends a push to the free ntfy app.
 Everyone subscribed to that topic gets the alerts, so share it only with admins. Anyone who learns the topic could read (or spam) the alerts:
 if that happens, change the topic in `firebase-config.js` to a new long random word and subscribe to the new one.
 
-## Alert emails (new message / new pre-order)
-Create a mailbox for alerts (e.g. a new Gmail) and put it in `NOTIFY_EMAIL` in `firebase-config.js`. Then in EmailJS (the same account as above) create a template:
-To Email `{{to_email}}`, Subject `{{subject}}`, Content:
-```
-{{message}}
-
-Open the admin panel: {{link}}
-```
-Paste its ID into `ALERT_TEMPLATE_ID`. Every new contact message and new pre-order then emails that inbox. The ntfy phone alerts keep working alongside it; set `NTFY.TOPIC` to `''` to turn them off.

@@ -30,7 +30,6 @@ window.LAPLAGE_CONFIG = {
     'ryannguyen101209@gmail.com',
   ],
   SHIPPING_FEE: 50000,
-  NOTIFY_EMAIL: '',   // the inbox that gets an email for every new message and pre-order (create one, e.g. laplage.alerts@gmail.com, and put it here)
   PREORDER_OPENS: '20 November 2026',
   PREORDER_OPENS_AT: '2026-11-20T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
 
@@ -40,11 +39,7 @@ window.LAPLAGE_CONFIG = {
   EMAILJS: {
     PUBLIC_KEY: 'PASTE_EMAILJS_PUBLIC_KEY',
     SERVICE_ID: 'PASTE_SERVICE_ID',
-    ADMIN_TEMPLATE_ID: 'PASTE_ADMIN_TEMPLATE_ID',
-    CUSTOMER_TEMPLATE_ID: 'PASTE_CUSTOMER_TEMPLATE_ID',
-    SUBSCRIBER_TEMPLATE_ID: 'PASTE_SUBSCRIBER_TEMPLATE_ID',   // welcome email for the mailing list (optional)
-    ALERT_TEMPLATE_ID: 'PASTE_ALERT_TEMPLATE_ID',             // alert email to NOTIFY_EMAIL for new messages and pre-orders
-    REPLY_TEMPLATE_ID: 'PASTE_REPLY_TEMPLATE_ID',             // emails a customer when we write back in Messages (optional)
+    TEMPLATE_ID: 'PASTE_TEMPLATE_ID',   // one template for every email the site sends (see ACCOUNTS-SETUP.md, "Emails")
   },
 
   /* Phone notifications for the admins (free ntfy app, https://ntfy.sh): a push for every new message and new pre-order.
