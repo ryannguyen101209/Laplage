@@ -33,14 +33,6 @@ window.LAPLAGE_CONFIG = {
   PREORDER_OPENS: '20 November 2026',
   PREORDER_OPENS_AT: '2026-11-20T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
 
-  /* Pre-order emails (EmailJS, free up to 200 emails a month). See ACCOUNTS-SETUP.md, "Emails".
-     EmailJS dashboard → Account → API keys → Public key; Email Services → Service ID;
-     Email Templates → each template's ID. Leave the PASTE_ values to switch emails off. */
-  EMAILJS: {
-    PUBLIC_KEY: 'PASTE_EMAILJS_PUBLIC_KEY',
-    SERVICE_ID: 'PASTE_SERVICE_ID',
-    TEMPLATE_ID: 'PASTE_TEMPLATE_ID',   // one template for every email the site sends (see ACCOUNTS-SETUP.md, "Emails")
-  },
 
   /* Phone notifications for the admins (free ntfy app, https://ntfy.sh): a push for every new message and new pre-order.
      In the ntfy app tap "+" and subscribe to the TOPIC below. Anyone who knows the topic can read the alerts, so keep it

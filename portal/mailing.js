@@ -3,7 +3,6 @@
 import {
   isConfigured, db, doc, getDoc, setDoc, updateDoc, serverTimestamp,
 } from './firebase.js';
-import { sendWelcomeEmail } from './emails.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const newToken = () => {
@@ -21,8 +20,6 @@ export async function subscribe(email, source = 'home') {
     email: addr, status: 'subscribed', source, consent: true,
     createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
   });
-  // the welcome email (with the unsubscribe link) is a bonus: the sign-up is already saved
-  sendWelcomeEmail({ email: addr, unsubscribeLink: unsubscribeLink(token) }).catch((e) => console.warn('[LA PLAGE] welcome email', e));
   return token;
 }
 

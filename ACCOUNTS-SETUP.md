@@ -40,24 +40,19 @@ Commit and push (Vercel deploys). Then:
 - **Disable** an account in /admin to stop new pre-orders. **Delete** removes the account record (their pre-orders stay); their username login still exists in Authentication until you delete it there too.
 - Prices are read from `data/products.json` in the browser. The rules check the 50.000 ₫ shipping and that total = subtotal + shipping, but cannot check each price, so glance at totals before confirming payment.
 
-## Emails (one Gmail, one template)
-The site sends all its emails through **EmailJS** (free, 200 emails a month), which sends them from **your own normal Gmail** (a website cannot log in to Gmail by itself; EmailJS is the connector).
+## Emails (Resend, sent by the site's own server function)
+All emails go out through **Resend**, from `api/send.js` (a Vercel function), so the Resend key stays secret on the server.
 What gets emailed:
-- **New pre-order:** to every admin in `ADMIN_EMAILS` (full details) and a confirmation to the customer.
-- **New contact message:** to the admins, and a "we got it" email to the customer. Your reply in /admin → Messages is emailed to them with a link to the conversation.
-- **Mailing-list sign-up:** a welcome email with the unsubscribe link.
-Setup (10 minutes):
-1. Create a free account at https://www.emailjs.com.
-2. **Email Services → Add New Service → Gmail → Connect Account**, and pick the Gmail the emails should come from (a normal one, e.g. the shop's address). Copy the **Service ID**.
-3. **Email Templates → Create New Template** (just one). Settings: To Email `{{to_email}}`, Reply To `{{reply_to}}`, Subject `{{subject}}`. In the content, switch to the code/HTML view and paste:
-   ```
-   <div style="white-space:pre-wrap;font-family:Arial,sans-serif;font-size:15px;line-height:1.6">{{message}}</div>
-   <p><a href="{{link}}">{{link}}</a></p>
-   ```
-   Save and copy the **Template ID**.
-4. **Account → API keys → Public key.**
-5. Put the three values in `firebase-config.js` under `EMAILJS` (`PUBLIC_KEY`, `SERVICE_ID`, `TEMPLATE_ID`) and push. Done: no other templates are needed.
-Who receives admin emails is `ADMIN_EMAILS` in `firebase-config.js`.
+- **New pre-order:** to every admin (full details) and a confirmation to the customer.
+- **New contact message:** to the admins. Your reply in /admin -> Messages is emailed to the customer with a link to the conversation.
+Setup:
+1. In Resend: create an API key, and verify your sending domain (Resend -> Domains). Without a verified domain Resend only delivers to your own address.
+2. In Vercel (the project that deploys this repo) -> Settings -> Environment Variables, add:
+   - `RESEND_API_KEY` = your key
+   - `FROM_EMAIL` = `LA PLAGE <hello@yourdomain.com>`
+   - `ADMIN_EMAILS` = comma-separated inboxes for alerts (e.g. `you@gmail.com,partner@gmail.com`)
+3. Redeploy (Vercel -> Deployments -> Redeploy). Nothing else to configure.
+If the Firebase project is ever changed, also set `FIREBASE_PROJECT_ID` and `FIREBASE_API_KEY` in Vercel.
 
 ## Mailing list (sign-ups, unsubscribe, privacy and terms)
 The home page's "Notify me" form saves each address in Firestore (collection `subscribers`) under a long random token.

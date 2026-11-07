@@ -71,7 +71,7 @@ function wire(panel, m) {
     form.querySelector('button').disabled = true;
     try {
       await updateDoc(doc(db, 'messages', m.id), { thread: [...(m.thread || []), { from: 'admin', text, at: Date.now() }], unreadAdmin: false, updatedAt: serverTimestamp() });
-      sendReplyEmail({ email: m.email, name: m.name, text, token: m.id }).catch((x) => console.warn('[LA PLAGE] reply email', x));
+      sendReplyEmail({ token: m.id });
     } catch (ex) { err.textContent = authMessage(ex); form.querySelector('button').disabled = false; }
   });
   panel.querySelector('[data-toggle]').addEventListener('click', async () => {
