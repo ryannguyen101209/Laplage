@@ -18,12 +18,12 @@
    ========================================================================== */
 window.LAPLAGE_CONFIG = {
   FIREBASE_CONFIG: {
-    apiKey: 'AIzaSyCgqIiVDwmWR5ZSPdlipOI28X7JdakIUcc',
-    authDomain: 'la-plage-a53db.firebaseapp.com',
-    projectId: 'la-plage-a53db',
-    storageBucket: 'la-plage-a53db.firebasestorage.app',
-    messagingSenderId: '412725896195',
-    appId: '1:412725896195:web:0f18234f9eabd84e3ada36',
+    apiKey: 'AIzaSyBlJJkAw5ddTTeYBji3bUbnNkapG-XEXU8',
+    authDomain: 'la-plage-e7af7.firebaseapp.com',
+    projectId: 'la-plage-e7af7',
+    storageBucket: 'la-plage-e7af7.firebasestorage.app',
+    messagingSenderId: '1057824799093',
+    appId: '1:1057824799093:web:4ef54779230d73ae3e7b3c',
   },
   ADMIN_EMAILS: [
     'lookmanfc@gmail.com',
