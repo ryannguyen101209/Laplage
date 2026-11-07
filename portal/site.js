@@ -5,12 +5,12 @@ const cfg = (window.LAPLAGE_CONFIG || {}).FIREBASE_CONFIG || {};
 const ready = !!(cfg.apiKey && !/^PASTE_/.test(cfg.apiKey));
 // if the SDK can't be reached (a content blocker, a bad connection) the shop carries on without accounts
 const load = async () => {
-  if (!ready) return [{ isConfigured: false }, {}, {}, {}];
+  if (!ready) return [{ isConfigured: false }, {}, {}, {}, {}];
   try {
-    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js'), import('./mailing.js')]);
+    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js'), import('./mailing.js'), import('./notify.js')]);
   } catch (e) {
     console.warn('[LA PLAGE] accounts unavailable', e);
-    return [{ isConfigured: false }, {}, {}, {}];
+    return [{ isConfigured: false }, {}, {}, {}, {}];
   }
 };
 const [
@@ -21,6 +21,7 @@ const [
   { renderAuthForm, loadProfile },
   { sendOrderEmails },
   { subscribe },
+  { notifyAdmins },
 ] = await load();
 
 // the mailing-list form on the home page (main.js) calls this
@@ -219,6 +220,7 @@ if (isConfigured) {
       // emails to the admins and to the customer; the pre-order is already saved, so a failure here never undoes it
       sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE, username: profile.username || '' })
         .catch((e3) => console.warn('[LA PLAGE] order emails', e3));
+      if (notifyAdmins) notifyAdmins({ title: 'New pre-order', message: `${data.name} · ${fmtVND(subtotal + SHIPPING_FEE)} · ${lines.reduce((n, l) => n + l.quantity, 0)} piece(s): ${lines.map((l) => `${l.title} ${l.size}`).join(', ')}`, path: '/admin.html#orders', tags: ['shopping_bags'], priority: 4 });
       items = []; pending = null;
       body().innerHTML = `
         <div class="pf-done">

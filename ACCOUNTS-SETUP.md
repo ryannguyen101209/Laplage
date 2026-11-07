@@ -110,3 +110,28 @@ That token is the person's private unsubscribe key: `unsubscribe.html?t=TOKEN`. 
    - Never email anyone listed as **unsubscribed**.
 4. **Legal pages.** `privacy.html` and `terms.html` use `lookmanfc@gmail.com` as the contact and "LA PLAGE, Ho Chi Minh City" as the operator.
    Replace those with your registered business name, address and a business email, and have a lawyer check both pages before launch.
+
+## Contact messages (internal inbox in the admin panel)
+The footer's **Contact** link and the unsubscribe page lead to `contact.html`. A customer writes a message; it is saved in Firestore
+(collection `messages`) and appears live in **/admin → Messages** (a gold counter shows unread ones). You read it, write back in the
+same screen, and the answer shows on the customer's private conversation page (`contact.html?t=…`, kept in their browser and in the
+confirmation). Nobody's personal email address is shown anywhere.
+1. **Publish the new `firestore.rules`** (it has a `messages` section), otherwise sending fails with "We could not send your message".
+2. **Optional: email the customer when you reply.** In EmailJS create a fourth template: To Email `{{to_email}}`, Reply To `{{reply_to}}`,
+   Subject `A message from LA PLAGE`. Content:
+   ```
+   Hello {{customer_name}},
+
+   {{reply_text}}
+
+   Read and answer here: {{thread_link}}
+   ```
+   Paste its ID into `REPLY_TEMPLATE_ID` in `firebase-config.js`. Without it, replies still work; the customer just opens their page.
+
+## Phone notifications (ntfy)
+Every new message and every new pre-order sends a push to the free ntfy app.
+1. Install **ntfy** (App Store / Google Play, or https://ntfy.sh on desktop).
+2. Tap **+ Subscribe to topic** and enter exactly: `laplage-admin-6930082a18ac759b`  (leave the server as ntfy.sh).
+3. That's it. The topic and server live in `firebase-config.js` under `NTFY`. Tapping a notification opens /admin on the right tab.
+Everyone subscribed to that topic gets the alerts, so share it only with admins. Anyone who learns the topic could read (or spam) the alerts:
+if that happens, change the topic in `firebase-config.js` to a new long random word and subscribe to the new one.

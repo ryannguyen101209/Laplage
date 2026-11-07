@@ -41,5 +41,14 @@ window.LAPLAGE_CONFIG = {
     ADMIN_TEMPLATE_ID: 'PASTE_ADMIN_TEMPLATE_ID',
     CUSTOMER_TEMPLATE_ID: 'PASTE_CUSTOMER_TEMPLATE_ID',
     SUBSCRIBER_TEMPLATE_ID: 'PASTE_SUBSCRIBER_TEMPLATE_ID',   // welcome email for the mailing list (optional)
+    REPLY_TEMPLATE_ID: 'PASTE_REPLY_TEMPLATE_ID',             // emails a customer when we write back in Messages (optional)
+  },
+
+  /* Phone notifications for the admins (free ntfy app, https://ntfy.sh): a push for every new message and new pre-order.
+     In the ntfy app tap "+" and subscribe to the TOPIC below. Anyone who knows the topic can read the alerts, so keep it
+     long and private (change it to anything unguessable if you like; the app just has to use the same word). */
+  NTFY: {
+    SERVER: 'https://ntfy.sh',
+    TOPIC: 'laplage-admin-6930082a18ac759b',
   },
 };

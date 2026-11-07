@@ -114,6 +114,51 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---- contact messages ----
+    // One document per conversation, stored under a long random token (the customer's private link to the thread).
+    // Customers can create a conversation and append their own messages; only admins can list, answer, close or delete.
+    match /messages/{token} {
+      allow get: if token.matches('^[a-f0-9]{32,64}$') || isAdmin();
+      allow list: if isAdmin();
+
+      allow create: if token.matches('^[a-f0-9]{32,64}$')
+        && request.resource.data.keys().hasOnly(['name', 'email', 'topic', 'status', 'thread', 'unreadAdmin', 'createdAt', 'updatedAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
+        && validGmail(request.resource.data.email)
+        && request.resource.data.topic in ['general', 'unsubscribe', 'preorder', 'order', 'other']
+        && request.resource.data.status == 'open'
+        && request.resource.data.unreadAdmin == true
+        && request.resource.data.thread is list && request.resource.data.thread.size() == 1
+        && request.resource.data.thread[0].keys().hasOnly(['from', 'text', 'at'])
+        && request.resource.data.thread[0].from == 'customer'
+        && request.resource.data.thread[0].text is string && request.resource.data.thread[0].text.size() > 0 && request.resource.data.thread[0].text.size() <= 2000
+        && request.resource.data.thread[0].at is number
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update:
+        // the customer adds exactly one more message of their own, and nothing else changes
+        if (token.matches('^[a-f0-9]{32,64}$')
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['thread', 'unreadAdmin', 'status', 'updatedAt'])
+          && request.resource.data.thread.size() == resource.data.thread.size() + 1
+          && request.resource.data.thread[0:resource.data.thread.size()] == resource.data.thread
+          && request.resource.data.thread[resource.data.thread.size()].keys().hasOnly(['from', 'text', 'at'])
+          && request.resource.data.thread[resource.data.thread.size()].from == 'customer'
+          && request.resource.data.thread[resource.data.thread.size()].text is string
+          && request.resource.data.thread[resource.data.thread.size()].text.size() > 0
+          && request.resource.data.thread[resource.data.thread.size()].text.size() <= 2000
+          && request.resource.data.thread[resource.data.thread.size()].at is number
+          && request.resource.data.unreadAdmin == true
+          && request.resource.data.status == 'open'
+          && request.resource.data.updatedAt == request.time)
+        // admins reply, mark as read, close or reopen
+        || (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['thread', 'unreadAdmin', 'status', 'updatedAt'])
+          && request.resource.data.status in ['open', 'closed']);
+
+      allow delete: if isAdmin();
+    }
+
     // everything else is closed
     match /{document=**} {
       allow read, write: if false;

@@ -55,3 +55,14 @@ export async function sendWelcomeEmail({ email, unsubscribeLink }) {
     site_link: location.origin,
   });
 }
+
+/* Email to a customer from the Messages tab (optional: needs REPLY_TEMPLATE_ID). Carries their private thread link,
+   because replies live on the site and not in an inbox. */
+export const replyReady = !!(E.PUBLIC_KEY && !/^PASTE_/.test(E.PUBLIC_KEY) && E.SERVICE_ID && E.REPLY_TEMPLATE_ID && !/^PASTE_/.test(E.REPLY_TEMPLATE_ID));
+export async function sendReplyEmail({ email, name, text, token }) {
+  if (!replyReady) return;
+  await send(E.REPLY_TEMPLATE_ID, {
+    to_email: email, customer_name: name || '', reply_text: text,
+    thread_link: `${location.origin}/contact.html?t=${token}`, reply_to: ADMIN_EMAILS[0] || '',
+  });
+}

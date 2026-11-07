@@ -5,12 +5,15 @@ import {
   onAuthStateChanged, signOut, doc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp,
 } from './firebase.js';
 import { unsubscribeLink } from './mailing.js';
+import { watchMessages, drawMessages, unreadCount } from './admin-messages.js';
 import { renderAuthForm } from './auth-form.js';
 
 const root = document.querySelector('[data-admin]');
 const state = (html) => { root.innerHTML = `<div class="pf-card pf-card--narrow"><p class="pf-state">${html}</p></div>`; };
 
 let users = [], orders = [], subs = [], products = [], tab = 'overview';
+const hashTab = location.hash.replace('#', '');
+if (['overview', 'accounts', 'orders', 'mailing', 'messages'].includes(hashTab)) tab = hashTab;
 const view = { q: '', sort: 'newest', status: 'all', oq: '' };
 
 if (!isConfigured) {
@@ -67,11 +70,19 @@ function shell(user) {
       <button type="button" role="tab" class="pf-tab" data-tab="accounts">Accounts <span data-count-accounts></span></button>
       <button type="button" role="tab" class="pf-tab" data-tab="orders">Pre-orders <span data-count-orders></span></button>
       <button type="button" role="tab" class="pf-tab" data-tab="mailing">Mailing list <span data-count-subs></span></button>
+      <button type="button" role="tab" class="pf-tab" data-tab="messages">Messages <span class="pf-tab__dot" data-count-msgs hidden></span></button>
     </div>
     <div data-panel></div>`;
   root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
-  root.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; draw(); }));
+  root.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; history.replaceState(null, '', '#' + tab); draw(); }));
   draw();
+  // new messages arrive live: refresh the badge, and the Messages tab unless an answer is being typed
+  watchMessages(() => {
+    const dot = root.querySelector('[data-count-msgs]'); if (!dot) return;
+    dot.textContent = unreadCount() ? String(unreadCount()) : ''; dot.hidden = !unreadCount();
+    const typing = root.querySelector('[data-reply] textarea');
+    if (tab === 'messages' && !(typing && typing.value)) drawMessages(root.querySelector('[data-panel]'));
+  });
 }
 
 function draw() {
@@ -79,10 +90,12 @@ function draw() {
   root.querySelector('[data-count-accounts]').textContent = `(${users.length})`;
   root.querySelector('[data-count-orders]').textContent = `(${orders.length})`;
   root.querySelector('[data-count-subs]').textContent = `(${activeSubs().length})`;
+  const dot = root.querySelector('[data-count-msgs]'); dot.textContent = unreadCount() ? String(unreadCount()) : ''; dot.hidden = !unreadCount();
   const panel = root.querySelector('[data-panel]');
   if (tab === 'overview') drawOverview(panel);
   else if (tab === 'accounts') drawAccounts(panel);
   else if (tab === 'mailing') drawMailing(panel);
+  else if (tab === 'messages') drawMessages(panel);
   else drawOrders(panel);
 }
 

@@ -182,6 +182,7 @@ body.portal { background: var(--foam); min-height: 100vh; }
   background: rgba(4, 25, 42, .6); border-color: var(--adm-line); color: var(--adm-ink);
 }
 .portal--admin .pf-field input::placeholder { color: rgba(157, 180, 196, .6); }
+.portal--admin .pf-field textarea { background: rgba(4, 25, 42, .6); border-color: var(--adm-line); color: var(--adm-ink); }
 .portal--admin .pf-field input:focus, .portal--admin .pf-field select:focus { background: rgba(4, 25, 42, .85); border-color: var(--adm-gold); }
 .portal--admin .btn-outline { color: var(--adm-gold); border-color: var(--adm-gold); }
 .portal--admin .pf-tab { color: var(--adm-muted); border-color: var(--adm-line); }
@@ -283,3 +284,40 @@ body.portal.portal--admin { background: #04192A; }
 .pf-grow { flex: 1 1 280px; margin: 0; }
 .legal a, .pf-hint a { text-transform: none; letter-spacing: 0; font-size: inherit; }
 .legal-foot a { text-transform: none; letter-spacing: 0; }
+
+/* ---- admin numbers: plain, upright figures (the display serif's old-style numerals read like roman numerals) ---- */
+.portal--admin { font-variant-numeric: lining-nums tabular-nums; font-feature-settings: "lnum" 1, "tnum" 1; }
+.adm-stat__value, .adm-stage__n { font-family: var(--sans); font-weight: 300; letter-spacing: -.01em; }
+.adm-stat--gold .adm-stat__value { font-weight: 300; }
+
+/* ---- contact thread (customer page and admin Messages) ---- */
+.ct-thread { list-style: none; margin: 18px 0 20px; padding: 0; display: grid; gap: 12px; }
+.ct-msg { max-width: 88%; padding: 12px 16px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, .7); }
+.ct-msg--you { justify-self: end; background: rgba(206, 226, 240, .55); border-bottom-right-radius: 4px; }
+.ct-msg--us { justify-self: start; border-bottom-left-radius: 4px; }
+.ct-msg__who { margin: 0 0 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.ct-msg__text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; line-height: 1.6; color: var(--sea-deep); }
+.pf-threads { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }
+.pf-threads a { text-transform: none; letter-spacing: 0; font-size: inherit; }
+.pf-hint a { text-transform: none; letter-spacing: 0; }
+
+.portal--admin .ct-msg { background: rgba(4, 25, 42, .55); border-color: var(--adm-line); }
+.portal--admin .ct-msg--you { background: rgba(217, 181, 110, .12); border-color: rgba(217, 181, 110, .35); }
+.portal--admin .ct-msg__who { color: var(--adm-muted); }
+.portal--admin .ct-msg__text { color: var(--adm-ink); }
+.pf-tab__dot { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 4px; border-radius: 999px; background: #D9B56E; color: #04192A; font-size: 11px; font-weight: 500; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.pf-tab__dot[hidden] { display: none; }
+.msg-wrap { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.msg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 70vh; overflow: auto; }
+.msg-item { width: 100%; text-align: left; display: grid; gap: 4px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--adm-line); background: var(--adm-card); color: var(--adm-ink); cursor: pointer; font: inherit; }
+.msg-item:hover, .msg-item.is-open { border-color: var(--adm-gold); }
+.msg-item.is-unread { box-shadow: inset 3px 0 0 var(--adm-gold); }
+.msg-item__top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.msg-item__top small, .msg-item__topic { font-size: 11px; color: var(--adm-muted); }
+.msg-item__prev { font-size: 13px; color: var(--adm-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg-thread { padding: clamp(16px, 2vw, 26px); border-radius: 20px; border: 1px solid var(--adm-line); background: var(--adm-card); min-height: 200px; }
+.msg-thread__head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.msg-thread__head .adm-h { margin-bottom: 4px; }
+.msg-actions { display: flex; gap: 14px; }
+.ct-thread--adm { max-height: 46vh; overflow: auto; padding-right: 4px; }
+@media (max-width: 860px) { .msg-wrap { grid-template-columns: 1fr; } .msg-list { max-height: 34vh; } }
