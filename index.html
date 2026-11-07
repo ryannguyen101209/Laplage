@@ -41,10 +41,10 @@
       </a>
       <nav class="nav__links" aria-label="Sections">
         <ul>
+          <li><a href="#lookbook" data-spy="lookbook">Lookbook</a></li>
           <li><a href="#drop" data-spy="drop">Shop</a></li>
           <li><a href="#collections" data-spy="collections">Collections</a></li>
           <li><a href="#story" data-spy="story">Story</a></li>
-          <li><a href="#lookbook" data-spy="lookbook">Lookbook</a></li>
           <li class="nav__account-item"><a href="account.html" data-account-link>Sign in</a></li>
         </ul>
       </nav>
@@ -82,11 +82,33 @@
       <ul class="glass-row drift__row" data-glass-row aria-label="Featured pieces"></ul>
     </section>
 
+    <!-- Lookbook -->
+    <section class="lookbook section float-card" data-motion id="lookbook" aria-labelledby="lookbook-title">
+      <div class="lookbook__head wrap">
+        <p class="label label--index" data-animate="fade-up"><span>01</span> Lookbook</p>
+        <h2 class="display-2" id="lookbook-title" data-animate="words" data-delay="100">Golden hour, <em>Mũi Né</em></h2>
+      </div>
+      <div class="lookbook__grid wrap">
+        <figure class="look" data-animate="fade-up">
+          <div class="look__frame" data-animate="clip"><img data-parallax="0.08" src="assets/img/lookbook/look-01.webp" alt="Lagon Short in blue camo hibiscus resting on a sun lounger beside a bright blue pool" width="1200" height="1500" style="object-position:68% 50%" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 01</span> Lagon Short, Blue Camo Hibiscus</figcaption>
+        </figure>
+        <figure class="look look--low" data-animate="fade-up" data-delay="140">
+          <div class="look__frame" data-animate="clip" data-delay="140"><img data-parallax="0.14" src="assets/img/lookbook/look-02.webp" alt="Corail Short in pink floral hung over a wooden rail at sunset with the sea behind" width="1200" height="1500" style="object-position:52% 50%" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 02</span> Corail Short, Pink Floral</figcaption>
+        </figure>
+        <figure class="look" data-animate="fade-up" data-delay="280">
+          <div class="look__frame" data-animate="clip" data-delay="280"><img data-parallax="0.06" src="assets/img/lookbook/look-03.webp" alt="Palmier Short in palm print laid on a surfboard on the sand beside two coconuts" width="1200" height="1500" style="object-position:30% 50%" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 03</span> Palmier Short, Palm Print</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- The first wash -->
     <section class="drop section" id="drop" aria-labelledby="drop-title">
       <div class="drop__head wrap">
         <div>
-          <p class="label label--index" data-animate="fade-up"><span>01</span> The drop</p>
+          <p class="label label--index" data-animate="fade-up"><span>02</span> The drop</p>
           <h2 class="display-2" id="drop-title" data-animate="words" data-delay="100">The first <em>wash</em></h2>
         </div>
         <p class="drop__note" data-animate="fade-up" data-delay="200"><span>Inspiration</span>Faded beach-cabin stripes, hibiscus in two blues, and palms sketched by hand.</p>
@@ -132,7 +154,7 @@
         <div class="panel__palm palm" aria-hidden="true" data-animate="fade" data-delay="200"></div>
         <div class="panel__fan" aria-hidden="true" data-fan="sea"></div>
         <div class="panel__caption" data-motion>
-          <p class="label label--index" data-animate="fade-up" data-delay="0"><span>02</span> Collection</p>
+          <p class="label label--index" data-animate="fade-up" data-delay="0"><span>03</span> Collection</p>
           <h2 class="panel__title" data-animate="words" data-delay="120"><em>Sea</em></h2>
           <p class="panel__count" data-count="sea" data-animate="fade-up" data-delay="240"></p>
           <p class="panel__text" data-animate="fade-up" data-delay="320">Deep blues for early water and late swims.</p>
@@ -146,7 +168,7 @@
         <div class="panel__palm palm" aria-hidden="true" data-animate="fade" data-delay="320"></div>
         <div class="panel__fan" aria-hidden="true" data-fan="sand"></div>
         <div class="panel__caption" data-motion>
-          <p class="label label--index" data-animate="fade-up" data-delay="120"><span>03</span> Collection</p>
+          <p class="label label--index" data-animate="fade-up" data-delay="120"><span>04</span> Collection</p>
           <h2 class="panel__title" data-animate="words" data-delay="240"><em>Sand</em></h2>
           <p class="panel__count" data-count="sand" data-animate="fade-up" data-delay="360"></p>
           <p class="panel__text" data-animate="fade-up" data-delay="440">Warm neutrals, sun-faded by design.</p>
@@ -159,7 +181,7 @@
     <section class="story section float-card" data-motion id="story" aria-labelledby="story-title">
       <div class="story__inner wrap">
         <img class="story__mark" src="assets/brand/mark.png" alt="" width="44" height="40" data-animate="fade-up">
-        <p class="label label--index label--center" data-animate="fade-up" data-delay="80"><span>04</span> Story</p>
+        <p class="label label--index label--center" data-animate="fade-up" data-delay="80"><span>05</span> Story</p>
         <h2 class="visually-hidden" id="story-title">Our story</h2>
         <p class="story__text" data-animate="words" data-delay="160">Made for the hours between the <em>tide</em> and the <em>evening.</em> Few pieces. Made well. Never rushed.</p>
       </div>
@@ -188,28 +210,6 @@
             <p class="why__text">Designed between classes, made in Vietnam in limited runs, so each piece stays a little special. Members hear about every drop first.</p>
           </li>
         </ol>
-      </div>
-    </section>
-
-    <!-- Lookbook -->
-    <section class="lookbook section float-card" data-motion id="lookbook" aria-labelledby="lookbook-title">
-      <div class="lookbook__head wrap">
-        <p class="label label--index" data-animate="fade-up"><span>05</span> Lookbook</p>
-        <h2 class="display-2" id="lookbook-title" data-animate="words" data-delay="100">Golden hour, <em>Mũi Né</em></h2>
-      </div>
-      <div class="lookbook__grid wrap">
-        <figure class="look" data-animate="fade-up">
-          <div class="look__frame" data-animate="clip"><img data-parallax="0.08" src="assets/img/lookbook/look-01.webp" alt="Lagon Short in blue camo hibiscus resting on a sun lounger beside a bright blue pool" width="1200" height="1500" style="object-position:68% 50%" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 01</span> Lagon Short, Blue Camo Hibiscus</figcaption>
-        </figure>
-        <figure class="look look--low" data-animate="fade-up" data-delay="140">
-          <div class="look__frame" data-animate="clip" data-delay="140"><img data-parallax="0.14" src="assets/img/lookbook/look-02.webp" alt="Corail Short in pink floral hung over a wooden rail at sunset with the sea behind" width="1200" height="1500" style="object-position:52% 50%" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 02</span> Corail Short, Pink Floral</figcaption>
-        </figure>
-        <figure class="look" data-animate="fade-up" data-delay="280">
-          <div class="look__frame" data-animate="clip" data-delay="280"><img data-parallax="0.06" src="assets/img/lookbook/look-03.webp" alt="Palmier Short in palm print laid on a surfboard on the sand beside two coconuts" width="1200" height="1500" style="object-position:30% 50%" loading="lazy" decoding="async"></div>
-          <figcaption><span>Look 03</span> Palmier Short, Palm Print</figcaption>
-        </figure>
       </div>
     </section>
 
@@ -251,8 +251,8 @@
       <nav class="footer__col" aria-label="House">
         <h3>House</h3>
         <ul>
-          <li><a class="link" href="#story">Story</a></li>
           <li><a class="link" href="#lookbook">Lookbook</a></li>
+          <li><a class="link" href="#story">Story</a></li>
           <li><a class="link" href="#access">Private access</a></li>
           <li><a class="link" href="unsubscribe.html">Unsubscribe</a></li>
         </ul>
