@@ -193,7 +193,7 @@
         "hex": "#0A6294"
       },
       "image": {
-        "src": "assets/img/products/shorts-lagon-patch.jpg",
+        "src": "assets/img/products/shorts-lagon-patch.jpg?v=2",
         "alt": "Lagon Short in a blue camo hibiscus print with an embroidered LA PLAGE patch",
         "width": 1200,
         "height": 1500
@@ -212,7 +212,7 @@
       ],
       "collection": "sea",
       "category": "lagon",
-      "cutout": "assets/img/products/cutouts/shorts-lagon-patch.webp"
+      "cutout": "assets/img/products/cutouts/shorts-lagon-patch.webp?v=2"
     },
     {
       "id": "corail-patch-short",
@@ -225,7 +225,7 @@
         "hex": "#F65FA5"
       },
       "image": {
-        "src": "assets/img/products/shorts-corail-patch.jpg",
+        "src": "assets/img/products/shorts-corail-patch.jpg?v=2",
         "alt": "Corail Short with a pink and coral hand-drawn floral print and an embroidered LA PLAGE patch at the hem",
         "width": 1200,
         "height": 1500
@@ -244,7 +244,7 @@
       ],
       "collection": "sand",
       "category": "lagon",
-      "cutout": "assets/img/products/cutouts/shorts-corail-patch.webp"
+      "cutout": "assets/img/products/cutouts/shorts-corail-patch.webp?v=2"
     },
     {
       "id": "maree-short",
@@ -257,7 +257,7 @@
         "hex": "#5A6FA8"
       },
       "image": {
-        "src": "assets/img/products/shorts-blue-stripe.jpg",
+        "src": "assets/img/products/shorts-blue-stripe.jpg?v=2",
         "alt": "Marée Short in blue and white seersucker stripe with a white drawcord and black LA PLAGE palm",
         "width": 1200,
         "height": 1500
@@ -276,7 +276,7 @@
       ],
       "collection": "sea",
       "category": "maree",
-      "cutout": "assets/img/products/cutouts/shorts-maree-clean.webp"
+      "cutout": "assets/img/products/cutouts/shorts-maree-clean.webp?v=2"
     },
     {
       "id": "sable-short",
@@ -289,7 +289,7 @@
         "hex": "#D4C2A8"
       },
       "image": {
-        "src": "assets/img/products/shorts-sable-stripe.jpg",
+        "src": "assets/img/products/shorts-sable-stripe.jpg?v=2",
         "alt": "Sable Short in wide sand and white stripes with a white drawcord and an embroidered LA PLAGE patch",
         "width": 1200,
         "height": 1500
@@ -308,7 +308,7 @@
       ],
       "collection": "sand",
       "category": "maree",
-      "cutout": "assets/img/products/cutouts/shorts-sable-stripe.webp"
+      "cutout": "assets/img/products/cutouts/shorts-sable-stripe.webp?v=2"
     },
     {
       "id": "plage-short",
@@ -354,7 +354,7 @@
         "hex": "#84744F"
       },
       "image": {
-        "src": "assets/img/products/shorts-palmier-patch.jpg",
+        "src": "assets/img/products/shorts-palmier-patch.jpg?v=2",
         "alt": "Palmier Short in white with hand-sketched olive and terracotta palms and an embroidered LA PLAGE patch",
         "width": 1200,
         "height": 1500
@@ -373,7 +373,7 @@
       ],
       "collection": "sand",
       "category": "lagon",
-      "cutout": "assets/img/products/cutouts/shorts-palmier-patch.webp"
+      "cutout": "assets/img/products/cutouts/shorts-palmier-patch.webp?v=2"
     },
     {
       "id": "esprit-cotier-tee",
