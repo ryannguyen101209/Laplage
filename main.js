@@ -221,7 +221,7 @@
     }
   };
 
-  /* ---------------- Product pop: the hovered garment lifts and tilts toward the cursor ---------------- */
+  /* ---------------- Product pop: the hovered garment lifts (no cursor tilt) ---------------- */
   const initCardPop = () => {
     const strip = document.querySelector('[data-strip]');
     const cursorLabel = document.querySelector('[data-drag-cursor] span');
@@ -229,20 +229,6 @@
       if (e.pointerType !== 'mouse') return;
       const card = e.target.closest('.card');
       if (cursorLabel) cursorLabel.textContent = card && !strip.classList.contains('is-dragging') ? 'View' : 'Drag';
-      if (!card) return;
-      const r = card.querySelector('.card__media').getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - .5;
-      const y = (e.clientY - r.top) / r.height - .5;
-      const lift = card.querySelector('.card__lift');
-      lift.style.setProperty('--ry', `${(x * 14).toFixed(2)}deg`);
-      lift.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`);
-    });
-    track.addEventListener('pointerout', (e) => {
-      const card = e.target.closest('.card');
-      if (card && !card.contains(e.relatedTarget)) {
-        const lift = card.querySelector('.card__lift');
-        lift.style.removeProperty('--rx'); lift.style.removeProperty('--ry');
-      }
     });
   };
 
@@ -257,7 +243,7 @@
     const sizes = $('[data-spot-sizes]');
     const tones = $('[data-spot-colors]');
     const guide = $('[data-spot-guide]');
-    // the piece in 3D (piece3d.js): drag to turn it; the flat photo stays underneath as a fallback
+    // the piece in 3D (piece3d.js): flat, no tilt; the flat photo stays underneath as a fallback
     let piece = null;
     try { piece = window.LaPlage3D ? window.LaPlage3D.mount($('.spotlight__float')) : null; } catch (err) { piece = null; }
     if (piece) spot.classList.add('has-3d');
@@ -440,14 +426,6 @@
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
-    // The garment leans toward the cursor
-    stage.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse' || piece) return;   // the 3D piece leans toward the cursor by itself
-      const r = stage.getBoundingClientRect();
-      stage.style.setProperty('--ry', `${(((e.clientX - r.left) / r.width - .5) * 16).toFixed(2)}deg`);
-      stage.style.setProperty('--rx', `${(-((e.clientY - r.top) / r.height - .5) * 10).toFixed(2)}deg`);
-    });
-    stage.addEventListener('pointerleave', () => { stage.style.removeProperty('--rx'); stage.style.removeProperty('--ry'); });
     // Swipe between products on touch
     let sx = null;
     stage.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });

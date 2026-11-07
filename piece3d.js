@@ -9,11 +9,10 @@
   const GRID = 150;          // vertices across the garment; the outline itself comes from the texture, so it stays crisp
   // the garment's body: its seams round off over a short distance, and the panels between them swell
   // gently, the way fabric sits over a body, without ever puffing up like an inflatable
-  const EDGE = 0.026;        // depth reached just inside the seams, as a share of the width
+  const EDGE = 0;        // depth reached just inside the seams, as a share of the width
   const ROUND = 0.11;        // how far in from the edge the seams finish rounding, as a share of the width
-  const SWELL = 0.026;       // the extra, gentle swell across each panel
-  const DEPTH = EDGE + SWELL;
-  const TILT_Y = 0.36, TILT_X = 0.2;   // the furthest it tilts, in radians (about 21° and 11°): enough to feel it, never edge-on
+  const SWELL = 0;       // the extra, gentle swell across each panel
+    const TILT_Y = 0.36, TILT_X = 0.2;   // the furthest it tilts, in radians (about 21° and 11°): enough to feel it, never edge-on
   const TEX = 1024;
 
   const vert = `
@@ -49,7 +48,6 @@
     float d = dot(n, key);
     float sheen = pow(max(dot(n, normalize(key + vec3(0.0, 0.0, 1.0))), 0.0), 10.0);
     vec3 light = col * (0.8 + 0.3 * d) + vec3(1.0, 0.98, 0.94) * sheen * 0.06;
-    light *= mix(0.74, 1.0, smoothstep(0.0, 0.55, vDepth / ${DEPTH.toFixed(3)}));   // the fabric darkens as it curves away at the seams
     float a = smoothstep(0.3, 0.7, shape);                        // soft outline (with alpha-to-coverage)
     gl_FragColor = vec4(light * a, a);
   }`;
@@ -165,35 +163,8 @@
       }).catch((err) => { console.error('[LA PLAGE] 3D', err); return false; });
     };
 
-    /* ---- tilting: drag to tilt it toward you (it gives a little resistance near the limit and
-       springs back when let go), it leans toward the cursor and sways gently when left alone ---- */
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let ry = 0, rx = 0, drag = null, hover = [0, 0], idle = 0, last = 0, raf = 0, running = false;
-    const give = (v, max) => max * Math.tanh(v / max);   // soft limit, like fabric held at the corners
-    canvas.addEventListener('pointerdown', (e) => {
-      drag = { x: e.clientX, y: e.clientY, ry, rx, moved: false, id: e.pointerId };
-    });
-    canvas.addEventListener('pointermove', (e) => {
-      const r = canvas.getBoundingClientRect();
-      if (e.pointerType === 'mouse') hover = [((e.clientX - r.left) / r.width - 0.5), ((e.clientY - r.top) / r.height - 0.5)];
-      if (!drag) return;
-      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (!drag.moved) {
-        if (Math.hypot(dx, dy) < 6) return;
-        if (e.pointerType !== 'mouse' && Math.abs(dy) > Math.abs(dx)) { drag = null; return; }   // a vertical swipe scrolls the page
-        drag.moved = true; canvas.setPointerCapture(drag.id); host.classList.add('is-turned');
-      }
-      ry = give(drag.ry + dx / r.width * 1.6, TILT_Y);
-      rx = give(drag.rx + dy / r.height * 0.9, TILT_X);
-    });
-    const end = () => {
-      if (!drag) return;
-      const moved = drag.moved; drag = null;
-      if (moved) idle = 0;   // it springs back to face you (see frame)
-    };
-    canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
-    canvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hover = [0, 0]; });
-    canvas.style.touchAction = 'pan-y';
+    let last = 0, raf = 0, running = false;
+    canvas.style.touchAction = 'pan-y';   // the piece is flat and still: touches scroll the page
 
     const resize = () => {
       const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -202,17 +173,8 @@
     };
     const frame = (now) => {
       raf = running ? requestAnimationFrame(frame) : 0;
-      const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now; idle += dt;
+      last = now;
       resize();
-      let showY = ry, showX = rx;
-      if (!drag) {
-        ry += (0 - ry) * Math.min(1, dt * 3.2);
-        rx += (0 - rx) * Math.min(1, dt * 3.2);
-        const swayY = reduce ? 0 : Math.sin(now / 1000 * 0.55) * 0.07 * Math.min(1, idle / 2);
-        const swayX = reduce ? 0 : Math.sin(now / 1000 * 0.4 + 1.3) * 0.03 * Math.min(1, idle / 2);
-        showY = give(ry + swayY + hover[0] * 0.42, TILT_Y);
-        showX = give(rx + swayX + hover[1] * 0.24, TILT_X);
-      }
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       if (!ready || !count) return;
@@ -220,7 +182,7 @@
       // fit the piece inside the stage with a little air, whichever way the stage is shaped
       const halfH = Math.tan(fov / 2) * dist, fit = Math.min(halfH * asp * 2 * 0.86, halfH * 2 * 0.86 / aspect);
       const model = new Float32Array([fit, 0, 0, 0, 0, fit, 0, 0, 0, 0, fit, 0, 0, 0, 0, 1]);
-      const rot = rotXY(showX, showY);
+      const rot = rotXY(0, 0);
       const view = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -dist, 1]);
       const mvp = mul(persp(fov, asp, 0.1, 20), mul(view, mul(rot, model)));
       gl.uniformMatrix4fv(U('uMvp'), false, mvp);
@@ -228,11 +190,11 @@
       gl.uniform1f(U('uHasBack'), hasBack ? 1 : 0); gl.uniform1f(U('uShow'), 1);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texFront);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, hasBack ? texBack : texFront);
-      for (const side of [1, -1]) { gl.uniform1f(U('uSide'), side); gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0); }
+      gl.uniform1f(U('uSide'), 1); gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
     };
     const start = () => { if (running) return; running = true; last = 0; raf = requestAnimationFrame(frame); };
     const stop = () => { running = false; cancelAnimationFrame(raf); raf = 0; };
-    const reset = () => { ry = 0; rx = 0; idle = 0; };
+    const reset = () => {};
     return { canvas, show, start, stop, reset, isReady: () => ready };
   }
 

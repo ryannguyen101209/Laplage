@@ -628,7 +628,7 @@ html.intro-on { overflow: hidden; }
 @media (hover: hover) and (pointer: fine) {
   /* The hovered piece pops out, tilting toward the cursor; everything else steps back */
   .card:hover .card__lift {
-    transform: translate3d(0, -7%, 40px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotate(-2.5deg) scale(1.13);
+    transform: translate3d(0, -7%, 40px) rotate(-2.5deg) scale(1.13);
   }
   .card:hover .card__shadow { opacity: 1; transform: scale(1.05); }
   .card:hover .card__hover { opacity: 1; }
@@ -1511,8 +1511,6 @@ html.spot-on { overflow: hidden; }
 .spotlight__stage { position: relative; margin: 0; height: min(72vh, 760px); perspective: 1200px; }
 .spotlight__float {
   position: absolute; inset: 0;
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 600ms var(--ease-out);
 }
 .spotlight__img {
   position: absolute; inset: 8%;

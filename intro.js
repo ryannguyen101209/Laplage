@@ -20,6 +20,14 @@
 
   root.classList.add('intro-on');
 
+  /* Always land at the very top: stop the browser restoring an old scroll position (Safari, Chrome on
+     phones and Mac do this on reload and back), and re-assert the top at start, after load and when done. */
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) { /* ignore */ }
+  const toTop = () => { window.scrollTo(0, 0); root.scrollTop = 0; if (document.body) document.body.scrollTop = 0; };
+  toTop();
+  window.addEventListener('load', toTop, { once: true });
+  window.addEventListener('pageshow', toTop);
+
   /* ---------- Textures: caustic light and foam lace, drawn once from SVG noise ---------- */
   const svgImage = (svg) => new Promise((res) => {
     const img = new Image();
@@ -231,7 +239,9 @@
 
   function finish() {
     done = true;
+    toTop();
     root.classList.remove('intro-on');
+    toTop();
     if (el) el.remove();
     resolveUncovered();
     window.removeEventListener('resize', onResize);
