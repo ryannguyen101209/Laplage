@@ -7,7 +7,7 @@ Until these steps are done the site behaves exactly as before: "Sign in" leads t
 1. Go to https://console.firebase.google.com → **Add project** (any name, e.g. `la-plage`). Google Analytics is not needed.
 2. In the project: **Build → Authentication → Get started → Sign-in method → Email/Password → Enable** (leave "Email link" off). Save.
 3. **Authentication → Settings → Authorized domains**: make sure these are listed (add any that are missing):
-   `la-plage-eight.vercel.app`, `localhost`, and any custom domain you use later.
+   `laplage.store`, `www.laplage.store`, `localhost`, and any Vercel preview domain you use.
 4. **Build → Firestore Database → Create database** → choose a location close to Vietnam (e.g. `asia-southeast1`) → start in **production mode**.
 
 ## 2. Create your admin login (do this before going live)
