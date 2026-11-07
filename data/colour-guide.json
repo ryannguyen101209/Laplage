@@ -1,0 +1,303 @@
+{
+  "title": "Colour guide",
+  "tagline": "Summer, worn slowly.",
+  "pdf": {
+    "href": "assets/docs/LA-PLAGE-colour-guide.pdf",
+    "size": "5.5 MB"
+  },
+  "prints": [
+    {
+      "key": "lagon",
+      "name": "Lagon",
+      "kind": "Blue camo hibiscus",
+      "product": "lagon-short",
+      "shorts": "assets/img/guide/lagon-shorts.webp",
+      "pattern": "assets/img/guide/lagon-pattern.webp",
+      "patch": "assets/img/guide/lagon-patch.webp",
+      "patternColours": [
+        {
+          "role": "Base",
+          "hex": "#F9FDFC",
+          "share": 38
+        },
+        {
+          "role": "Main",
+          "hex": "#4680AA",
+          "share": 28
+        },
+        {
+          "role": "Main",
+          "hex": "#0A6294",
+          "share": 26
+        },
+        {
+          "role": "Secondary",
+          "hex": "#C1D6E2",
+          "share": 4
+        },
+        {
+          "role": "Accent",
+          "hex": "#81AAC5",
+          "share": 4
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Label",
+          "hex": "#F7F6F1"
+        },
+        {
+          "role": "Stitching",
+          "hex": "#2868A6"
+        },
+        {
+          "role": "Palm",
+          "hex": "#2B7BB6"
+        },
+        {
+          "role": "LA PLAGE text",
+          "hex": "#0B2C47"
+        }
+      ]
+    },
+    {
+      "key": "palmier",
+      "name": "Palmier",
+      "kind": "Palm print",
+      "product": "palmier-short",
+      "shorts": "assets/img/guide/palmier-shorts.webp",
+      "pattern": "assets/img/guide/palmier-pattern.webp",
+      "patch": "assets/img/guide/palmier-patch.webp",
+      "patternColours": [
+        {
+          "role": "Base",
+          "hex": "#FFFFFE",
+          "share": 71
+        },
+        {
+          "role": "Main",
+          "hex": "#84744F",
+          "share": 9
+        },
+        {
+          "role": "Main",
+          "hex": "#9E977A",
+          "share": 8
+        },
+        {
+          "role": "Secondary",
+          "hex": "#DFDDD2",
+          "share": 6
+        },
+        {
+          "role": "Accent",
+          "hex": "#BDB7A4",
+          "share": 6
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Label",
+          "hex": "#F4EEE2"
+        },
+        {
+          "role": "Stitching",
+          "hex": "#B0582A"
+        },
+        {
+          "role": "Palm",
+          "hex": "#6F7140"
+        },
+        {
+          "role": "LA PLAGE text",
+          "hex": "#4F5128"
+        }
+      ]
+    },
+    {
+      "key": "riva",
+      "name": "Riva",
+      "kind": "Sky-blue hibiscus",
+      "hidden": true,
+      "product": "riva-short",
+      "color": "Sky Hibiscus",
+      "shorts": "assets/img/guide/riva-shorts.webp",
+      "pattern": "assets/img/guide/riva-pattern.webp",
+      "patch": "assets/img/guide/riva-patch.webp",
+      "patternColours": [
+        {
+          "role": "Base",
+          "hex": "#B2E9FD",
+          "share": 40
+        },
+        {
+          "role": "Main",
+          "hex": "#96DFFC",
+          "share": 31
+        },
+        {
+          "role": "Secondary",
+          "hex": "#7BD6FB",
+          "share": 25
+        },
+        {
+          "role": "Accent",
+          "hex": "#A4E4FD",
+          "share": 4
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Label",
+          "hex": "#FAFBFA"
+        },
+        {
+          "role": "Stitching",
+          "hex": "#3F9BD0"
+        },
+        {
+          "role": "Palm",
+          "hex": "#2B7BB6"
+        },
+        {
+          "role": "LA PLAGE text",
+          "hex": "#0B2C47"
+        }
+      ]
+    },
+    {
+      "key": "riva-pink",
+      "name": "Riva Pink",
+      "kind": "Pink colourway of Riva",
+      "hidden": true,
+      "product": "riva-short",
+      "color": "Pink Hibiscus",
+      "shorts": "assets/img/guide/riva-pink-shorts.webp",
+      "pattern": "assets/img/guide/riva-pink-pattern.webp",
+      "patch": "assets/img/guide/riva-pink-patch.webp",
+      "patternColours": [
+        {
+          "role": "Base",
+          "hex": "#FFD0DC",
+          "share": 40
+        },
+        {
+          "role": "Main",
+          "hex": "#FEBECF",
+          "share": 31
+        },
+        {
+          "role": "Secondary",
+          "hex": "#FDADC3",
+          "share": 25
+        },
+        {
+          "role": "Accent",
+          "hex": "#FFC7D6",
+          "share": 4
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Label",
+          "hex": "#FBF4F2"
+        },
+        {
+          "role": "Stitching",
+          "hex": "#C85A80"
+        },
+        {
+          "role": "Palm",
+          "hex": "#C2557D"
+        },
+        {
+          "role": "LA PLAGE text",
+          "hex": "#8A3558"
+        }
+      ]
+    },
+    {
+      "key": "corail",
+      "name": "Corail",
+      "kind": "Pink floral",
+      "product": "corail-patch-short",
+      "shorts": "assets/img/guide/corail-shorts.webp",
+      "pattern": "assets/img/guide/corail-pattern.webp",
+      "patch": "assets/img/guide/corail-patch.webp",
+      "patternColours": [
+        {
+          "role": "Base",
+          "hex": "#F65FA5",
+          "share": 28
+        },
+        {
+          "role": "Main",
+          "hex": "#FCF8F8",
+          "share": 23
+        },
+        {
+          "role": "Main",
+          "hex": "#F6C1D0",
+          "share": 23
+        },
+        {
+          "role": "Secondary",
+          "hex": "#F4A7A9",
+          "share": 15
+        },
+        {
+          "role": "Accent",
+          "hex": "#FA8F81",
+          "share": 11
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Label",
+          "hex": "#FBF4EC"
+        },
+        {
+          "role": "Stitching",
+          "hex": "#E0457F"
+        },
+        {
+          "role": "Palm",
+          "hex": "#C2185B"
+        },
+        {
+          "role": "LA PLAGE text",
+          "hex": "#7A1F4B"
+        }
+      ]
+    }
+  ],
+  "brand": {
+    "colours": [
+      {
+        "name": "White",
+        "hex": "#FFFFFF"
+      },
+      {
+        "name": "Light sand",
+        "hex": "#F6EEDF"
+      },
+      {
+        "name": "Sand",
+        "hex": "#C7A272"
+      },
+      {
+        "name": "Sea blue",
+        "hex": "#2B7BB6"
+      },
+      {
+        "name": "Deep sea",
+        "hex": "#0B2C47"
+      },
+      {
+        "name": "Ink",
+        "hex": "#111111"
+      }
+    ],
+    "note": "Headlines and wordmark: Lora, tracked capitals. Italic titles: Playfair Display."
+  }
+}

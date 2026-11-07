@@ -1,0 +1,420 @@
+{
+  "currency": "VND",
+  "collection": {
+    "handle": "drop-001",
+    "title": "The first drop",
+    "subtitle": "Drop 001 · Summer"
+  },
+  "categories": [
+    {
+      "key": "lagon",
+      "name": "Shoreline",
+      "kind": "Beach sport",
+      "note": "Shirts and shorts made to move on the sand and in the shallows."
+    },
+    {
+      "key": "riva",
+      "name": "Soleil",
+      "kind": "Swim trunks",
+      "note": "For the swim, from the first dip to the last light."
+    },
+    {
+      "key": "maree",
+      "name": "Marée",
+      "kind": "Old money",
+      "note": "Seersucker and quiet stripes for long lunches by the sea."
+    }
+  ],
+  "products": [
+    {
+      "id": "rivage-short",
+      "handle": "rivage-short",
+      "title": "Rivage Short",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Blue Toile",
+        "hex": "#2F5E9E"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-blue-toile.jpg",
+        "alt": "Rivage Short in white with a blue toile of palms, sailboats, crabs and deck chairs, with a woven LA PLAGE label",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": false,
+      "hidden": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "White swim short with a hand-drawn blue toile of palms, sailboats and deck chairs, and a woven palm label.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sea",
+      "category": "lagon",
+      "cutout": "assets/img/products/cutouts/shorts-blue-toile.webp"
+    },
+    {
+      "id": "corail-short",
+      "handle": "corail-short",
+      "title": "Corail Short",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Pink Floral",
+        "hex": "#EE6FA5"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-pink-floral.jpg",
+        "alt": "Corail Short with a pink and coral tropical floral print and an embroidered LA PLAGE palm",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": false,
+      "hidden": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Pink and coral tropical florals with an embroidered palm at the hem and an elastic waist.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "riva",
+      "cutout": "assets/img/products/cutouts/shorts-pink-floral.webp"
+    },
+    {
+      "id": "dune-short",
+      "handle": "dune-short",
+      "title": "Dune Short",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "White",
+        "hex": "#F4F4F2"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-white.jpg",
+        "alt": "Dune Short in white with a small blue LA PLAGE palm on the left leg",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": false,
+      "hidden": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Clean white swim short with an elastic waist and a small palm at the hem.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "riva",
+      "cutout": "assets/img/products/cutouts/shorts-white.webp"
+    },
+    {
+      "id": "riva-short",
+      "handle": "riva-short",
+      "title": "Riva Short",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Sky Hibiscus",
+        "hex": "#7BD6FB"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-riva-patch-sky.jpg",
+        "alt": "Riva Short in sky blue with a tonal hibiscus print and an embroidered LA PLAGE patch",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": false,
+      "hidden": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Swim short with a tonal hibiscus print, an embroidered LA PLAGE patch at the hem and an elastic waist. In sky blue or pink.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sea",
+      "category": "riva",
+      "cutout": "assets/img/products/cutouts/shorts-riva-patch-sky.webp",
+      "colors": [
+        {
+          "name": "Sky Hibiscus",
+          "hex": "#7BD6FB",
+          "image": {
+            "src": "assets/img/products/shorts-riva-patch-sky.jpg",
+            "alt": "Riva Short in sky blue with a tonal hibiscus print and an embroidered LA PLAGE patch",
+            "width": 1200,
+            "height": 1500
+          },
+          "cutout": "assets/img/products/cutouts/shorts-riva-patch-sky.webp"
+        },
+        {
+          "name": "Pink Hibiscus",
+          "hex": "#FDADC3",
+          "image": {
+            "src": "assets/img/products/shorts-riva-patch-pink.jpg",
+            "alt": "Riva Short in soft pink with a tonal hibiscus print and an embroidered LA PLAGE patch",
+            "width": 1200,
+            "height": 1500
+          },
+          "cutout": "assets/img/products/cutouts/shorts-riva-patch-pink.webp"
+        }
+      ]
+    },
+    {
+      "id": "lagon-short",
+      "handle": "lagon-short",
+      "title": "Lagon Short",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Blue Camo Hibiscus",
+        "hex": "#0A6294"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-lagon-patch.jpg",
+        "alt": "Lagon Short in a blue camo hibiscus print with an embroidered LA PLAGE patch",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Blue camo swim short with white hibiscus and monstera leaves and an embroidered LA PLAGE patch.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sea",
+      "category": "lagon",
+      "cutout": "assets/img/products/cutouts/shorts-lagon-patch.webp"
+    },
+    {
+      "id": "corail-patch-short",
+      "handle": "corail-patch-short",
+      "title": "Corail Short",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Pink Floral",
+        "hex": "#F65FA5"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-corail-patch.jpg",
+        "alt": "Corail Short with a pink and coral hand-drawn floral print and an embroidered LA PLAGE patch at the hem",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Hand-drawn pink and coral florals with an embroidered LA PLAGE patch at the hem and an elastic waist.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "lagon",
+      "cutout": "assets/img/products/cutouts/shorts-corail-patch.webp"
+    },
+    {
+      "id": "maree-short",
+      "handle": "maree-short",
+      "title": "Marée Short",
+      "price": 500000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Blue Stripe",
+        "hex": "#5A6FA8"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-blue-stripe.jpg",
+        "alt": "Marée Short in blue and white seersucker stripe with a white drawcord and black LA PLAGE palm",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Seersucker short in blue and white stripe with a white drawcord.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sea",
+      "category": "maree",
+      "cutout": "assets/img/products/cutouts/shorts-maree-clean.webp"
+    },
+    {
+      "id": "sable-short",
+      "handle": "sable-short",
+      "title": "Sable Short",
+      "price": 500000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Sand Stripe",
+        "hex": "#D4C2A8"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-sable-stripe.jpg",
+        "alt": "Sable Short in wide sand and white stripes with a white drawcord and an embroidered LA PLAGE patch",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Wide sand-and-white stripes, a white rope drawcord and an embroidered LA PLAGE patch at the hem.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "maree",
+      "cutout": "assets/img/products/cutouts/shorts-sable-stripe.webp"
+    },
+    {
+      "id": "plage-short",
+      "handle": "plage-short",
+      "title": "Plage Short",
+      "price": 500000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Pine Stripe",
+        "hex": "#3E6B4A"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-pine-stripe.jpg",
+        "alt": "Plage Short in pine green and white seersucker stripe with a white drawcord and black LA PLAGE palm",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": false,
+      "hidden": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "Seersucker short in pine green and white stripe with a white drawcord.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "maree",
+      "cutout": "assets/img/products/cutouts/shorts-pine-stripe.webp"
+    },
+    {
+      "id": "palmier-short",
+      "handle": "palmier-short",
+      "title": "Palmier Short",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "Palm Print",
+        "hex": "#84744F"
+      },
+      "image": {
+        "src": "assets/img/products/shorts-palmier-patch.jpg",
+        "alt": "Palmier Short in white with hand-sketched olive and terracotta palms and an embroidered LA PLAGE patch",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": true,
+      "tags": [
+        "short",
+        "drop-001"
+      ],
+      "description": "White swim short with hand-sketched palms in olive and terracotta and an embroidered LA PLAGE patch.",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "lagon",
+      "cutout": "assets/img/products/cutouts/shorts-palmier-patch.webp"
+    },
+    {
+      "id": "esprit-cotier-tee",
+      "handle": "esprit-cotier-tee",
+      "title": "L'Esprit Côtier Tee",
+      "price": 400000,
+      "compareAtPrice": null,
+      "color": {
+        "name": "White",
+        "hex": "#F4F4F2"
+      },
+      "image": {
+        "src": "assets/img/products/tee-esprit-cotier-front.jpg",
+        "alt": "L'Esprit Côtier Tee in white, front with a small LA PLAGE palm on the chest",
+        "width": 1200,
+        "height": 1500
+      },
+      "imageHover": {
+        "src": "assets/img/products/tee-esprit-cotier-back.jpg",
+        "alt": "Back of the tee: hand-drawn deck chairs by the sea and L'ESPRIT CÔTIER",
+        "width": 1200,
+        "height": 1500
+      },
+      "available": false,
+      "hidden": true,
+      "tags": [
+        "tee",
+        "drop-001"
+      ],
+      "description": "White tee with a small palm on the chest and hand-drawn deck chairs by the sea on the back.",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "collection": "sand",
+      "category": "lagon",
+      "cutout": "assets/img/products/cutouts/tee-esprit-cotier-front.webp",
+      "cutoutBack": "assets/img/products/cutouts/tee-esprit-cotier-back.webp"
+    }
+  ]
+}

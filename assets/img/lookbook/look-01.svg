@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" width="900" height="1400" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9EEF0"/><stop offset="1" stop-color="#F4E6CF"/></linearGradient>
+    <linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6C9BB8"/><stop offset="1" stop-color="#6C9BB8" stop-opacity=".55"/></linearGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E7D3B2"/><stop offset="1" stop-color="#EADCC4"/></linearGradient>
+  </defs>
+  <rect width="900" height="1400" fill="url(#s)"/>
+  <rect y="640" width="900" height="260" fill="url(#w)"/>
+  <rect y="870" width="900" height="1400" fill="url(#b)"/>
+  <circle cx="620" cy="520" r="54" fill="#FFF6E6" opacity=".7"/>
+  <text x="450" y="1340" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="18" letter-spacing="5" fill="#000" fill-opacity=".25">LOOKBOOK PLACEHOLDER</text>
+</svg>

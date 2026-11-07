@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LA PLAGE · Dressed for golden hour.</title>
+  <meta name="description" content="LA PLAGE. Beachwear made by students in Saigon. Few pieces, made well. Drop 001 · Summer.">
+  <meta name="theme-color" content="#FFFFFF">
+  <link rel="icon" href="assets/brand/mark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@1,500&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
+  <link rel="stylesheet" href="styles.css?v=56">
+  <link rel="stylesheet" href="portal/portal.css?v=46">
+  <script>document.documentElement.classList.replace('no-js','js')</script>
+</head>
+<body>
+  <!-- the live ocean sits behind the whole page; every section floats over it -->
+  <canvas class="ocean-bg" data-ocean aria-hidden="true"></canvas>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Welcome wave: the page opens under water and the wave washes back -->
+  <div class="intro" aria-hidden="true" data-intro>
+    <canvas class="intro__canvas"></canvas>
+    <p class="intro__brand" data-intro-brand>
+      <img src="assets/brand/mark.png" alt="" width="660" height="603">
+      <span>LA PLAGE</span>
+    </p>
+  </div>
+
+  <div class="announce" role="note">
+    <p>Complimentary shipping in Vietnam <span aria-hidden="true">·</span> Limited runs</p>
+  </div>
+
+  <!-- Sticky navigation: logo + four scroll links, frosted glass once you scroll -->
+  <header class="nav" data-nav>
+    <div class="nav__inner">
+      <a class="nav__logo" href="#top" aria-label="LA PLAGE, back to top">
+        <img class="nav__mark" src="assets/brand/mark.png" alt="" width="660" height="603">
+        <span class="nav__wordmark">LA PLAGE</span>
+      </a>
+      <nav class="nav__links" aria-label="Sections">
+        <ul>
+          <li><a href="#drop" data-spy="drop">Shop</a></li>
+          <li><a href="#collections" data-spy="collections">Collections</a></li>
+          <li><a href="#story" data-spy="story">Story</a></li>
+          <li><a href="#lookbook" data-spy="lookbook">Lookbook</a></li>
+          <li class="nav__account-item"><a href="account.html" data-account-link>Sign in</a></li>
+        </ul>
+      </nav>
+      <a class="nav__account" href="account.html" data-account-link>Sign in</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero: a live ocean, the LA PLAGE logo in 3D (drag to turn it) and the drop behind glass -->
+    <section class="hero hero--ocean" id="top" aria-labelledby="hero-title" data-hero>
+      <div class="hero__veil" aria-hidden="true"></div>
+      <div class="hero__content wrap">
+        <div class="logo3d" data-logo3d data-animate="fade" data-delay="150" role="img" aria-label="LA PLAGE logo. Drag to turn it around.">
+          <div class="logo3d__stage" data-motion>
+            <div class="logo3d__obj" data-logo3d-obj data-motion></div>
+          </div>
+          <span class="logo3d__shadow" aria-hidden="true" data-motion></span>
+        </div>
+        <p class="label hero__label" data-animate="fade-up" data-delay="400">Drop 001 · Summer · Made in Saigon</p>
+        <h1 class="hero__title" id="hero-title">
+          <span class="visually-hidden">Dressed for golden hour.</span>
+          <span class="hero__lead" aria-hidden="true" data-animate="words" data-delay="500">Dressed for</span>
+          <span class="slogan" aria-hidden="true" data-slogan data-animate="fade-up" data-delay="700"><em class="slogan__line is-on" data-motion>golden hour.</em></span>
+        </h1>
+        <a class="link link--underlined hero__cta" href="#drop" data-animate="fade-up" data-delay="900">Enter the collection</a>
+      </div>
+    </section>
+
+    <!-- Afloat: featured pieces in glass, bobbing on the open water -->
+    <section class="drift" aria-labelledby="drift-title" data-drift>
+      <div class="drift__head wrap">
+        <p class="label drift__label" data-animate="fade-up">Afloat · Drop 001</p>
+        <h2 class="drift__title" id="drift-title" data-animate="words" data-delay="100">Washed up, <em>just for you.</em></h2>
+      </div>
+      <ul class="glass-row drift__row" data-glass-row aria-label="Featured pieces"></ul>
+    </section>
+
+    <!-- The first wash -->
+    <section class="drop section" id="drop" aria-labelledby="drop-title">
+      <div class="drop__head wrap">
+        <div>
+          <p class="label label--index" data-animate="fade-up"><span>01</span> The drop</p>
+          <h2 class="display-2" id="drop-title" data-animate="words" data-delay="100">The first <em>wash</em></h2>
+        </div>
+        <p class="drop__note" data-animate="fade-up" data-delay="200"><span>Inspiration</span>Faded beach-cabin stripes, hibiscus in two blues, and palms sketched by hand.</p>
+      </div>
+
+      <div class="strip strip--gallery" data-strip data-layout="gallery">
+        <div class="strip__viewport" data-strip-viewport>
+          <!-- One sandy row for each line on show (Shoreline, Marée), rendered from data/products.json -->
+          <div class="strip__track rows" id="strip-track" data-strip-track></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interlude: a fast wave rushes up the screen and the tide rolls in -->
+    <section class="tide" aria-labelledby="tide-title" data-tide>
+      <div class="tide__stage">
+      <div class="tide__sea" aria-hidden="true">
+        <span class="tide__wave tide__wave--foam" data-motion></span>
+        <span class="tide__wave tide__wave--aqua" data-motion></span>
+        <span class="tide__wave tide__wave--sea" data-motion></span>
+        <span class="tide__wave tide__wave--deep" data-motion></span>
+      </div>
+      <div class="tide__life" aria-hidden="true">
+        <span class="tide__caustics" data-motion></span>
+        <span class="tide__swell tide__swell--1" data-motion></span>
+        <span class="tide__swell tide__swell--2" data-motion></span>
+        <span class="tide__swell tide__swell--3" data-motion></span>
+      </div>
+      <div class="tide__words wrap">
+        <p class="tide__kicker" data-motion>Drop 001 &nbsp;·&nbsp; Sea &amp; Sand</p>
+        <h2 class="tide__phrase" id="tide-title" data-motion><span class="tide__line" data-motion>The tide</span> <em class="tide__line" data-motion>rolls in.</em></h2>
+        <p class="tide__sub" data-motion>Two collections, washed up on the same shore.</p>
+      </div>
+      </div>
+    </section>
+
+    <!-- Sea / Sand -->
+    <section class="panels section" id="collections" aria-label="Collections">
+      <div class="panel panel--sea" data-collection="sea" data-motion>
+        <div class="panel__fade" aria-hidden="true"></div>
+        <a class="panel__link" href="#drop" data-collection-link="sea">Shop Sea</a>
+        <div class="panel__light" aria-hidden="true" data-motion></div>
+        <div class="panel__palm palm" aria-hidden="true" data-animate="fade" data-delay="200"></div>
+        <div class="panel__fan" aria-hidden="true" data-fan="sea"></div>
+        <div class="panel__caption" data-motion>
+          <p class="label label--index" data-animate="fade-up" data-delay="0"><span>02</span> Collection</p>
+          <h2 class="panel__title" data-animate="words" data-delay="120"><em>Sea</em></h2>
+          <p class="panel__count" data-count="sea" data-animate="fade-up" data-delay="240"></p>
+          <p class="panel__text" data-animate="fade-up" data-delay="320">Deep blues for early water and late swims.</p>
+          <span class="panel__cta" data-animate="fade-up" data-delay="440" data-motion>Shop Sea<span class="panel__arrow" aria-hidden="true" data-motion></span></span>
+        </div>
+      </div>
+      <div class="panel panel--sand" data-collection="sand" data-motion>
+        <div class="panel__fade" aria-hidden="true"></div>
+        <a class="panel__link" href="#drop" data-collection-link="sand">Shop Sand</a>
+        <div class="panel__light" aria-hidden="true" data-motion></div>
+        <div class="panel__palm palm" aria-hidden="true" data-animate="fade" data-delay="320"></div>
+        <div class="panel__fan" aria-hidden="true" data-fan="sand"></div>
+        <div class="panel__caption" data-motion>
+          <p class="label label--index" data-animate="fade-up" data-delay="120"><span>03</span> Collection</p>
+          <h2 class="panel__title" data-animate="words" data-delay="240"><em>Sand</em></h2>
+          <p class="panel__count" data-count="sand" data-animate="fade-up" data-delay="360"></p>
+          <p class="panel__text" data-animate="fade-up" data-delay="440">Warm neutrals, sun-faded by design.</p>
+          <span class="panel__cta" data-animate="fade-up" data-delay="560" data-motion>Shop Sand<span class="panel__arrow" aria-hidden="true" data-motion></span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Story -->
+    <section class="story section float-card" data-motion id="story" aria-labelledby="story-title">
+      <div class="story__inner wrap">
+        <img class="story__mark" src="assets/brand/mark.png" alt="" width="44" height="40" data-animate="fade-up">
+        <p class="label label--index label--center" data-animate="fade-up" data-delay="80"><span>04</span> Story</p>
+        <h2 class="visually-hidden" id="story-title">Our story</h2>
+        <p class="story__text" data-animate="words" data-delay="160">Made for the hours between the <em>tide</em> and the <em>evening.</em> Few pieces. Made well. Never rushed.</p>
+      </div>
+      <!-- Why we made LA PLAGE, and what it is for -->
+      <div class="why wrap">
+        <div class="why__intro">
+          <p class="label" data-animate="fade-up">Why LA PLAGE</p>
+          <h3 class="why__title" data-animate="words" data-delay="100">One wardrobe for the <em>sand</em> and the <em>sea.</em></h3>
+          <p class="why__lead" data-animate="fade-up" data-delay="200">LA PLAGE is beachwear made by a group of students in Saigon. We started it because a day by the sea rarely asks for one outfit: a swim in the morning, a game on the sand, a long lunch in the shade. We wanted clothes that could do all of it, and still feel considered.</p>
+          <p class="why__lead" data-animate="fade-up" data-delay="280">Our purpose is simple: make a few pieces, make them well, and let them be worn slowly, from the first dip to the last light.</p>
+        </div>
+        <ol class="why__points" data-stagger="fade-up" data-stagger-step="120">
+          <li class="why__point">
+            <span class="why__num">01</span>
+            <h4 class="why__name">Few pieces, made well</h4>
+            <p class="why__text">Each drop is small. We would rather make fewer things and make them properly.</p>
+          </li>
+          <li class="why__point">
+            <span class="why__num">02</span>
+            <h4 class="why__name">Sand &amp; sea, both</h4>
+            <p class="why__text">Shoreline to move in, Marée for long lunches. Every line belongs on the beach and in the water.</p>
+          </li>
+          <li class="why__point">
+            <span class="why__num">03</span>
+            <h4 class="why__name">Made by students in Saigon</h4>
+            <p class="why__text">Designed between classes, made in Vietnam in limited runs, so each piece stays a little special. Members hear about every drop first.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Lookbook -->
+    <section class="lookbook section float-card" data-motion id="lookbook" aria-labelledby="lookbook-title">
+      <div class="lookbook__head wrap">
+        <p class="label label--index" data-animate="fade-up"><span>05</span> Lookbook</p>
+        <h2 class="display-2" id="lookbook-title" data-animate="words" data-delay="100">Golden hour, <em>Mũi Né</em></h2>
+      </div>
+      <div class="lookbook__grid wrap">
+        <figure class="look" data-animate="fade-up">
+          <div class="look__frame" data-animate="clip"><img data-parallax="0.08" src="assets/img/lookbook/look-01.svg" alt="Placeholder: a wide, empty beach in soft morning light" width="900" height="1400" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 01</span> Lagon Short, Blue Camo Hibiscus</figcaption>
+        </figure>
+        <figure class="look look--low" data-animate="fade-up" data-delay="140">
+          <div class="look__frame" data-animate="clip" data-delay="140"><img data-parallax="0.14" src="assets/img/lookbook/look-02.svg" alt="Placeholder: low sun over the water at golden hour" width="900" height="1400" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 02</span> Corail Short, Pink Floral</figcaption>
+        </figure>
+        <figure class="look" data-animate="fade-up" data-delay="280">
+          <div class="look__frame" data-animate="clip" data-delay="280"><img data-parallax="0.06" src="assets/img/lookbook/look-03.svg" alt="Placeholder: pale sand and calm sea under a clear sky" width="900" height="1400" loading="lazy" decoding="async"></div>
+          <figcaption><span>Look 03</span> Palmier Short, Palm Print</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Private access -->
+    <section class="access section float-card" data-motion id="access" aria-labelledby="access-title">
+      <div class="access__inner wrap">
+        <p class="label label--index label--center" data-animate="fade-up"><span>06</span> Private access</p>
+        <h2 class="display-2" id="access-title" data-animate="words" data-delay="100">Before it opens to <em>everyone.</em></h2>
+        <p class="access__text" data-animate="fade-up" data-delay="300">Each drop is small. Members hear first.</p>
+        <form class="access__form" novalidate data-access-form data-animate="fade-up" data-delay="420">
+          <label class="visually-hidden" for="access-email">Email address</label>
+          <input class="access__input" id="access-email" name="email" type="email" autocomplete="email" placeholder="Email address" required aria-describedby="access-status">
+          <button class="btn-outline" type="submit">Request access</button>
+        </form>
+        <p class="access__status" id="access-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer float-card float-card--dark" data-motion>
+    <div class="footer__inner wrap" data-stagger="fade-up" data-stagger-step="90">
+      <div class="footer__brand">
+        <div class="footer__mark palm" aria-hidden="true"></div>
+        <p class="footer__wordmark">LA PLAGE</p>
+        <p class="footer__tag">Dressed for <em>golden hour.</em></p>
+      </div>
+      <nav class="footer__col" aria-label="Shop">
+        <h3>Shop</h3>
+        <ul>
+          <li><a class="link" href="#drop">Drop 001</a></li>
+          <li><a class="link" href="#collections">Sea</a></li>
+          <li><a class="link" href="#collections">Sand</a></li>
+          <li><a class="link" href="colour-guide.html">Colour guide</a></li>
+        </ul>
+      </nav>
+      <nav class="footer__col" aria-label="House">
+        <h3>House</h3>
+        <ul>
+          <li><a class="link" href="#story">Story</a></li>
+          <li><a class="link" href="#lookbook">Lookbook</a></li>
+          <li><a class="link" href="#access">Private access</a></li>
+        </ul>
+      </nav>
+      <nav class="footer__col" aria-label="Help">
+        <h3>Help</h3>
+        <ul>
+          <li><a class="link" href="#">Shipping</a></li>
+          <li><a class="link" href="#">Returns</a></li>
+          <li><a class="link" href="#">Size guide</a></li>
+          <li><a class="link" href="#">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="footer__col">
+        <h3>Follow</h3>
+        <ul>
+          <li><a class="link" href="#" rel="noopener">Instagram</a></li>
+          <li><a class="link" href="#" rel="noopener">TikTok</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__base wrap">
+      <p>&copy; <span data-year>2026</span> LA PLAGE. Made in Vietnam.</p>
+      <div class="footer__locale">
+        <div class="footer__lang" role="group" aria-label="Language">
+          <button class="ui-btn" type="button" aria-pressed="true" data-lang="en">EN</button>
+          <span aria-hidden="true">/</span>
+          <button class="ui-btn" type="button" aria-pressed="false" data-lang="vi">VI</button>
+        </div>
+        <span class="footer__currency">VND</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Product spotlight: one piece at a time, floating, with details and sizes -->
+  <div class="spotlight" role="dialog" aria-modal="true" aria-labelledby="spot-title" hidden data-spotlight data-motion>
+    <button class="spotlight__close ui-btn link" type="button" data-spot-close>Close</button>
+    <div class="spotlight__info" data-motion>
+      <p class="label">Drop 001 · <span data-spot-index>01 / 05</span></p>
+      <h2 class="spotlight__title" id="spot-title" data-spot-title></h2>
+      <p class="spotlight__desc" data-spot-desc></p>
+      <dl class="spotlight__facts">
+        <div><dt>Colour</dt><dd data-spot-color></dd></div>
+        <div><dt>Price</dt><dd data-spot-price></dd></div>
+      </dl>
+    </div>
+    <figure class="spotlight__stage" data-spot-stage data-motion>
+      <div class="spotlight__shadow" data-motion aria-hidden="true"></div>
+      <div class="spotlight__float" data-motion>
+        <img class="spotlight__img" data-spot-img data-motion src="" alt="" width="1200" height="1500" decoding="async">
+      </div>
+      <p class="spotlight__hint" aria-hidden="true"><span></span>Drag to tilt</p>
+      <div class="spotlight__guide" data-spot-guide hidden></div>
+    </figure>
+    <div class="spotlight__buy" data-motion>
+      <div class="spotlight__colors" data-spot-colors hidden>
+        <p class="label">Colour</p>
+        <div class="spotlight__swatches" role="radiogroup" aria-label="Colour" data-spot-swatches></div>
+      </div>
+      <p class="label">Size</p>
+      <div class="spotlight__sizes" role="radiogroup" aria-label="Size" data-spot-sizes></div>
+      <div class="spotlight__views" data-spot-views></div>
+      <button type="button" class="spotlight__guide-btn" aria-pressed="false" data-spot-guide-btn hidden>Pattern &amp; colours</button>
+      <a class="btn-outline spotlight__cta" href="#access" data-spot-access>Pre-order</a>
+    </div>
+    <button class="spotlight__nav spotlight__nav--prev" type="button" aria-label="Previous product" data-spot-prev>
+      <svg viewBox="0 0 40 12" aria-hidden="true"><path d="M40 6H1M6 1L1 6l5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+    <button class="spotlight__nav spotlight__nav--next" type="button" aria-label="Next product" data-spot-next>
+      <svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6h39M34 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+  </div>
+
+  <script src="intro.js?v=46" defer></script>
+  <script src="ocean.js?v=46" defer></script>
+  <script src="piece3d.js?v=51" defer></script>
+  <script src="main.js?v=56" defer></script>
+  <script src="firebase-config.js?v=46"></script>
+  <script type="module" src="portal/site.js?v=46"></script>
+</body>
+</html>
