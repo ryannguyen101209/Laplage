@@ -1,11 +1,11 @@
 /* LA PLAGE · admin panel. The page only checks the admin list to decide what to show;
    the real protection is firestore.rules, which refuses every admin read and write to anyone else. */
 import {
-  isConfigured, auth, db, STATUSES, esc, fmtVND, fmtDate, fmtAddress, titleCase, authMessage, isAdminUser, loadProducts,
+  isConfigured, auth, db, STATUSES, STATUS_LABEL, PAYMENTS, esc, fmtVND, fmtDate, fmtAddress, authMessage, isAdminUser, loadProducts,
   onAuthStateChanged, signOut, doc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp,
 } from './firebase.js';
 import { unsubscribeLink } from './mailing.js';
-import { watchMessages, drawMessages, unreadCount } from './admin-messages.js';
+import { watchMessages, drawMessages, unreadCount, pendingQuestions, openThread } from './admin-messages.js';
 import { renderAuthForm } from './auth-form.js';
 
 const root = document.querySelector('[data-admin]');
@@ -68,7 +68,7 @@ function shell(user) {
     <div class="pf-tabs" role="tablist">
       <button type="button" role="tab" class="pf-tab" data-tab="overview">Tide report</button>
       <button type="button" role="tab" class="pf-tab" data-tab="accounts">Accounts <span data-count-accounts></span></button>
-      <button type="button" role="tab" class="pf-tab" data-tab="orders">Pre-orders <span data-count-orders></span></button>
+      <button type="button" role="tab" class="pf-tab" data-tab="orders">Orders <span data-count-orders></span></button>
       <button type="button" role="tab" class="pf-tab" data-tab="mailing">Mailing list <span data-count-subs></span></button>
       <button type="button" role="tab" class="pf-tab" data-tab="messages">Messages <span class="pf-tab__dot" data-count-msgs hidden></span></button>
     </div>
@@ -82,6 +82,7 @@ function shell(user) {
     dot.textContent = unreadCount() ? String(unreadCount()) : ''; dot.hidden = !unreadCount();
     const typing = root.querySelector('[data-reply] textarea');
     if (tab === 'messages' && !(typing && typing.value)) drawMessages(root.querySelector('[data-panel]'));
+    if (tab === 'orders') { const pn = root.querySelector('[data-panel]'); if (pn._repaint) pn._repaint(); }
   });
 }
 
@@ -105,11 +106,14 @@ function greeting() {
   return h < 12 ? 'Good morning.' : h < 18 ? 'Good afternoon.' : 'Good evening.';
 }
 const live = (o) => o.status !== 'cancelled';
-const toMake = (o) => o.status === 'preordered' || o.status === 'in production';
+const toMake = (o) => o.status === 'in process' || o.status === 'packaging';   // paid, still to make / pack
+const toFulfil = (o) => o.status === 'awaiting payment' || toMake(o);
+const isDone = (o) => o.status === 'shipped' || o.status === 'delivered';
+const label = (st) => STATUS_LABEL[st] || st || '';
 const qtyOf = (o) => (o.items || []).reduce((n, it) => n + (Number(it.quantity) || 0), 0);
 
 function drawOverview(panel) {
-  const open = orders.filter((o) => toMake(o) || o.status === 'shipped');
+  const open = orders.filter((o) => toFulfil(o) || o.status === 'shipped');
   const pieces = orders.filter(toMake).reduce((n, o) => n + qtyOf(o), 0);
   const value = orders.filter(live).reduce((n, o) => n + (Number(o.total) || 0), 0);
   const weekAgo = Date.now() / 1000 - 7 * 86400;
@@ -150,15 +154,15 @@ function drawOverview(panel) {
       <h2 class="adm-h" id="adm-pipe">The voyage <span>every pre-order, stage by stage</span></h2>
       <ol class="adm-pipe">
         ${STATUSES.map((st, i) => `
-          <li><button type="button" class="adm-stage adm-stage--${i}" data-goto="${esc(st)}" aria-label="${esc(titleCase(st))}: ${count(st)}. Show these pre-orders">
-            <span class="adm-stage__n">${count(st)}</span><span class="adm-stage__l">${esc(titleCase(st))}</span>
+          <li><button type="button" class="adm-stage adm-stage--${i}" data-goto="${esc(st)}" aria-label="${esc(label(st))}: ${count(st)}. Show the orders">
+            <span class="adm-stage__n">${count(st)}</span><span class="adm-stage__l">${esc(label(st))}</span>
           </button></li>`).join('')}
       </ol>
     </section>
 
     <div class="adm-split">
       <section class="adm-card" aria-labelledby="adm-make">
-        <h2 class="adm-h" id="adm-make">To make <span>pre-ordered and in production, by size</span></h2>
+        <h2 class="adm-h" id="adm-make">To make <span>paid orders, by size</span></h2>
         ${rows.length ? `<ul class="adm-board">${rows.map((r) => `
           <li class="adm-board__row">
             ${cutout(r.id, r.tone) ? `<img src="${esc(cutout(r.id, r.tone))}" alt="" loading="lazy">` : '<span class="adm-board__ph"></span>'}
@@ -167,7 +171,7 @@ function drawOverview(panel) {
               <span class="adm-board__bar" title="${r.total} pieces"><span style="width:${(r.total / most * 100).toFixed(1)}%"></span></span>
               <p class="adm-board__sizes">${Object.keys(r.sizes).sort((a, b) => sizeOrder.indexOf(a) - sizeOrder.indexOf(b)).map((sz) => `<span><b>${esc(sz)}</b> ${r.sizes[sz]}</span>`).join('')}</p>
             </div>
-          </li>`).join('')}</ul>` : '<p class="pf-state">Nothing to make yet. Pre-orders will gather here, piece by piece.</p>'}
+          </li>`).join('')}</ul>` : '<p class="pf-state">Nothing to make yet. Paid orders will gather here, piece by piece.</p>'}
       </section>
 
       <section class="adm-card" aria-labelledby="adm-recent">
@@ -175,11 +179,11 @@ function drawOverview(panel) {
         ${recent.length ? `<ul class="adm-recent">${recent.map((o) => `
           <li><button type="button" class="adm-recent__row" data-goto="all">
             <span class="adm-recent__who">${esc(o.customerName)}<small>${esc(fmtDate(o.createdAt))} · ${qtyOf(o)} ${qtyOf(o) === 1 ? 'piece' : 'pieces'}</small></span>
-            <span class="adm-recent__amt">${esc(fmtVND(o.total))}<small class="adm-dot adm-dot--${STATUSES.indexOf(o.status)}">${esc(titleCase(o.status || ''))}</small></span>
+            <span class="adm-recent__amt">${esc(fmtVND(o.total))}<small class="adm-dot adm-dot--${STATUSES.indexOf(o.status)}">${esc(label(o.status))}</small></span>
           </button></li>`).join('')}</ul>` : '<p class="pf-state">The shore is quiet. New pre-orders will wash up here.</p>'}
       </section>
     </div>`;
-  panel.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => { view.status = b.dataset.goto; tab = 'orders'; draw(); }));
+  panel.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => { tab = 'orders'; history.replaceState(null, '', '#orders'); draw(); }));
 }
 
 /* ---------------- Accounts ---------------- */
@@ -195,7 +199,7 @@ function drawAccounts(panel) {
   const list = panel.querySelector('[data-list]');
   const paint = () => {
     const q = view.q.trim().toLowerCase();
-    let rows = users.filter((u) => !q || [u.name, u.username, u.gmail].some((v) => String(v || '').toLowerCase().includes(q)));
+    let rows = users.filter((u) => !q || [u.name, u.username, u.gmail, u.phone, fmtAddress(u.address)].some((v) => String(v || '').toLowerCase().includes(q)));
     const by = {
       newest: (a, b) => ts(b.createdAt) - ts(a.createdAt),
       oldest: (a, b) => ts(a.createdAt) - ts(b.createdAt),
@@ -207,11 +211,12 @@ function drawAccounts(panel) {
     if (!rows.length) { list.innerHTML = '<p class="pf-state">No accounts match that search.</p>'; return; }
     list.innerHTML = `
       <table class="pf-table">
-        <thead><tr><th>Name</th><th>Gmail</th><th>Joined</th><th>Status</th><th>Pre-orders</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+        <thead><tr><th>Name</th><th>Contact</th><th>Address</th><th>Joined</th><th>Status</th><th>Orders</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
         <tbody>${rows.map((u) => `
           <tr class="${u.disabled ? 'is-disabled' : ''}">
             <td data-label="Name">${esc(u.name || '—')}<small>@${esc(u.username || '')}</small></td>
-            <td data-label="Gmail">${esc(u.gmail || '—')}</td>
+            <td data-label="Contact">${esc(u.phone || '—')}<small>${esc(u.gmail || '')}</small></td>
+            <td data-label="Address">${esc(fmtAddress(u.address) || '—')}</td>
             <td data-label="Joined">${esc(fmtDate(u.createdAt))}</td>
             <td data-label="Status"><span class="pf-badge${accountStatus(u.id) === 'Preordered' ? ' is-on' : ''}">${esc(accountStatus(u.id))}</span>${u.disabled ? '<span class="pf-badge is-off">Disabled</span>' : ''}</td>
             <td data-label="Pre-orders">${ordersOf(u.id).length}</td>
@@ -244,63 +249,78 @@ function drawAccounts(panel) {
   paint();
 }
 
-/* ---------------- Pre-orders ---------------- */
+/* ---------------- Orders: to fulfil, questions to answer, done ---------------- */
 const filteredOrders = () => {
   const q = view.oq.trim().toLowerCase();
   return orders
-    .filter((o) => view.status === 'all' || o.status === view.status)
-    .filter((o) => !q || [o.customerName, o.phone, o.username, fmtAddress(o.address)].some((v) => String(v || '').toLowerCase().includes(q)))
+    .filter((o) => !q || [o.customerName, o.phone, o.gmail, o.username, fmtAddress(o.address)].some((v) => String(v || '').toLowerCase().includes(q)))
     .sort((a, b) => ts(b.createdAt) - ts(a.createdAt));
 };
+
+const orderTable = (rows) => `
+  <table class="pf-table pf-table--orders">
+    <thead><tr><th>Date</th><th>Customer</th><th>Ship to</th><th>Pieces &amp; sizes</th><th>Total &amp; payment</th><th>Status</th></tr></thead>
+    <tbody>${rows.map((o) => `
+      <tr>
+        <td data-label="Date">${esc(fmtDate(o.createdAt))}</td>
+        <td data-label="Customer"><strong>${esc(o.customerName)}</strong><small>${esc(o.phone)}</small><small>${esc(o.gmail || '')}</small></td>
+        <td data-label="Ship to">${esc(fmtAddress(o.address))}${o.note ? `<small>Note: ${esc(o.note)}</small>` : ''}</td>
+        <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · <b>size ${esc(it.size)}</b> × ${esc(it.quantity)}`).join('<br>')}</td>
+        <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong><span class="pf-pay-badge">${esc(PAYMENTS[o.payment] || 'Payment ?')}</span></td>
+        <td data-label="Status"><select class="pf-status-select" data-order="${esc(o.id)}" aria-label="Status for ${esc(o.customerName)}">
+          ${STATUSES.map((s) => `<option value="${esc(s)}"${o.status === s ? ' selected' : ''}>${esc(label(s))}</option>`).join('')}
+        </select></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
 
 function drawOrders(panel) {
   panel.innerHTML = `
     <div class="pf-toolbar">
       <label class="pf-field pf-field--grow"><span>Search</span><input type="search" data-oq placeholder="Customer, phone or address" value="${esc(view.oq)}"></label>
-      <label class="pf-field"><span>Status</span><select data-status>
-        <option value="all">All</option>${STATUSES.map((s) => `<option value="${esc(s)}"${view.status === s ? ' selected' : ''}>${esc(titleCase(s))}</option>`).join('')}
-      </select></label>
       <button type="button" class="btn-outline pf-export" data-export>Export CSV</button>
     </div>
-    <div data-list></div>`;
-  const list = panel.querySelector('[data-list]');
+    <div data-body></div>`;
+  const body = panel.querySelector('[data-body]');
   const paint = () => {
     const rows = filteredOrders();
-    if (!orders.length) { list.innerHTML = '<p class="pf-state">No pre-orders yet.</p>'; return; }
-    if (!rows.length) { list.innerHTML = '<p class="pf-state">No pre-orders match these filters.</p>'; return; }
-    list.innerHTML = `
-      <table class="pf-table pf-table--orders">
-        <thead><tr><th>Date</th><th>Customer</th><th>Shipping address</th><th>Pieces</th><th>Subtotal</th><th>Shipping</th><th>Total</th><th>Status</th></tr></thead>
-        <tbody>${rows.map((o) => `
-          <tr>
-            <td data-label="Date">${esc(fmtDate(o.createdAt))}</td>
-            <td data-label="Customer">${esc(o.customerName)}<small>${esc(o.phone)}${o.gmail ? ` · ${esc(o.gmail)}` : ''}</small></td>
-            <td data-label="Address">${esc(fmtAddress(o.address))}${o.note ? `<small>Note: ${esc(o.note)}</small>` : ''}</td>
-            <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · ${esc(it.size)} × ${esc(it.quantity)}`).join('<br>')}</td>
-            <td data-label="Subtotal">${esc(fmtVND(o.subtotal))}</td>
-            <td data-label="Shipping">${esc(fmtVND(o.shippingFee))}</td>
-            <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong></td>
-            <td data-label="Status"><select class="pf-status-select" data-order="${esc(o.id)}" aria-label="Status for ${esc(o.customerName)}">
-              ${STATUSES.map((s) => `<option value="${esc(s)}"${o.status === s ? ' selected' : ''}>${esc(titleCase(s))}</option>`).join('')}
-            </select></td>
-          </tr>`).join('')}
-        </tbody>
-      </table>`;
+    const fulfil = rows.filter(toFulfil), done = rows.filter(isDone), cancelled = rows.filter((o) => o.status === 'cancelled');
+    const questions = pendingQuestions();
+    body.innerHTML = `
+      <div class="ord-top">
+        <button type="button" class="${fulfil.length ? 'is-hot' : ''}" data-jump="fulfil"><b>${fulfil.length}</b><span>Orders to fulfil</span></button>
+        <button type="button" class="${questions.length ? 'is-hot' : ''}" data-jump="questions"><b>${questions.length}</b><span>Questions to answer</span></button>
+        <button type="button" data-jump="done"><b>${done.length}</b><span>Done &amp; shipped</span></button>
+      </div>
+
+      <section class="ord-sec" id="ord-fulfil"><h2>Orders to fulfil <small>awaiting payment · in process · being packaged</small></h2>
+        ${fulfil.length ? orderTable(fulfil) : '<p class="pf-state">Nothing to fulfil right now.</p>'}
+      </section>
+
+      <section class="ord-sec" id="ord-questions"><h2>Questions to answer <small>from the contact page</small></h2>
+        ${questions.length ? `<ul class="ord-q">${questions.map((m) => { const last = m.thread[m.thread.length - 1]; return `<li><a href="#messages" data-q="${esc(m.id)}"><b>${esc(m.name)}</b><small>${esc(String(last.text).slice(0, 140))}</small></a></li>`; }).join('')}</ul>` : '<p class="pf-state">No unanswered questions.</p>'}
+      </section>
+
+      <section class="ord-sec" id="ord-done"><h2>Done &amp; shipped <small>shipped · delivered</small></h2>
+        ${done.length ? orderTable(done) : '<p class="pf-state">Nothing shipped yet.</p>'}
+      </section>
+      ${cancelled.length ? `<section class="ord-sec"><h2>Cancelled</h2>${orderTable(cancelled)}</section>` : ''}`;
+    body.querySelectorAll('[data-jump]').forEach((b) => b.addEventListener('click', () => document.getElementById('ord-' + b.dataset.jump).scrollIntoView({ behavior: 'smooth', block: 'start' })));
+    body.querySelectorAll('[data-q]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); openThread(a.dataset.q); tab = 'messages'; history.replaceState(null, '', '#messages'); draw(); }));
   };
   panel.querySelector('[data-oq]').addEventListener('input', (e) => { view.oq = e.target.value; paint(); });
-  panel.querySelector('[data-status]').addEventListener('change', (e) => { view.status = e.target.value; paint(); });
   panel.querySelector('[data-export]').addEventListener('click', exportCSV);
-  list.addEventListener('change', async (e) => {
+  body.addEventListener('change', async (e) => {
     const sel = e.target.closest('[data-order]'); if (!sel) return;
     const o = orders.find((x) => x.id === sel.dataset.order);
     const prev = o.status;
     sel.disabled = true;
-    try { await updateDoc(doc(db, 'orders', o.id), { status: sel.value, updatedAt: serverTimestamp() }); o.status = sel.value; }
-    catch (ex) { alert(authMessage(ex)); sel.value = prev; }
-    sel.disabled = false;
-    if (view.status !== 'all') paint();
+    try { await updateDoc(doc(db, 'orders', o.id), { status: sel.value, updatedAt: serverTimestamp() }); o.status = sel.value; paint(); }
+    catch (ex) { alert(authMessage(ex)); sel.value = prev; sel.disabled = false; }
   });
   paint();
+  // the Messages snapshot also changes "questions to answer": repaint when it does
+  panel._repaint = paint;
 }
 
 function exportCSV() {
@@ -310,13 +330,13 @@ function exportCSV() {
     if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
     return `"${s.replace(/"/g, '""')}"`;
   };
-  const head = ['Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Shipping (VND)', 'Total (VND)', 'Status', 'Note'];
+  const head = ['Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Shipping (VND)', 'Total (VND)', 'Payment', 'Status', 'Note'];
   const rows = filteredOrders().map((o) => {
     const a = o.address || {};
     const d = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toISOString().slice(0, 10) : '';
     return [o.id, d, o.customerName, o.username, o.phone, o.gmail, a.street, a.ward, a.district, a.city,
       (o.items || []).map((it) => `${it.title}${it.color ? ` - ${it.color}` : ''} (${it.size}) x${it.quantity}`).join('; '),
-      o.subtotal, o.shippingFee, o.total, o.status, o.note];
+      o.subtotal, o.shippingFee, o.total, PAYMENTS[o.payment] || '', label(o.status), o.note];
   });
   const csv = '﻿' + [head, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

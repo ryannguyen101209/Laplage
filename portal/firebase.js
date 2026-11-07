@@ -11,9 +11,12 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 export const CONFIG = window.LAPLAGE_CONFIG || {};
-export const SHIPPING_FEE = Number(CONFIG.SHIPPING_FEE) || 50000;
+export const SHIPPING_FEE = Number.isFinite(Number(CONFIG.SHIPPING_FEE)) && CONFIG.SHIPPING_FEE !== undefined ? Number(CONFIG.SHIPPING_FEE) : 0;   // free shipping (0)
 export const ADMIN_EMAILS = (CONFIG.ADMIN_EMAILS || []).map((e) => String(e).trim().toLowerCase());
-export const STATUSES = ['preordered', 'in production', 'shipped', 'delivered', 'cancelled'];
+// the life of an order: placed (awaiting payment) -> paid and in process -> being packaged -> shipped -> delivered
+export const STATUSES = ['awaiting payment', 'in process', 'packaging', 'shipped', 'delivered', 'cancelled'];
+export const STATUS_LABEL = { 'awaiting payment': 'Awaiting payment', 'in process': 'In process', packaging: 'Being packaged', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
+export const PAYMENTS = { bank: 'Bank transfer', qr: 'QR code', cash: 'Cash' };
 
 // the site works exactly as before until the placeholders are filled in
 export const isConfigured = !!(CONFIG.FIREBASE_CONFIG && CONFIG.FIREBASE_CONFIG.apiKey && !/^PASTE_/.test(CONFIG.FIREBASE_CONFIG.apiKey));

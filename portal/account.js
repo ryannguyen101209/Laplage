@@ -1,6 +1,6 @@
 /* LA PLAGE · account page: sign in, profile, notification Gmail & address, pre-orders, sign out. */
 import {
-  isConfigured, auth, db, esc, fmtVND, fmtDate, fmtAddress, titleCase, authMessage, isAdminUser,
+  isConfigured, auth, db, esc, fmtVND, fmtDate, fmtAddress, authMessage, isAdminUser, STATUS_LABEL, PAYMENTS,
   onAuthStateChanged, signOut, doc, updateDoc, collection, query, where, getDocs,
 } from './firebase.js';
 import { renderAuthForm, loadProfile } from './auth-form.js';
@@ -46,7 +46,7 @@ if (!isConfigured) {
 
 function render(user, profile, orders) {
   const a = profile.address || {};
-  const status = orders.some((o) => o.status !== 'cancelled') ? 'Preordered' : 'No pre-order yet';
+  const status = orders.some((o) => o.status !== 'cancelled') ? 'Pre-ordered' : 'No pre-order yet';
   root.innerHTML = `
     <div class="pf-card">
       <div class="pf-head">
@@ -54,7 +54,7 @@ function render(user, profile, orders) {
           <p class="label">Account · @${esc(profile.username || '')}</p>
           <h1 class="pf-title">Hello, <em>${esc((profile.name || '').split(' ')[0] || 'there')}.</em></h1>
         </div>
-        <span class="pf-badge${status === 'Preordered' ? ' is-on' : ''}">${esc(status)}</span>
+        <span class="pf-badge${status === 'Pre-ordered' ? ' is-on' : ''}">${esc(status)}</span>
       </div>
       ${profile.disabled ? '<p class="pf-notice">This account is paused and cannot place new pre-orders. Please contact us.</p>' : ''}
       <dl class="pf-facts">
@@ -112,19 +112,29 @@ function render(user, profile, orders) {
   });
 }
 
+const STEPS = ['awaiting payment', 'in process', 'packaging', 'shipped', 'delivered'];
+function progress(status) {
+  if (status === 'cancelled') return '<p class="pf-notice">This order was cancelled.</p>';
+  const at = Math.max(0, STEPS.indexOf(status));
+  return `<ol class="pf-track" aria-label="Order progress">${STEPS.map((st, i) => `
+    <li class="pf-track__step${i < at ? ' is-done' : ''}${i === at ? ' is-now' : ''}"${i === at ? ' aria-current="step"' : ''}><span class="pf-track__dot"></span><span class="pf-track__label">${esc(STATUS_LABEL[st])}</span></li>`).join('')}</ol>`;
+}
+
 function orderCard(o) {
   return `
     <article class="pf-order">
       <header class="pf-order__head">
-        <span>${esc(fmtDate(o.createdAt))}</span>
-        <span class="pf-status pf-status--${esc(String(o.status || '').replace(/\s+/g, '-'))}">${esc(titleCase(o.status || 'preordered'))}</span>
+        <span>${esc(fmtDate(o.createdAt))} · ${esc(PAYMENTS[o.payment] || '')}</span>
+        <span class="pf-status pf-status--${esc(String(o.status || '').replace(/\s+/g, '-'))}">${esc(STATUS_LABEL[o.status] || o.status || '')}</span>
       </header>
+      ${progress(o.status)}
+      ${o.status === 'awaiting payment' ? '<p class="pf-hint">We start on your order as soon as your payment arrives. Pay by the method you chose (bank transfer, QR code or cash) and we will move it to <b>In process</b>.</p>' : ''}
       <ul class="pf-order__items">${(o.items || []).map((it) => `
-        <li><span>${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · ${esc(it.size)} × ${esc(it.quantity)}</span><span>${esc(fmtVND(it.lineTotal))}</span></li>`).join('')}
+        <li><span>${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · size ${esc(it.size)} × ${esc(it.quantity)}</span><span>${esc(fmtVND(it.lineTotal))}</span></li>`).join('')}
       </ul>
       <dl class="pf-sum pf-sum--small">
         <div><dt>Subtotal</dt><dd>${esc(fmtVND(o.subtotal))}</dd></div>
-        <div><dt>Shipping</dt><dd>${esc(fmtVND(o.shippingFee))}</dd></div>
+        <div><dt>Shipping</dt><dd>${o.shippingFee ? esc(fmtVND(o.shippingFee)) : 'Free'}</dd></div>
         <div class="pf-sum__total"><dt>Total</dt><dd>${esc(fmtVND(o.total))}</dd></div>
       </dl>
       <p class="pf-order__addr">${esc(fmtAddress(o.address))}</p>

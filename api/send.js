@@ -75,7 +75,8 @@ module.exports = async function handler(req, res) {
       if (!once('order:' + id)) return res.status(200).json({ ok: true, duplicate: true });
       const addr = [o.address.street, o.address.ward, o.address.district, o.address.city].filter(Boolean).join(', ');
       const lines = o.items.map((it) => `${it.title}${it.color ? ` · ${it.color}` : ''} · size ${it.size} × ${it.quantity} = ${vnd(it.lineTotal)}`).join('\n');
-      const sums = `Subtotal: ${vnd(o.subtotal)}\nShipping: ${vnd(o.shippingFee)}\nTotal: ${vnd(o.total)}`;
+      const pay = { bank: 'Bank transfer', qr: 'QR code', cash: 'Cash' }[o.payment] || '-';
+      const sums = `Payment: ${pay}\nSubtotal: ${vnd(o.subtotal)}\nShipping: ${o.shippingFee ? vnd(o.shippingFee) : 'Free'}\nTotal: ${vnd(o.total)}`;
       await Promise.all([
         mail({ to: admins(), replyTo: o.gmail, subject: `New pre-order from ${o.customerName} · ${vnd(o.total)}`, link: `${base}/admin.html#orders`, linkLabel: 'Open admin',
           text: `New pre-order ${id}\n\nCustomer: ${o.customerName} (@${o.username})\nEmail: ${o.gmail}   Phone: ${o.phone}\nShip to: ${addr}\n\n${lines}\n\n${sums}\nNote: ${o.note || '-'}` }),

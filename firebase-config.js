@@ -14,7 +14,7 @@
       ⚠ The same list must also be pasted into firestore.rules (function isAdmin),
       because the database enforces it, not this file.
 
-   3. Leave SHIPPING_FEE at 50000 unless you also change it in firestore.rules.
+   3. Leave SHIPPING_FEE at 0 (free shipping) unless you also change it in firestore.rules.
    ========================================================================== */
 window.LAPLAGE_CONFIG = {
   FIREBASE_CONFIG: {
@@ -29,7 +29,13 @@ window.LAPLAGE_CONFIG = {
     'lookmanfc@gmail.com',
     'ryannguyen101209@gmail.com',
   ],
-  SHIPPING_FEE: 50000,
+  SHIPPING_FEE: 0,   // free shipping (must match firestore.rules)
+  /* How customers pay (shown after they place an order). Fill in what you use; leave a line empty to say "we will send you the details". */
+  PAYMENT: {
+    BANK: '',          // e.g. 'Vietcombank · LA PLAGE · 0123456789'
+    QR_IMAGE: '',      // e.g. 'assets/pay/qr.png' (put your QR picture in that folder)
+    CASH: 'Pay in cash when we meet you or on delivery.',
+  },
   PREORDER_OPENS: '20 November 2026',
   PREORDER_OPENS_AT: '2026-11-20T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
 

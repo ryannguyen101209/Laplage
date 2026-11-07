@@ -28,7 +28,7 @@ These rules are what actually protect customer data; the admin list in `firebase
 ## 5. Deploy and test
 Commit and push (Vercel deploys). Then:
 1. Open the site → **Sign in** → **Create account** → place a test pre-order from any product.
-2. Open `/account` and check it is listed with the 50.000 ₫ shipping line.
+2. Open `/account` and check it is listed (shipping is free).
 3. Open `/admin`, sign in with the admin Gmail, change the order's status, export CSV.
 
 ## Good to know
@@ -38,7 +38,7 @@ Commit and push (Vercel deploys). Then:
   **Firestore → users** delete their record (their pre-orders stay), and ask them to sign up again with the same username.
 - Every customer must give a **Gmail**. It receives their pre-order confirmation (see Emails below); their login still uses the username.
 - **Disable** an account in /admin to stop new pre-orders. **Delete** removes the account record (their pre-orders stay); their username login still exists in Authentication until you delete it there too.
-- Prices are read from `data/products.json` in the browser. The rules check the 50.000 ₫ shipping and that total = subtotal + shipping, but cannot check each price, so glance at totals before confirming payment.
+- Prices are read from `data/products.json` in the browser. The rules check that shipping is free (0) and that total = subtotal, but cannot check each price, so glance at totals before confirming payment.
 
 ## Emails (Resend, sent by the site's own server function)
 All emails go out through **Resend**, from `api/send.js` (a Vercel function), so the Resend key stays secret on the server.
@@ -83,3 +83,9 @@ Every new message and every new pre-order sends a push to the free ntfy app.
 Everyone subscribed to that topic gets the alerts, so share it only with admins. Anyone who learns the topic could read (or spam) the alerts:
 if that happens, change the topic in `firebase-config.js` to a new long random word and subscribe to the new one.
 
+
+## Orders, payment and the status bar
+Customers choose **Bank transfer, QR code or Cash** when they order (set your bank details and QR picture under `PAYMENT` in `firebase-config.js`; whatever you leave empty shows "we will send you the details").
+Each order moves through: **Awaiting payment -> In process (paid) -> Being packaged -> Shipped -> Delivered** (or Cancelled). Change it from the dropdown in /admin -> **Orders**; the customer sees the same progress bar on their account page.
+The Orders page shows **Orders to fulfil** (awaiting payment, in process, packaging), **Questions to answer** (contact messages waiting for your reply) and **Done & shipped**. Each order lists the customer's phone, address, sizes and payment method.
+After changing `firestore.rules`, publish them again in the Firebase console.

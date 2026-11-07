@@ -62,14 +62,14 @@ service cloud.firestore {
       allow read: if (signedIn() && resource.data.uid == request.auth.uid) || isAdmin();
 
       // a signed-in customer with an active (not disabled) account, ordering for themselves,
-      // always starting as "preordered", with the flat 50,000 VND shipping added to the total
+      // always starting as "awaiting payment", with free shipping (total = subtotal)
       // pre-orders open 20 November 2026, 00:00 Saigon time (= 17:00 UTC on the 19th); nothing can be placed before that
       allow create: if request.time >= timestamp.date(2026, 11, 19) + duration.time(17, 0, 0, 0)
         && signedIn()
         && request.resource.data.uid == request.auth.uid
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == false
-        && request.resource.data.keys().hasOnly(['uid', 'username', 'gmail', 'customerName', 'phone', 'address', 'note', 'items', 'subtotal', 'shippingFee', 'total', 'status', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'username', 'gmail', 'customerName', 'phone', 'address', 'note', 'items', 'subtotal', 'shippingFee', 'total', 'payment', 'status', 'createdAt'])
         && validGmail(request.resource.data.gmail)
         && request.resource.data.customerName is string && request.resource.data.customerName.size() > 0 && request.resource.data.customerName.size() <= 80
         && request.resource.data.phone is string && request.resource.data.phone.size() >= 8 && request.resource.data.phone.size() <= 20
@@ -77,15 +77,16 @@ service cloud.firestore {
         && request.resource.data.note is string && request.resource.data.note.size() <= 500
         && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 10
         && request.resource.data.subtotal is int && request.resource.data.subtotal > 0
-        && request.resource.data.shippingFee == 50000
-        && request.resource.data.total == request.resource.data.subtotal + 50000
-        && request.resource.data.status == 'preordered'
+        && request.resource.data.shippingFee == 0
+        && request.resource.data.total == request.resource.data.subtotal
+        && request.resource.data.payment in ['bank', 'qr', 'cash']
+        && request.resource.data.status == 'awaiting payment'
         && request.resource.data.createdAt == request.time;
 
       // only admins change a pre-order, and only its status
       allow update: if isAdmin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
-        && request.resource.data.status in ['preordered', 'in production', 'shipped', 'delivered', 'cancelled'];
+        && request.resource.data.status in ['awaiting payment', 'in process', 'packaging', 'shipped', 'delivered', 'cancelled'];
 
       allow delete: if isAdmin();
     }

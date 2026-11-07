@@ -10,6 +10,9 @@ const when = (ms) => new Date(ms).toLocaleString('en-GB', { dateStyle: 'medium',
 
 export const unreadCount = () => msgs.filter((m) => m.unreadAdmin && m.status !== 'closed').length;
 export const messageCount = () => msgs.length;
+// conversations whose last word is the customer's: questions still to answer
+export const pendingQuestions = () => msgs.filter((m) => m.status !== 'closed' && (m.thread || []).length && m.thread[m.thread.length - 1].from === 'customer')
+  .sort((a, b) => lastAt(b) - lastAt(a));
 
 export function watchMessages(cb) {
   onChange = cb;
@@ -17,6 +20,8 @@ export function watchMessages(cb) {
     msgs = snap.docs.map((d) => ({ id: d.id, ...d.data() })); onChange(msgs);
   }, (err) => { console.warn('[LA PLAGE] messages', err); msgs = []; onChange(msgs); });
 }
+
+export function openThread(id) { openId = id; }
 
 export function drawMessages(panel) {
   const sorted = [...msgs].sort((a, b) => lastAt(b) - lastAt(a));

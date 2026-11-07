@@ -16,7 +16,7 @@ const load = async () => {
 };
 const [
   {
-    isConfigured, auth, db, SHIPPING_FEE, esc, fmtVND, authMessage, loadProducts,
+    isConfigured, auth, db, SHIPPING_FEE, PAYMENTS, esc, fmtVND, authMessage, loadProducts,
     onAuthStateChanged, doc, updateDoc, addDoc, collection, serverTimestamp,
   },
   { renderAuthForm, loadProfile },
@@ -131,10 +131,16 @@ if (isConfigured) {
           </div>
           <label class="pf-check"><input type="checkbox" name="save" checked> Save this address and phone to my account</label>
         </fieldset>
+        <fieldset class="pf-set"><legend>How will you pay?</legend>
+          <div class="pf-pay">
+            ${Object.entries(PAYMENTS).map(([k, v], i) => `<label class="pf-check pf-check--box"><input type="radio" name="payment" value="${k}"${i === 0 ? ' checked' : ''}> ${esc(v)}</label>`).join('')}
+          </div>
+          <p class="pf-hint">You pay after we confirm your order. Nothing is charged on this site.</p>
+        </fieldset>
         <label class="pf-field pf-field--wide"><span>Note <em>optional</em></span><textarea name="note" rows="2" maxlength="500"></textarea></label>
         <dl class="pf-sum">
           <div><dt>Subtotal</dt><dd data-subtotal>${esc(fmtVND(subtotal))}</dd></div>
-          <div><dt>Shipping</dt><dd>${esc(fmtVND(SHIPPING_FEE))}</dd></div>
+          <div><dt>Shipping</dt><dd>${SHIPPING_FEE ? esc(fmtVND(SHIPPING_FEE)) : 'Free'}</dd></div>
           <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
         </dl>
         <p class="pf-error" role="alert" data-order-error></p>
@@ -180,6 +186,14 @@ if (isConfigured) {
     form.addEventListener('submit', submit);
   };
 
+  // how to pay, from firebase-config.js (PAYMENT); an empty line falls back to "we will send you the details"
+  const PAY = cfgAll.PAYMENT || {};
+  const payHow = (k) => {
+    if (k === 'cash') return `<p class="pf-lead"><b>Cash.</b> ${esc(PAY.CASH || 'We will arrange it with you.')}</p>`;
+    if (k === 'qr') return `<p class="pf-lead"><b>QR code.</b> ${PAY.QR_IMAGE ? 'Scan this to pay:' : 'We will send you the QR code shortly.'}</p>${PAY.QR_IMAGE ? `<img class="pf-qr" src="${esc(PAY.QR_IMAGE)}" alt="Payment QR code" width="220" height="220">` : ''}`;
+    return `<p class="pf-lead"><b>Bank transfer.</b> ${esc(PAY.BANK || 'We will send you the bank details shortly.')}</p>`;
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -210,7 +224,7 @@ if (isConfigured) {
         uid: user.uid, username: profile.username || '', gmail: data.gmail,
         customerName: data.name, phone: data.phone, address: data.address, note: data.note,
         items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE,
-        status: 'preordered', createdAt: serverTimestamp(),
+        payment: PAYMENTS[f.payment] ? f.payment : 'bank', status: 'awaiting payment', createdAt: serverTimestamp(),
       });
       if (f.save) {
         try {
@@ -226,7 +240,8 @@ if (isConfigured) {
       body().innerHTML = `
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
-          <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. We will be in touch to confirm the details and arrange payment, and you can follow its status in your account.</p>
+          <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. Follow your order's progress in your account.</p>
+          ${payHow(f.payment)}
           <a class="link link--underlined" href="account.html">View my pre-orders</a>
         </div>`;
     } catch (ex) {
