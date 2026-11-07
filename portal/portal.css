@@ -353,3 +353,15 @@ body.portal.portal--admin { background: #04192A; }
 .ord-q small { color: var(--adm-muted); }
 .pf-pay-badge { display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--adm-line); font-size: 11px; color: var(--adm-gold); }
 @media (max-width: 700px) { .ord-top { grid-template-columns: 1fr; } }
+
+.ord-top { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ord-money { padding: 16px 18px; border-radius: 18px; border: 1px solid var(--adm-gold); background: var(--adm-card); color: var(--adm-ink); }
+.ord-money b { display: block; font-family: var(--sans); font-weight: 300; font-size: 26px; line-height: 1.2; color: var(--adm-gold); }
+.ord-money span { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--adm-muted); }
+.ord-money small { display: block; margin-top: 4px; font-size: 12px; color: var(--adm-muted); }
+.pf-paid { display: inline-block; margin-top: 6px; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+.pf-paid.is-paid { background: rgba(127, 200, 169, .16); color: #7FC8A9; border: 1px solid rgba(127, 200, 169, .45); }
+.pf-paid.is-unpaid { background: rgba(217, 181, 110, .12); color: var(--adm-gold); border: 1px solid rgba(217, 181, 110, .45); }
+.pf-paid-btn { display: block; margin-top: 4px; font-size: 11px; opacity: .85; }
+@media (max-width: 900px) { .ord-top { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px) { .ord-top { grid-template-columns: 1fr; } }

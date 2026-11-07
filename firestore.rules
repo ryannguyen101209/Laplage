@@ -83,9 +83,10 @@ service cloud.firestore {
         && request.resource.data.status == 'awaiting payment'
         && request.resource.data.createdAt == request.time;
 
-      // only admins change a pre-order, and only its status
+      // only admins change a pre-order, and only its status and whether the money has been collected
       allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'paid', 'paidAt'])
+        && (!('paid' in request.resource.data) || request.resource.data.paid is bool)
         && request.resource.data.status in ['awaiting payment', 'in process', 'packaging', 'shipped', 'delivered', 'cancelled'];
 
       allow delete: if isAdmin();

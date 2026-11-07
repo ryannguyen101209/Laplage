@@ -109,13 +109,15 @@ const live = (o) => o.status !== 'cancelled';
 const toMake = (o) => o.status === 'in process' || o.status === 'packaging';   // paid, still to make / pack
 const toFulfil = (o) => o.status === 'awaiting payment' || toMake(o);
 const isDone = (o) => o.status === 'shipped' || o.status === 'delivered';
+const isPaid = (o) => o.paid === true;
 const label = (st) => STATUS_LABEL[st] || st || '';
 const qtyOf = (o) => (o.items || []).reduce((n, it) => n + (Number(it.quantity) || 0), 0);
 
 function drawOverview(panel) {
   const open = orders.filter((o) => toFulfil(o) || o.status === 'shipped');
   const pieces = orders.filter(toMake).reduce((n, o) => n + qtyOf(o), 0);
-  const value = orders.filter(live).reduce((n, o) => n + (Number(o.total) || 0), 0);
+  const collected = orders.filter((o) => live(o) && isPaid(o)).reduce((n, o) => n + (Number(o.total) || 0), 0);
+  const owed = orders.filter((o) => live(o) && !isPaid(o)).reduce((n, o) => n + (Number(o.total) || 0), 0);
   const weekAgo = Date.now() / 1000 - 7 * 86400;
   const newUsers = users.filter((u) => ts(u.createdAt) > weekAgo).length;
   const count = (s) => orders.filter((o) => o.status === s).length;
@@ -146,7 +148,7 @@ function drawOverview(panel) {
     <section class="adm-stats" aria-label="At a glance">
       <div class="adm-stat"><p class="adm-stat__label">Open pre-orders</p><p class="adm-stat__value">${open.length}</p><p class="adm-stat__sub">not yet delivered</p></div>
       <div class="adm-stat"><p class="adm-stat__label">Pieces to make</p><p class="adm-stat__value">${pieces}</p><p class="adm-stat__sub">for the next batch</p></div>
-      <div class="adm-stat adm-stat--gold"><p class="adm-stat__label">Pre-order value</p><p class="adm-stat__value">${esc(fmtVND(value))}</p><p class="adm-stat__sub">incl. shipping, excl. cancelled</p></div>
+      <div class="adm-stat adm-stat--gold"><p class="adm-stat__label">Money collected</p><p class="adm-stat__value">${esc(fmtVND(collected))}</p><p class="adm-stat__sub">${esc(fmtVND(owed))} not yet paid</p></div>
       <div class="adm-stat"><p class="adm-stat__label">Accounts</p><p class="adm-stat__value">${users.length}</p><p class="adm-stat__sub">${newUsers} new this week</p></div>
     </section>
 
@@ -266,7 +268,8 @@ const orderTable = (rows) => `
         <td data-label="Customer"><strong>${esc(o.customerName)}</strong><small>${esc(o.phone)}</small><small>${esc(o.gmail || '')}</small></td>
         <td data-label="Ship to">${esc(fmtAddress(o.address))}${o.note ? `<small>Note: ${esc(o.note)}</small>` : ''}</td>
         <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · <b>size ${esc(it.size)}</b> × ${esc(it.quantity)}`).join('<br>')}</td>
-        <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong><span class="pf-pay-badge">${esc(PAYMENTS[o.payment] || 'Payment ?')}</span></td>
+        <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong><span class="pf-pay-badge">${esc(PAYMENTS[o.payment] || 'Payment ?')}</span>
+          ${o.status === 'cancelled' ? '' : `<span class="pf-paid ${isPaid(o) ? 'is-paid' : 'is-unpaid'}">${isPaid(o) ? 'Paid' : 'Not yet paid'}</span><button type="button" class="ui-btn link pf-paid-btn" data-paid="${esc(o.id)}">${isPaid(o) ? 'Mark unpaid' : 'Mark as paid'}</button>`}</td>
         <td data-label="Status"><select class="pf-status-select" data-order="${esc(o.id)}" aria-label="Status for ${esc(o.customerName)}">
           ${STATUSES.map((s) => `<option value="${esc(s)}"${o.status === s ? ' selected' : ''}>${esc(label(s))}</option>`).join('')}
         </select></td>
@@ -291,6 +294,7 @@ function drawOrders(panel) {
         <button type="button" class="${fulfil.length ? 'is-hot' : ''}" data-jump="fulfil"><b>${fulfil.length}</b><span>Orders to fulfil</span></button>
         <button type="button" class="${questions.length ? 'is-hot' : ''}" data-jump="questions"><b>${questions.length}</b><span>Questions to answer</span></button>
         <button type="button" data-jump="done"><b>${done.length}</b><span>Done &amp; shipped</span></button>
+        <div class="ord-money"><b>${esc(fmtVND(rows.filter((o) => o.status !== 'cancelled' && isPaid(o)).reduce((n, o) => n + (Number(o.total) || 0), 0)))}</b><span>Collected</span><small>${esc(fmtVND(rows.filter((o) => o.status !== 'cancelled' && !isPaid(o)).reduce((n, o) => n + (Number(o.total) || 0), 0)))} still to collect</small></div>
       </div>
 
       <section class="ord-sec" id="ord-fulfil"><h2>Orders to fulfil <small>awaiting payment · in process · being packaged</small></h2>
@@ -310,12 +314,25 @@ function drawOrders(panel) {
   };
   panel.querySelector('[data-oq]').addEventListener('input', (e) => { view.oq = e.target.value; paint(); });
   panel.querySelector('[data-export]').addEventListener('click', exportCSV);
+  body.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-paid]'); if (!btn) return;
+    const o = orders.find((x) => x.id === btn.dataset.paid);
+    const next = !isPaid(o);
+    const patch = { paid: next, paidAt: next ? serverTimestamp() : null, updatedAt: serverTimestamp() };
+    if (next && o.status === 'awaiting payment') patch.status = 'in process';   // paid -> the order is now in process
+    btn.disabled = true;
+    try { await updateDoc(doc(db, 'orders', o.id), patch); o.paid = next; if (patch.status) o.status = patch.status; paint(); }
+    catch (ex) { alert(authMessage(ex)); btn.disabled = false; }
+  });
   body.addEventListener('change', async (e) => {
     const sel = e.target.closest('[data-order]'); if (!sel) return;
     const o = orders.find((x) => x.id === sel.dataset.order);
     const prev = o.status;
     sel.disabled = true;
-    try { await updateDoc(doc(db, 'orders', o.id), { status: sel.value, updatedAt: serverTimestamp() }); o.status = sel.value; paint(); }
+    try {
+      const patch = { status: sel.value, updatedAt: serverTimestamp() };
+      if (prev === 'awaiting payment' && sel.value === 'in process' && !isPaid(o)) { patch.paid = true; patch.paidAt = serverTimestamp(); }   // "in process" means they have paid
+      await updateDoc(doc(db, 'orders', o.id), patch); o.status = sel.value; if (patch.paid) o.paid = true; paint(); }
     catch (ex) { alert(authMessage(ex)); sel.value = prev; sel.disabled = false; }
   });
   paint();
@@ -330,13 +347,13 @@ function exportCSV() {
     if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
     return `"${s.replace(/"/g, '""')}"`;
   };
-  const head = ['Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Shipping (VND)', 'Total (VND)', 'Payment', 'Status', 'Note'];
+  const head = ['Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Shipping (VND)', 'Total (VND)', 'Payment', 'Paid', 'Status', 'Note'];
   const rows = filteredOrders().map((o) => {
     const a = o.address || {};
     const d = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toISOString().slice(0, 10) : '';
     return [o.id, d, o.customerName, o.username, o.phone, o.gmail, a.street, a.ward, a.district, a.city,
       (o.items || []).map((it) => `${it.title}${it.color ? ` - ${it.color}` : ''} (${it.size}) x${it.quantity}`).join('; '),
-      o.subtotal, o.shippingFee, o.total, PAYMENTS[o.payment] || '', label(o.status), o.note];
+      o.subtotal, o.shippingFee, o.total, PAYMENTS[o.payment] || '', isPaid(o) ? 'Paid' : 'Not yet', label(o.status), o.note];
   });
   const csv = '﻿' + [head, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

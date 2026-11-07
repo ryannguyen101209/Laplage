@@ -1912,8 +1912,8 @@ body { background: #0B3A5C; }
 .pack__copy p { font-family: var(--serif); font-size: 17px; line-height: 1.7; color: var(--ink-soft); max-width: 46ch; }
 .pack__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(14px, 2.4vw, 40px); align-items: start; }
 .pack__fig:nth-child(2) { margin-top: clamp(28px, 6vw, 90px); }
-.pack__frame { overflow: hidden; aspect-ratio: 4 / 5; background: var(--sand-light); }
-.pack__frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pack__frame { aspect-ratio: 4 / 5; display: grid; place-items: center; }   /* the boxes are cut out: they sit straight on the section */
+.pack__frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .pack__fig figcaption { display: flex; align-items: baseline; gap: 14px; padding-top: 16px; font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink-soft); }
 .pack__fig figcaption span { font-family: var(--sans); font-style: normal; font-weight: 400; letter-spacing: var(--track-label); text-transform: uppercase; font-size: 10.5px; color: var(--sea-deep); }
 @media (max-width: 760px) {

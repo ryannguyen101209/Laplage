@@ -124,7 +124,7 @@ function orderCard(o) {
   return `
     <article class="pf-order">
       <header class="pf-order__head">
-        <span>${esc(fmtDate(o.createdAt))} · ${esc(PAYMENTS[o.payment] || '')}</span>
+        <span>${esc(fmtDate(o.createdAt))} · ${esc(PAYMENTS[o.payment] || '')} · ${o.paid ? 'Paid' : 'Payment not received yet'}</span>
         <span class="pf-status pf-status--${esc(String(o.status || '').replace(/\s+/g, '-'))}">${esc(STATUS_LABEL[o.status] || o.status || '')}</span>
       </header>
       ${progress(o.status)}
