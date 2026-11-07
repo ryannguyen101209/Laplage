@@ -1902,3 +1902,23 @@ body { background: #0B3A5C; }
 .page-loader img { width: clamp(56px, 6vw, 84px); height: auto; filter: drop-shadow(0 10px 18px rgba(11, 44, 71, .18)); }
 .page-loader.is-on img { animation: loader-turn 600ms cubic-bezier(.65, 0, .35, 1) 60ms both; }
 @keyframes loader-turn { from { rotate: 0deg; } to { rotate: 360deg; } }
+
+/* ==========================================================================
+   Packaging: the box, three photographs and a few words
+   ========================================================================== */
+.pack { padding: var(--section-y) 0 clamp(90px, 14vh, 160px); }
+.pack__head { margin-bottom: clamp(40px, 7vh, 80px); display: grid; gap: 18px; }
+.pack__copy { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20px, 4vw, 64px); max-width: 980px; margin-top: 10px; }
+.pack__copy p { font-family: var(--serif); font-size: 17px; line-height: 1.7; color: var(--ink-soft); max-width: 46ch; }
+.pack__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(14px, 2.4vw, 40px); align-items: start; }
+.pack__fig:nth-child(2) { margin-top: clamp(28px, 6vw, 90px); }
+.pack__frame { overflow: hidden; aspect-ratio: 4 / 5; background: var(--sand-light); }
+.pack__frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pack__fig figcaption { display: flex; align-items: baseline; gap: 14px; padding-top: 16px; font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink-soft); }
+.pack__fig figcaption span { font-family: var(--sans); font-style: normal; font-weight: 400; letter-spacing: var(--track-label); text-transform: uppercase; font-size: 10.5px; color: var(--sea-deep); }
+@media (max-width: 760px) {
+  .pack__copy { grid-template-columns: 1fr; }
+  .pack__grid { grid-template-columns: 1fr 1fr; }
+  .pack__fig:first-child { grid-column: 1 / -1; width: 78%; }
+  .pack__fig:nth-child(2) { margin-top: 0; }
+}

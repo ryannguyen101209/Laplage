@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Packaging illustration">
+<rect width="800" height="1000" fill="#EFE6D6"/>
+<ellipse cx="400" cy="720" rx="250" ry="60" fill="#000" opacity=".06"/>
+<path d="M200 430 L200 640 L400 740 L400 530 Z" fill="#D9C7A6" stroke="#C7A272" stroke-width="3"/>
+<path d="M600 430 L600 640 L400 740 L400 530 Z" fill="#E4D5B8" stroke="#C7A272" stroke-width="3"/>
+<path d="M250 470 L400 400 L550 470 L400 540 Z" fill="#9DC3D9" opacity=".8"/><path d="M200 430 L400 330 L600 430 L400 530 Z" fill="#F4EDE0" stroke="#C7A272" stroke-width="3" transform="translate(0,-150) rotate(-8 400 430)"/>
+</svg>
