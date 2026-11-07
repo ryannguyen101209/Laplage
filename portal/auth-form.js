@@ -44,7 +44,8 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
           <label class="pf-field"><span>Re-enter password</span><input name="password2" type="password" autocomplete="new-password" required></label>
           <label class="pf-field"><span>Gmail <em>for pre-order emails</em></span>
             <input name="gmail" type="email" autocomplete="email" inputmode="email" maxlength="120" required></label>
-          <p class="pf-hint">3–20 characters for the username: lowercase letters, numbers, dots or underscores. Passwords need 8 characters or more.</p>` : ''}
+          <p class="pf-hint">3–20 characters for the username: lowercase letters, numbers, dots or underscores. Passwords need 8 characters or more.</p>
+          <p class="pf-hint">By creating an account you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>` : ''}
           <p class="pf-error" role="alert" data-auth-error></p>
           <button class="btn-outline pf-submit" type="submit">${signup ? 'Create account' : 'Sign in'}</button>
         </form>

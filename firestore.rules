@@ -88,6 +88,32 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---- mailing list ----
+    // Each subscriber is stored under a long random token (their private unsubscribe key).
+    // Nobody can list or search subscribers except admins; anyone holding the token (from the
+    // email's unsubscribe link) can read that one record and flip its status.
+    match /subscribers/{token} {
+      allow get: if token.matches('^[a-f0-9]{32,64}$') || isAdmin();
+      allow list: if isAdmin();
+
+      allow create: if token.matches('^[a-f0-9]{32,64}$')
+        && request.resource.data.keys().hasOnly(['email', 'status', 'source', 'consent', 'createdAt', 'updatedAt'])
+        && validGmail(request.resource.data.email)
+        && request.resource.data.status == 'subscribed'
+        && request.resource.data.consent == true
+        && request.resource.data.source is string && request.resource.data.source.size() <= 30
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      // unsubscribe (or re-subscribe): the status and its timestamp, nothing else
+      allow update: if token.matches('^[a-f0-9]{32,64}$')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status in ['subscribed', 'unsubscribed']
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if isAdmin();
+    }
+
     // everything else is closed
     match /{document=**} {
       allow read, write: if false;

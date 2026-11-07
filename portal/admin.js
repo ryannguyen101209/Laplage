@@ -4,12 +4,13 @@ import {
   isConfigured, auth, db, STATUSES, esc, fmtVND, fmtDate, fmtAddress, titleCase, authMessage, isAdminUser, loadProducts,
   onAuthStateChanged, signOut, doc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp,
 } from './firebase.js';
+import { unsubscribeLink } from './mailing.js';
 import { renderAuthForm } from './auth-form.js';
 
 const root = document.querySelector('[data-admin]');
 const state = (html) => { root.innerHTML = `<div class="pf-card pf-card--narrow"><p class="pf-state">${html}</p></div>`; };
 
-let users = [], orders = [], products = [], tab = 'overview';
+let users = [], orders = [], subs = [], products = [], tab = 'overview';
 const view = { q: '', sort: 'newest', status: 'all', oq: '' };
 
 if (!isConfigured) {
@@ -35,10 +36,11 @@ if (!isConfigured) {
 async function load(user) {
   state('Loading accounts and pre-orders…');
   try {
-    const [u, o, p] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'orders')), loadProducts({ includeHidden: true }).catch(() => [])]);
+    const [u, o, sb, p] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'orders')), getDocs(collection(db, 'subscribers')).catch(() => null), loadProducts({ includeHidden: true }).catch(() => [])]);
     products = p;
     users = u.docs.map((d) => ({ id: d.id, ...d.data() }));
     orders = o.docs.map((d) => ({ id: d.id, ...d.data() }));
+    subs = sb ? sb.docs.map((d) => ({ id: d.id, ...d.data() })) : [];   // empty until the new firestore.rules are published
   } catch (e) {
     state(`Could not load the data. ${esc(authMessage(e))} If this persists, check that firestore.rules has your admin Gmail.`);
     return;
@@ -64,6 +66,7 @@ function shell(user) {
       <button type="button" role="tab" class="pf-tab" data-tab="overview">Tide report</button>
       <button type="button" role="tab" class="pf-tab" data-tab="accounts">Accounts <span data-count-accounts></span></button>
       <button type="button" role="tab" class="pf-tab" data-tab="orders">Pre-orders <span data-count-orders></span></button>
+      <button type="button" role="tab" class="pf-tab" data-tab="mailing">Mailing list <span data-count-subs></span></button>
     </div>
     <div data-panel></div>`;
   root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
@@ -75,9 +78,11 @@ function draw() {
   root.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
   root.querySelector('[data-count-accounts]').textContent = `(${users.length})`;
   root.querySelector('[data-count-orders]').textContent = `(${orders.length})`;
+  root.querySelector('[data-count-subs]').textContent = `(${activeSubs().length})`;
   const panel = root.querySelector('[data-panel]');
   if (tab === 'overview') drawOverview(panel);
   else if (tab === 'accounts') drawAccounts(panel);
+  else if (tab === 'mailing') drawMailing(panel);
   else drawOrders(panel);
 }
 
@@ -306,4 +311,73 @@ function exportCSV() {
   a.href = url; a.download = `la-plage-preorders-${new Date().toISOString().slice(0, 10)}.csv`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ---------------- Mailing list ----------------
+   One person can sign up twice, so each address is judged by its most recent record:
+   whatever they did last (sign up, unsubscribe, re-subscribe) wins. */
+const lastTouch = (x) => Math.max(ts(x.updatedAt), ts(x.createdAt));
+function currentSubs() {
+  const byEmail = new Map();
+  subs.forEach((x) => {
+    const k = String(x.email || '').toLowerCase(); if (!k) return;
+    const prev = byEmail.get(k);
+    if (!prev || lastTouch(x) >= lastTouch(prev)) byEmail.set(k, x);
+  });
+  return [...byEmail.values()].sort((a, b) => ts(b.createdAt) - ts(a.createdAt));
+}
+const activeSubs = () => currentSubs().filter((x) => x.status === 'subscribed');
+
+function drawMailing(panel) {
+  const all = currentSubs(), active = all.filter((x) => x.status === 'subscribed');
+  panel.innerHTML = `<div data-m>
+    <div class="pf-toolbar">
+      <p class="pf-lead pf-grow">${active.length} subscribed · ${all.length - active.length} unsubscribed. Only email people who are listed as <strong>subscribed</strong>, and keep the unsubscribe link in every message (the CSV has each person's link).</p>
+      <button type="button" class="btn-outline pf-export" data-copy>Copy subscribed emails</button>
+      <button type="button" class="btn-outline pf-export" data-csv>Export CSV</button>
+    </div>
+    ${all.length ? `<table class="pf-table">
+      <thead><tr><th>Email</th><th>Signed up</th><th>Source</th><th>Status</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>${all.map((x) => `<tr class="${x.status === 'subscribed' ? '' : 'is-disabled'}">
+        <td data-label="Email">${esc(x.email)}</td>
+        <td data-label="Signed up">${esc(fmtDate(x.createdAt))}</td>
+        <td data-label="Source">${esc(x.source || '')}</td>
+        <td data-label="Status"><span class="pf-badge${x.status === 'subscribed' ? ' is-on' : ' is-off'}">${esc(x.status)}</span></td>
+        <td class="pf-table__actions">${x.status === 'subscribed' ? `<button type="button" class="ui-btn link" data-unsub="${esc(x.id)}">Unsubscribe</button>` : ''}
+          <button type="button" class="ui-btn link pf-danger" data-del="${esc(x.id)}">Delete</button></td>
+      </tr>`).join('')}</tbody></table>` : '<p class="pf-state">No one has joined the list yet. If you expected sign-ups, check that the new firestore.rules (mailing list section) are published.</p>'}</div>`;
+  const m = panel.querySelector('[data-m]');
+  panel.querySelector('[data-copy]').addEventListener('click', async (e) => {
+    try { await navigator.clipboard.writeText(active.map((x) => x.email).join(', ')); e.target.textContent = 'Copied'; }
+    catch (err) { prompt('Copy these addresses:', active.map((x) => x.email).join(', ')); }
+  });
+  panel.querySelector('[data-csv]').addEventListener('click', () => exportSubs(all));
+  m.addEventListener('click', async (e) => {
+    const u = e.target.closest('[data-unsub]'), d = e.target.closest('[data-del]');
+    try {
+      if (u) {
+        u.disabled = true;
+        await updateDoc(doc(db, 'subscribers', u.dataset.unsub), { status: 'unsubscribed', updatedAt: serverTimestamp() });
+        const x = subs.find((r) => r.id === u.dataset.unsub); x.status = 'unsubscribed'; x.updatedAt = { seconds: Date.now() / 1000 }; draw();
+      }
+      if (d) {
+        const x = subs.find((r) => r.id === d.dataset.del);
+        if (!confirm(`Permanently delete ${x.email} from the list?\n\nIf you only want to stop emailing them, use Unsubscribe instead so they cannot be re-added by mistake.`)) return;
+        // delete every record for this address
+        const same = subs.filter((r) => String(r.email).toLowerCase() === String(x.email).toLowerCase());
+        await Promise.all(same.map((r) => deleteDoc(doc(db, 'subscribers', r.id))));
+        subs = subs.filter((r) => !same.includes(r)); draw();
+      }
+    } catch (ex) { alert(authMessage(ex)); }
+  });
+}
+
+function exportSubs(all) {
+  const cell = (v) => { let s = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return `"${s.replace(/"/g, '""')}"`; };
+  const day = (t) => (t && t.toDate ? t.toDate().toISOString().slice(0, 10) : '');
+  const rows = all.map((x) => [x.email, x.status, day(x.createdAt), x.source, unsubscribeLink(x.id)]);
+  const csv = '\ufeff' + [['Email', 'Status', 'Signed up', 'Source', 'Unsubscribe link'], ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = `la-plage-mailing-list-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

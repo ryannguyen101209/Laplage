@@ -84,3 +84,29 @@ Every pre-order sends two emails: one to all admins in `ADMIN_EMAILS`, and a con
 4. **Account → General → Public Key**: copy it.
 5. **Account → Security**: tick "Allow EmailJS API for non-browser applications" OFF, and add `la-plage-eight.vercel.app` to the allowed domains, so nobody else can send with your key.
 6. Put the four values in the `EMAILJS` block of `firebase-config.js`.
+
+## Mailing list (sign-ups, unsubscribe, privacy and terms)
+The home page's "Notify me" form saves each address in Firestore (collection `subscribers`) under a long random token.
+That token is the person's private unsubscribe key: `unsubscribe.html?t=TOKEN`. Nothing else is needed on a server.
+
+1. **Publish the new `firestore.rules`** (Firestore Database → Rules → paste the whole file → Publish). It now has a `subscribers` section.
+   Without this step sign-ups are refused and the form shows "We could not save your sign-up".
+2. **Optional welcome email (with the unsubscribe link).** In EmailJS create a third template:
+   To Email `{{to_email}}`, Reply To `{{reply_to}}`, Subject `You are on the LA PLAGE list`. Content:
+   ```
+   Thank you for joining LA PLAGE.
+
+   Pre-orders open on {{preorder_date}}. We will write the moment they do.
+
+   {{site_link}}
+
+   You can unsubscribe at any time: {{unsubscribe_link}}
+   ```
+   Paste its ID into `SUBSCRIBER_TEMPLATE_ID` in `firebase-config.js`.
+3. **Sending the 20 November announcement.** Open `/admin` → **Mailing list**.
+   - "Copy subscribed emails" copies everyone currently subscribed (put them in **BCC**, never in To/CC).
+   - "Export CSV" includes each person's own unsubscribe link, for mail-merge tools (Mailchimp, Brevo, Buttondown).
+   - Every marketing email must contain a working unsubscribe link and your business name/contact. If you import the list into another mailing tool, use that tool's own unsubscribe, and then mark those people "Unsubscribe" here too so the lists stay in step.
+   - Never email anyone listed as **unsubscribed**.
+4. **Legal pages.** `privacy.html` and `terms.html` use `lookmanfc@gmail.com` as the contact and "LA PLAGE, Ho Chi Minh City" as the operator.
+   Replace those with your registered business name, address and a business email, and have a lawyer check both pages before launch.

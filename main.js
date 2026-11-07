@@ -1023,20 +1023,30 @@
     update();
   };
 
-  /* ---------------- Private access form (no backend yet) ---------------- */
+  /* ---------------- Mailing list sign-up (saved by portal/mailing.js) ---------------- */
   const initAccess = () => {
     const form = document.querySelector('[data-access-form]');
     const input = form.querySelector('input');
     const status = document.getElementById('access-status');
-    form.addEventListener('submit', (e) => {
+    const btn = form.querySelector('button[type="submit"]');
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const fail = (msg, el) => { status.classList.add('is-error'); status.textContent = msg; if (el) el.focus(); };
       const ok = input.value.trim() && input.checkValidity();
       input.setAttribute('aria-invalid', String(!ok));
-      status.classList.toggle('is-error', !ok);
-      if (!ok) { status.textContent = 'Please enter a valid email address.'; input.focus(); return; }
-      // TODO: connect to the mailing platform (e.g. Shopify customer marketing / Klaviyo)
-      status.textContent = 'Thank you. We will write before the next drop.';
-      form.reset();
+      if (!ok) { fail('Please enter a valid email address.', input); return; }
+      if (!form.elements.consent.checked) { fail('Please tick the box so we know you want our emails.', form.elements.consent); return; }
+      if (form.elements.company.value) { status.classList.remove('is-error'); status.textContent = 'Thank you. We will write when pre-orders open.'; form.reset(); return; }   // a bot filled the hidden field
+      if (!window.laPlageSubscribe) { fail('Sign-up is unavailable right now. Please try again in a moment.'); return; }
+      btn.disabled = true; status.classList.remove('is-error'); status.textContent = 'One moment…';
+      try {
+        await window.laPlageSubscribe(input.value, 'home');
+        status.textContent = 'Thank you. We will write when pre-orders open on 20 November. Every email has an unsubscribe link.';
+        form.reset();
+      } catch (err) {
+        fail('We could not save your sign-up. Please check your connection and try again.');
+      }
+      btn.disabled = false;
     });
     input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); status.classList.remove('is-error'); status.textContent = ''; });
   };

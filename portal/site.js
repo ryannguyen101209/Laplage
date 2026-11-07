@@ -5,12 +5,12 @@ const cfg = (window.LAPLAGE_CONFIG || {}).FIREBASE_CONFIG || {};
 const ready = !!(cfg.apiKey && !/^PASTE_/.test(cfg.apiKey));
 // if the SDK can't be reached (a content blocker, a bad connection) the shop carries on without accounts
 const load = async () => {
-  if (!ready) return [{ isConfigured: false }, {}, {}];
+  if (!ready) return [{ isConfigured: false }, {}, {}, {}];
   try {
-    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js')]);
+    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js'), import('./mailing.js')]);
   } catch (e) {
     console.warn('[LA PLAGE] accounts unavailable', e);
-    return [{ isConfigured: false }, {}, {}];
+    return [{ isConfigured: false }, {}, {}, {}];
   }
 };
 const [
@@ -20,7 +20,11 @@ const [
   },
   { renderAuthForm, loadProfile },
   { sendOrderEmails },
+  { subscribe },
 ] = await load();
+
+// the mailing-list form on the home page (main.js) calls this
+if (subscribe) window.laPlageSubscribe = subscribe;
 
 const links = [...document.querySelectorAll('[data-account-link]')];
 const setLinks = (label) => links.forEach((a) => { a.textContent = label; });
@@ -132,6 +136,7 @@ if (isConfigured) {
           <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
         </dl>
         <p class="pf-error" role="alert" data-order-error></p>
+        <p class="pf-hint">By placing a pre-order you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
         <button class="btn-outline pf-submit" type="submit">Place pre-order</button>
       </form>`;
     wire();

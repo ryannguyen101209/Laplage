@@ -41,3 +41,17 @@ export async function sendOrderEmails(order) {
     send(E.CUSTOMER_TEMPLATE_ID, { ...params, to_email: order.gmail, reply_to: ADMIN_EMAILS[0] || '' }),
   ]).then((r) => r.forEach((x) => { if (x.status === 'rejected') console.warn('[LA PLAGE] email', x.reason); }));
 }
+
+/* Welcome email for the mailing list (optional: needs SUBSCRIBER_TEMPLATE_ID). It carries the personal
+   unsubscribe link, so every email we send can be stopped in one click. */
+export const welcomeReady = !!(E.PUBLIC_KEY && !/^PASTE_/.test(E.PUBLIC_KEY) && E.SERVICE_ID && E.SUBSCRIBER_TEMPLATE_ID && !/^PASTE_/.test(E.SUBSCRIBER_TEMPLATE_ID));
+export async function sendWelcomeEmail({ email, unsubscribeLink }) {
+  if (!welcomeReady) return;
+  await send(E.SUBSCRIBER_TEMPLATE_ID, {
+    to_email: email,
+    reply_to: ADMIN_EMAILS[0] || '',
+    unsubscribe_link: unsubscribeLink,
+    preorder_date: '20 November 2026',
+    site_link: location.origin,
+  });
+}

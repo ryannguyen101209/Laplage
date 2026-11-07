@@ -30,6 +30,7 @@ window.LAPLAGE_CONFIG = {
     'ryannguyen101209@gmail.com',
   ],
   SHIPPING_FEE: 50000,
+  PREORDER_OPENS: '20 November 2026',
 
   /* Pre-order emails (EmailJS, free up to 200 emails a month). See ACCOUNTS-SETUP.md, "Emails".
      EmailJS dashboard → Account → API keys → Public key; Email Services → Service ID;
@@ -39,5 +40,6 @@ window.LAPLAGE_CONFIG = {
     SERVICE_ID: 'PASTE_SERVICE_ID',
     ADMIN_TEMPLATE_ID: 'PASTE_ADMIN_TEMPLATE_ID',
     CUSTOMER_TEMPLATE_ID: 'PASTE_CUSTOMER_TEMPLATE_ID',
+    SUBSCRIBER_TEMPLATE_ID: 'PASTE_SUBSCRIBER_TEMPLATE_ID',   // welcome email for the mailing list (optional)
   },
 };

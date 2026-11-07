@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@1,500&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
-  <link rel="stylesheet" href="styles.css?v=57">
+  <link rel="stylesheet" href="styles.css?v=59">
   <link rel="stylesheet" href="portal/portal.css?v=46">
   <script>document.documentElement.classList.replace('no-js','js')</script>
 </head>
@@ -218,11 +218,13 @@
       <div class="access__inner wrap">
         <p class="label label--index label--center" data-animate="fade-up"><span>06</span> Private access</p>
         <h2 class="display-2" id="access-title" data-animate="words" data-delay="100">Before it opens to <em>everyone.</em></h2>
-        <p class="access__text" data-animate="fade-up" data-delay="300">Each drop is small. Members hear first.</p>
+        <p class="access__text" data-animate="fade-up" data-delay="300">Each drop is small. Pre-orders open on <strong>20 November</strong>. Leave your email and we will write the moment they do.</p>
         <form class="access__form" novalidate data-access-form data-animate="fade-up" data-delay="420">
           <label class="visually-hidden" for="access-email">Email address</label>
           <input class="access__input" id="access-email" name="email" type="email" autocomplete="email" placeholder="Email address" required aria-describedby="access-status">
-          <button class="btn-outline" type="submit">Request access</button>
+          <button class="btn-outline" type="submit">Notify me</button>
+          <div class="access__trap" aria-hidden="true"><label>Leave this empty <input type="text" name="company" tabindex="-1" autocomplete="off"></label></div>
+          <label class="access__consent"><input type="checkbox" name="consent" required> <span>Yes, email me about pre-orders opening on 20 November and future drops. I can unsubscribe at any time. <a class="link link--underlined" href="privacy.html">Privacy Policy</a></span></label>
         </form>
         <p class="access__status" id="access-status" role="status" aria-live="polite"></p>
       </div>
@@ -252,6 +254,7 @@
           <li><a class="link" href="#story">Story</a></li>
           <li><a class="link" href="#lookbook">Lookbook</a></li>
           <li><a class="link" href="#access">Private access</a></li>
+          <li><a class="link" href="unsubscribe.html">Unsubscribe</a></li>
         </ul>
       </nav>
       <nav class="footer__col" aria-label="Help">
@@ -273,6 +276,11 @@
     </div>
     <div class="footer__base wrap">
       <p>&copy; <span data-year>2026</span> LA PLAGE. Made in Vietnam.</p>
+      <nav class="footer__legal" aria-label="Legal">
+        <a class="link" href="privacy.html">Privacy Policy</a>
+        <a class="link" href="terms.html">Terms of Use</a>
+        <a class="link" href="unsubscribe.html">Unsubscribe</a>
+      </nav>
       <div class="footer__locale">
         <div class="footer__lang" role="group" aria-label="Language">
           <button class="ui-btn" type="button" aria-pressed="true" data-lang="en">EN</button>
@@ -325,8 +333,8 @@
   <script src="intro.js?v=47" defer></script>
   <script src="ocean.js?v=46" defer></script>
   <script src="piece3d.js?v=52" defer></script>
-  <script src="main.js?v=57" defer></script>
+  <script src="main.js?v=58" defer></script>
   <script src="firebase-config.js?v=46"></script>
-  <script type="module" src="portal/site.js?v=46"></script>
+  <script type="module" src="portal/site.js?v=47"></script>
 </body>
 </html>
