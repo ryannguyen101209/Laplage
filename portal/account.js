@@ -17,7 +17,7 @@ if (!isConfigured) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       root.innerHTML = '<div class="pf-card pf-card--narrow"><h1 class="pf-title">Your <em>account.</em></h1><div data-auth></div></div>';
-      renderAuthForm(root.querySelector('[data-auth]'), { intro: 'Sign in to see your pre-orders, or create an account to place one.' });
+      renderAuthForm(root.querySelector('[data-auth]'), { intro: 'Sign in with your email to see your pre-orders.' });
       return;
     }
     if (isAdminUser(user)) {
@@ -51,7 +51,7 @@ function render(user, profile, orders) {
     <div class="pf-card">
       <div class="pf-head">
         <div>
-          <p class="label">Account · @${esc(profile.username || '')}</p>
+          <p class="label">Account · ${esc(profile.gmail || '')}</p>
           <h1 class="pf-title">Hello, <em>${esc((profile.name || '').split(' ')[0] || 'there')}.</em></h1>
         </div>
         <span class="pf-badge${status === 'Pre-ordered' ? ' is-on' : ''}">${esc(status)}</span>

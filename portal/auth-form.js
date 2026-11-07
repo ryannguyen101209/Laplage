@@ -1,11 +1,12 @@
 /* LA PLAGE · sign in / create account form (username + password).
    Renders into any container; used by the pre-order overlay, the account page and /admin. */
 import {
-  auth, db, esc, authMessage, loginEmailFor, USERNAME_RE, isAdminUser,
+  auth, db, esc, authMessage, loginEmailFor, ADMIN_EMAILS, isAdminUser,
   signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, deleteUser, signOut,
   doc, getDoc, setDoc, updateDoc, serverTimestamp,
 } from './firebase.js';
 
+const isAdminEmail = (e) => ADMIN_EMAILS.includes(String(e).toLowerCase());
 const GMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // After a customer signs in: refresh lastLogin and return their profile (null if the record was removed)
@@ -34,17 +35,14 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
           <button type="button" role="tab" class="pf-tab" aria-selected="${signup}" data-mode="signup">Create account</button>
         </div>`}
         <form class="pf-form" novalidate data-auth-form>
-          <label class="pf-field"><span>${adminOnly ? 'Admin Gmail' : 'Username'}</span>
-            <input name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+          <label class="pf-field"><span>${adminOnly ? 'Admin Gmail' : 'Email'}</span>
+            <input name="username" type="${adminOnly ? 'text' : 'email'}" autocomplete="${signup ? 'email' : 'username'}" inputmode="email" autocapitalize="none" spellcheck="false" required></label>
           ${signup ? `
           <label class="pf-field"><span>Your name</span><input name="name" autocomplete="name" required maxlength="80"></label>` : ''}
           <label class="pf-field"><span>Password</span>
             <input name="password" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" required></label>
           ${signup ? `
-          <label class="pf-field"><span>Re-enter password</span><input name="password2" type="password" autocomplete="new-password" required></label>
-          <label class="pf-field"><span>Gmail <em>for pre-order emails</em></span>
-            <input name="gmail" type="email" autocomplete="email" inputmode="email" maxlength="120" required></label>
-          <p class="pf-hint">3–20 characters for the username: lowercase letters, numbers, dots or underscores. Passwords need 8 characters or more.</p>
+          <p class="pf-hint">Your email is your username. Passwords need 8 characters or more.</p>
           <p class="pf-hint">By creating an account you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>` : ''}
           <p class="pf-error" role="alert" data-auth-error></p>
           <button class="btn-outline pf-submit" type="submit">${signup ? 'Create account' : 'Sign in'}</button>
@@ -66,13 +64,12 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
     err.textContent = '';
 
     if (current === 'signup') {
-      if (!USERNAME_RE.test(username)) return fail('Usernames are 3–20 characters: lowercase letters, numbers, dots or underscores.');
+      if (!GMAIL_RE.test(username)) return fail('Please enter a valid email address.');
+      if (isAdminEmail(username)) return fail('That email is reserved. Please use another.');
       if (!String(f.name || '').trim()) return fail('Please add your name.');
       if (String(f.password || '').length < 8) return fail('Please use a password of at least 8 characters.');
-      if (f.password !== f.password2) return fail('The two passwords do not match.');
-      const gmail = String(f.gmail || '').trim().toLowerCase();
-      if (!gmail) return fail('Please add your Gmail. We send your pre-order confirmation there.');
-      if (!GMAIL_RE.test(gmail)) return fail('That Gmail address does not look right.');
+      const gmail = username;
+      const handle = (username.split('@')[0].replace(/[^a-z0-9._]/g, '').slice(0, 20).padEnd(3, '_'));
       btn.disabled = true; btn.classList.add('is-busy');
       let cred = null;
       try {
@@ -80,7 +77,7 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
         const name = String(f.name).trim().slice(0, 80);
         await updateProfile(cred.user, { displayName: name });
         await setDoc(doc(db, 'users', cred.user.uid), {
-          uid: cred.user.uid, username, name, gmail, phone: '',
+          uid: cred.user.uid, username: handle, name, gmail, phone: '',
           address: { street: '', ward: '', district: '', city: '' },
           disabled: false, createdAt: serverTimestamp(), lastLogin: serverTimestamp(),
         });
@@ -92,7 +89,7 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
       return;
     }
 
-    if (!username) return fail(adminOnly ? 'Please enter your admin Gmail.' : 'Please enter your username.');
+    if (!username) return fail(adminOnly ? 'Please enter your admin Gmail.' : 'Please enter your email.');
     if (!f.password) return fail('Please enter your password.');
     btn.disabled = true; btn.classList.add('is-busy');
     try {

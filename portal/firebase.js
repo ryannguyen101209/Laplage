@@ -39,9 +39,13 @@ if (isConfigured) {
    Admins sign in with their Gmail instead (anything containing "@" is used as is). */
 export const USERNAME_RE = /^[a-z0-9._]{3,20}$/;
 const LOGIN_DOMAIN = 'members.laplage.app';
+// customers sign in with their email address. It is stored under a private derived login (never an admin's real address),
+// so nobody can register an admin's email and gain admin access. Admins sign in with their real Gmail.
 export const loginEmailFor = (name) => {
   const v = String(name).trim().toLowerCase();
-  return v.includes('@') ? v : `${v}@${LOGIN_DOMAIN}`;
+  if (!v.includes('@')) return `${v}@${LOGIN_DOMAIN}`;       // old username accounts keep working
+  if (ADMIN_EMAILS.includes(v)) return v;                      // an admin signing in
+  return `${v.replace('@', '_at_').replace(/[^a-z0-9._+-]/g, '_')}@${LOGIN_DOMAIN}`;
 };
 export const isAdminUser = (user) => !!(user && user.email && ADMIN_EMAILS.includes(user.email.toLowerCase()));
 
