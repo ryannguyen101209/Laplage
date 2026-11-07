@@ -63,7 +63,9 @@ service cloud.firestore {
 
       // a signed-in customer with an active (not disabled) account, ordering for themselves,
       // always starting as "preordered", with the flat 50,000 VND shipping added to the total
-      allow create: if signedIn()
+      // pre-orders open 20 November 2026, 00:00 Saigon time (= 17:00 UTC on the 19th); nothing can be placed before that
+      allow create: if request.time >= timestamp.date(2026, 11, 19) + duration.time(17, 0, 0, 0)
+        && signedIn()
         && request.resource.data.uid == request.auth.uid
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == false

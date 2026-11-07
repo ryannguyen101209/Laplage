@@ -31,6 +31,7 @@ window.LAPLAGE_CONFIG = {
   ],
   SHIPPING_FEE: 50000,
   PREORDER_OPENS: '20 November 2026',
+  PREORDER_OPENS_AT: '2026-11-20T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
 
   /* Pre-order emails (EmailJS, free up to 200 emails a month). See ACCOUNTS-SETUP.md, "Emails".
      EmailJS dashboard → Account → API keys → Public key; Email Services → Service ID;

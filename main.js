@@ -373,10 +373,14 @@
     });
     $('[data-spot-prev]').addEventListener('click', () => go(-1));
     $('[data-spot-next]').addEventListener('click', () => go(1));
-    // "Pre-order": opens the pre-order form with this piece and size (portal/site.js); until accounts
+    // "Pre-order" (once pre-orders are open): opens the pre-order form with this piece and size (portal/site.js); until accounts
     // are set up it keeps its old behaviour and leads to Private access
+    // before the opening date the button becomes "Get notified" and leads to the email sign-up instead
+    const opensAt = Date.parse((window.LAPLAGE_CONFIG || {}).PREORDER_OPENS_AT || '') || 0;
+    const preordersOpen = () => Date.now() >= opensAt;
+    if (!preordersOpen()) $('[data-spot-access]').textContent = 'Get notified';
     $('[data-spot-access]').addEventListener('click', (e) => {
-      if (typeof window.laPlagePreorder === 'function') {
+      if (preordersOpen() && typeof window.laPlagePreorder === 'function') {
         e.preventDefault();
         const chosen = sizes.querySelector('.size[aria-checked="true"]');
         const p = products[index];

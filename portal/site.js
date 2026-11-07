@@ -1,7 +1,8 @@
 /* LA PLAGE · home page: the Sign in / Account control in the header and the pre-order overlay.
    Opens from the product view's "Pre-order" button with that piece and size already chosen.
    Firebase is only downloaded once firebase-config.js has been filled in. */
-const cfg = (window.LAPLAGE_CONFIG || {}).FIREBASE_CONFIG || {};
+const cfgAll = window.LAPLAGE_CONFIG || {};
+const cfg = cfgAll.FIREBASE_CONFIG || {};
 const ready = !!(cfg.apiKey && !/^PASTE_/.test(cfg.apiKey));
 // if the SDK can't be reached (a content blocker, a bad connection) the shop carries on without accounts
 const load = async () => {
@@ -238,6 +239,7 @@ if (isConfigured) {
 
   // the product view's "Pre-order" button calls this with the piece, size and colour on screen
   window.laPlagePreorder = (product, size, color) => {
+    if (Date.now() < (Date.parse(cfgAll.PREORDER_OPENS_AT || '') || 0)) { location.hash = 'access'; return; }   // not open yet: the sign-up is the way in
     ensureOverlay();
     lastFocus = document.activeElement;
     if (product) { pending = { productId: product.id, size: size || 'M', color: color || '', qty: 1 }; items = []; }
