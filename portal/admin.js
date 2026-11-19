@@ -54,7 +54,9 @@ async function load(user) {
 
 const ts = (t) => (t && t.seconds) || 0;
 const ordersOf = (uid) => orders.filter((o) => o.uid === uid);
-const accountStatus = (uid) => (ordersOf(uid).some((o) => o.status !== 'cancelled') ? 'Preordered' : 'No pre-order yet');
+// cancelled pre-orders stay in the history but are not counted as an account's orders
+const activeOrdersOf = (uid) => ordersOf(uid).filter((o) => o.status !== 'cancelled');
+const accountStatus = (uid) => (activeOrdersOf(uid).length ? 'Preordered' : 'No pre-order yet');
 
 function shell(user) {
   root.innerHTML = `
@@ -90,7 +92,7 @@ function shell(user) {
 function draw() {
   root.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
   root.querySelector('[data-count-accounts]').textContent = `(${users.length})`;
-  root.querySelector('[data-count-orders]').textContent = `(${orders.length})`;
+  root.querySelector('[data-count-orders]').textContent = `(${orders.filter(live).length})`;   // cancelled ones are not counted
   root.querySelector('[data-count-subs]').textContent = `(${activeSubs().length})`;
   const dot = root.querySelector('[data-count-msgs]'); dot.textContent = unreadCount() ? String(unreadCount()) : ''; dot.hidden = !unreadCount();
   const panel = root.querySelector('[data-panel]');
@@ -212,7 +214,7 @@ function drawAccounts(panel) {
       newest: (a, b) => ts(b.createdAt) - ts(a.createdAt),
       oldest: (a, b) => ts(a.createdAt) - ts(b.createdAt),
       name: (a, b) => String(a.name || '').localeCompare(String(b.name || '')),
-      orders: (a, b) => ordersOf(b.id).length - ordersOf(a.id).length,
+      orders: (a, b) => activeOrdersOf(b.id).length - activeOrdersOf(a.id).length,
     }[view.sort];
     rows = rows.sort(by);
     if (!users.length) { list.innerHTML = '<p class="pf-state">No accounts yet.</p>'; return; }
@@ -227,7 +229,7 @@ function drawAccounts(panel) {
             <td data-label="Address">${esc(fmtAddress(u.address) || '—')}</td>
             <td data-label="Joined">${esc(fmtDate(u.createdAt))}</td>
             <td data-label="Status"><span class="pf-badge${accountStatus(u.id) === 'Preordered' ? ' is-on' : ''}">${esc(accountStatus(u.id))}</span>${u.disabled ? '<span class="pf-badge is-off">Disabled</span>' : ''}</td>
-            <td data-label="Pre-orders">${ordersOf(u.id).length}</td>
+            <td data-label="Pre-orders">${activeOrdersOf(u.id).length}${ordersOf(u.id).length > activeOrdersOf(u.id).length ? `<small>${ordersOf(u.id).length - activeOrdersOf(u.id).length} cancelled</small>` : ''}</td>
             <td class="pf-table__actions">
               <button type="button" class="ui-btn link" data-toggle="${esc(u.id)}">${u.disabled ? 'Enable' : 'Disable'}</button>
               <button type="button" class="ui-btn link pf-danger" data-delete="${esc(u.id)}">Delete</button>
