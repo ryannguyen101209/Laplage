@@ -154,6 +154,7 @@ if (isConfigured) {
           <div><dt>Shipping</dt><dd>${SHIPPING_FEE ? esc(fmtVND(SHIPPING_FEE)) : 'Free'}</dd></div>
           <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
         </dl>
+        <p class="pf-hint">10% of every order goes to Saigon Xanh.</p>
         <p class="pf-error" role="alert" data-order-error></p>
         <p class="pf-hint">By placing a pre-order you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
         <button class="btn-outline pf-submit" type="submit">Place pre-order</button>
