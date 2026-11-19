@@ -32,10 +32,13 @@ window.LAPLAGE_CONFIG = {
   SHIPPING_FEE: 0,   // free shipping (must match firestore.rules)
   /* How customers pay (shown after they place an order). Fill in what you use; leave a line empty to say "we will send you the details". */
   PAYMENT: {
-    BANK: '',          // e.g. 'Vietcombank · LA PLAGE · 0123456789'
-    QR_IMAGE: '',      // e.g. 'assets/pay/qr.png' (put your QR picture in that folder)
+    BANK_NAME: 'VietinBank - CN Tan Binh - PGD Bau Cat',
+    ACCOUNT_NAME: 'NGUYEN MINH HY',
+    ACCOUNT_NO: '105600101209',
+    QR_IMAGE: 'assets/pay/qr.png',
     CASH: 'Pay in cash, in person. We will contact you to arrange where and when to meet.',
   },
+
   PREORDER_OPENS: '20 November 2026',
   PREORDER_OPENS_AT: '2026-11-20T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
 

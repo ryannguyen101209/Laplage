@@ -6,12 +6,12 @@ const cfg = cfgAll.FIREBASE_CONFIG || {};
 const ready = !!(cfg.apiKey && !/^PASTE_/.test(cfg.apiKey));
 // if the SDK can't be reached (a content blocker, a bad connection) the shop carries on without accounts
 const load = async () => {
-  if (!ready) return [{ isConfigured: false }, {}, {}, {}, {}];
+  if (!ready) return [{ isConfigured: false }, {}, {}, {}, {}, {}];
   try {
-    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js'), import('./mailing.js'), import('./notify.js')]);
+    return await Promise.all([import('./firebase.js'), import('./auth-form.js'), import('./emails.js'), import('./mailing.js'), import('./notify.js'), import('./pay.js')]);
   } catch (e) {
     console.warn('[LA PLAGE] accounts unavailable', e);
-    return [{ isConfigured: false }, {}, {}, {}, {}];
+    return [{ isConfigured: false }, {}, {}, {}, {}, {}];
   }
 };
 const [
@@ -23,6 +23,7 @@ const [
   { sendOrderEmails },
   { subscribe },
   { notifyAdmins },
+  { payPanel, wireCopy },
 ] = await load();
 
 // the mailing-list form on the home page (main.js) calls this
@@ -196,14 +197,6 @@ if (isConfigured) {
     form.addEventListener('submit', submit);
   };
 
-  // how to pay, from firebase-config.js (PAYMENT); an empty line falls back to "we will send you the details"
-  const PAY = cfgAll.PAYMENT || {};
-  const payHow = (k) => {
-    if (k === 'cash') return `<p class="pf-lead"><b>Cash.</b> ${esc(PAY.CASH || 'We will arrange it with you.')}</p>`;
-    if (k === 'qr') return `<p class="pf-lead"><b>QR code.</b> ${PAY.QR_IMAGE ? 'Scan this to pay:' : 'We will send you the QR code shortly.'}</p>${PAY.QR_IMAGE ? `<img class="pf-qr" src="${esc(PAY.QR_IMAGE)}" alt="Payment QR code" width="220" height="220">` : ''}`;
-    return `<p class="pf-lead"><b>Bank transfer.</b> ${esc(PAY.BANK || 'We will send you the bank details shortly.')}</p>`;
-  };
-
   const submit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -251,9 +244,10 @@ if (isConfigured) {
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
           <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. Follow your order's progress in your account.</p>
-          ${payHow(f.payment)}
+          ${payPanel(f.payment, { total: subtotal + SHIPPING_FEE, id: ref.id })}
           <a class="link link--underlined" href="account.html">View my pre-orders</a>
         </div>`;
+      wireCopy(body());
     } catch (ex) {
       err.textContent = ex && ex.code && ex.code.includes('permission-denied')
         ? 'This pre-order could not be placed. Please check your details, or contact us if your account is paused.'

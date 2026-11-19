@@ -79,7 +79,7 @@ module.exports = async function handler(req, res) {
       const sums = `Payment: ${pay}\nSubtotal: ${vnd(o.subtotal)}\nShipping: ${o.shippingFee ? vnd(o.shippingFee) : 'Free'}\nTotal: ${vnd(o.total)}`;
       await Promise.all([
         mail({ to: admins(), replyTo: o.gmail, subject: `New pre-order from ${o.customerName} · ${vnd(o.total)}`, link: `${base}/admin.html#orders`, linkLabel: 'Open admin',
-          text: `New pre-order ${id}\n\nCustomer: ${o.customerName} (@${o.username})\nEmail: ${o.gmail}   Phone: ${o.phone}\nShip to: ${addr}\n\n${lines}\n\n${sums}\nNote: ${o.note || '-'}` }),
+          text: `New pre-order ${id} (transfer code LP${id.slice(0, 6).toUpperCase()})\n\nCustomer: ${o.customerName} (@${o.username})\nEmail: ${o.gmail}   Phone: ${o.phone}\nShip to: ${addr}\n\n${lines}\n\n${sums}\nNote: ${o.note || '-'}` }),
         mail({ to: o.gmail, subject: 'Your LA PLAGE pre-order is in', link: `${base}/account.html`, linkLabel: 'Follow your pre-order',
           text: `Hello ${o.customerName},\n\nThank you for your pre-order. It joins our next production batch. We will be in touch to confirm the details and arrange payment.\n\n${lines}\n\n${sums}\nShip to: ${addr}` }),
       ]);

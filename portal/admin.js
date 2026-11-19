@@ -5,6 +5,7 @@ import {
   onAuthStateChanged, signOut, doc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp,
 } from './firebase.js';
 import { unsubscribeLink } from './mailing.js';
+import { orderCode } from './pay.js';
 import { watchMessages, drawMessages, unreadCount, pendingQuestions, openThread } from './admin-messages.js';
 import { renderAuthForm } from './auth-form.js';
 
@@ -260,7 +261,7 @@ function drawAccounts(panel) {
 const filteredOrders = () => {
   const q = view.oq.trim().toLowerCase();
   return orders
-    .filter((o) => !q || [o.customerName, o.phone, o.gmail, o.username, fmtAddress(o.address)].some((v) => String(v || '').toLowerCase().includes(q)))
+    .filter((o) => !q || [o.customerName, o.phone, o.gmail, o.username, fmtAddress(o.address), orderCode(o.id)].some((v) => String(v || '').toLowerCase().includes(q)))
     .sort((a, b) => ts(b.createdAt) - ts(a.createdAt));
 };
 
@@ -269,7 +270,7 @@ const orderTable = (rows) => `
     <thead><tr><th>Date</th><th>Customer</th><th>Ship to</th><th>Pieces &amp; sizes</th><th>Total &amp; payment</th><th>Status</th></tr></thead>
     <tbody>${rows.map((o) => `
       <tr>
-        <td data-label="Date">${esc(fmtDate(o.createdAt))}</td>
+        <td data-label="Date">${esc(fmtDate(o.createdAt))}<small>${esc(orderCode(o.id))}</small></td>
         <td data-label="Customer"><strong>${esc(o.customerName)}</strong><small>${esc(o.phone)}</small><small>${esc(o.gmail || '')}</small></td>
         <td data-label="Ship to">${esc(fmtAddress(o.address))}${o.note ? `<small>Note: ${esc(o.note)}</small>` : ''}</td>
         <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · <b>size ${esc(it.size)}</b> × ${esc(it.quantity)}`).join('<br>')}</td>
@@ -285,7 +286,7 @@ const orderTable = (rows) => `
 function drawOrders(panel) {
   panel.innerHTML = `
     <div class="pf-toolbar">
-      <label class="pf-field pf-field--grow"><span>Search</span><input type="search" data-oq placeholder="Customer, phone or address" value="${esc(view.oq)}"></label>
+      <label class="pf-field pf-field--grow"><span>Search</span><input type="search" data-oq placeholder="Customer, phone, address or order code" value="${esc(view.oq)}"></label>
       <button type="button" class="btn-outline pf-export" data-export>Export CSV</button>
     </div>
     <div data-body></div>`;

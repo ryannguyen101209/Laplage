@@ -4,6 +4,7 @@ import {
   onAuthStateChanged, signOut, doc, updateDoc, collection, query, where, getDocs,
 } from './firebase.js';
 import { renderAuthForm, loadProfile } from './auth-form.js';
+import { payPanel, wireCopy } from './pay.js';
 
 const root = document.querySelector('[data-account]');
 const GMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -90,6 +91,7 @@ function render(user, profile, orders) {
 
     <p class="pf-actions pf-actions--end"><button type="button" class="btn-outline" data-signout>Sign out</button></p>`;
 
+  wireCopy(root);
   root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
   root.querySelector('[data-profile-form]').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -128,7 +130,7 @@ function orderCard(o) {
         <span class="pf-status pf-status--${esc(String(o.status || '').replace(/\s+/g, '-'))}">${esc(STATUS_LABEL[o.status] || o.status || '')}</span>
       </header>
       ${progress(o.status)}
-      ${o.status === 'awaiting payment' ? '<p class="pf-hint">We start on your order as soon as your payment arrives. Pay by the method you chose (bank transfer, QR code or cash) and we will move it to <b>In process</b>.</p>' : ''}
+      ${o.status === 'awaiting payment' && !o.paid ? payPanel(o.payment, { total: o.total, id: o.id }) : ''}
       <ul class="pf-order__items">${(o.items || []).map((it) => `
         <li><span>${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · size ${esc(it.size)} × ${esc(it.quantity)}</span><span>${esc(fmtVND(it.lineTotal))}</span></li>`).join('')}
       </ul>
