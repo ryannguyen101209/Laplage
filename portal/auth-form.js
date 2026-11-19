@@ -44,13 +44,21 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
           ${signup ? `
           <p class="pf-hint">Your email is your username. Passwords need 8 characters or more.</p>
           <p class="pf-hint">By creating an account you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>` : ''}
+          ${adminOnly
+            ? '<p class="pf-hint">Admins: sign in with your real Gmail, not the customer form.</p>'
+            : '<p class="pf-hint pf-login-note">Your login is saved as: <b data-login-preview>yourname_at_gmail.com@members.laplage.app</b><br>(the part of your email before the @, then <b>_at_</b>, then the rest of your email, then <b>@members.laplage.app</b>)</p>'}
           <p class="pf-error" role="alert" data-auth-error></p>
           <button class="btn-outline pf-submit" type="submit">${signup ? 'Create account' : 'Sign in'}</button>
         </form>
       </div>`;
     box.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { current = b.dataset.mode; draw(); }));
     box.querySelector('[data-auth-form]').addEventListener('submit', submit);
-    box.querySelector('input[name="username"]').focus({ preventScroll: true });
+    const idInput = box.querySelector('input[name="username"]'), preview = box.querySelector('[data-login-preview]');
+    if (preview) idInput.addEventListener('input', () => {
+      const v = idInput.value.trim().toLowerCase();
+      preview.textContent = v.includes('@') ? loginEmailFor(v) : 'yourname_at_gmail.com@members.laplage.app';
+    });
+    idInput.focus({ preventScroll: true });
   };
 
   const submit = async (e) => {

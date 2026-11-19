@@ -384,3 +384,6 @@ body.portal.portal--admin { background: #04192A; }
 .pay-copy:hover { border-color: var(--sea); }
 .pay__foot { margin: 16px 0 0; font-size: 12.5px; color: var(--ink-soft); }
 @media (max-width: 640px) { .pay__grid { grid-template-columns: 1fr; justify-items: center; } .pay-rows { width: 100%; } }
+
+.pf-login-note { padding: 10px 12px; border-radius: 10px; background: rgba(43, 123, 182, .07); border: 1px dashed rgba(43, 123, 182, .35); }
+.pf-login-note b { font-weight: 500; color: var(--sea-deep); overflow-wrap: anywhere; }
