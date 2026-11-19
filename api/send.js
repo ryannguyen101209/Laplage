@@ -76,12 +76,17 @@ module.exports = async function handler(req, res) {
       const addr = [o.address.street, o.address.ward, o.address.district, o.address.city].filter(Boolean).join(', ');
       const lines = o.items.map((it) => `${it.title}${it.color ? ` · ${it.color}` : ''} · size ${it.size} × ${it.quantity} = ${vnd(it.lineTotal)}`).join('\n');
       const pay = { bank: 'Bank transfer', qr: 'QR code', cash: 'Cash' }[o.payment] || '-';
+      const code = `LP-${id.slice(0, 6).toUpperCase()}`;
+      const plainName = String(o.customerName || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').replace(/[^A-Za-z ]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
+      const howToPay = o.payment === 'cash'
+        ? 'HOW TO PAY\nPay in cash, in person. We will contact you to arrange where and when to meet.'
+        : `HOW TO PAY\nBank: VietinBank - CN Tan Binh - PGD Bau Cat\nAccount name: NGUYEN MINH HY\nAccount number: 105600101209\nAmount: ${vnd(o.total)}\nTransfer note: ${code} ${plainName}\n(You can also scan the QR code on your account page.)`;
       const sums = `Payment: ${pay}\nSubtotal: ${vnd(o.subtotal)}\nShipping: ${o.shippingFee ? vnd(o.shippingFee) : 'Free'}\nTotal: ${vnd(o.total)}`;
       await Promise.all([
         mail({ to: admins(), replyTo: o.gmail, subject: `New pre-order from ${o.customerName} · ${vnd(o.total)}`, link: `${base}/admin.html#orders`, linkLabel: 'Open admin',
           text: `New pre-order ${id} (order no. LP-${id.slice(0, 6).toUpperCase()})\n\nCustomer: ${o.customerName} (@${o.username})\nEmail: ${o.gmail}   Phone: ${o.phone}\nShip to: ${addr}\n\n${lines}\n\n${sums}\nNote: ${o.note || '-'}` }),
-        mail({ to: o.gmail, subject: 'Your LA PLAGE pre-order is in', link: `${base}/account.html`, linkLabel: 'Follow your pre-order',
-          text: `Hello ${o.customerName},\n\nThank you for your pre-order. It joins our next production batch. We will be in touch to confirm the details and arrange payment.\n\n${lines}\n\n${sums}\nShip to: ${addr}` }),
+        mail({ to: o.gmail, subject: `Thank you for your order · ${code}`, link: `${base}/account.html`, linkLabel: 'Pay and follow your order',
+          text: `Hello ${o.customerName},\n\nThank you for your order. It is now in our queue, and we start on it as soon as your payment arrives.\n\nOrder number: ${code}\n\n${lines}\n\n${sums}\nShip to: ${addr}\n\n${howToPay}` }),
       ]);
       return res.status(200).json({ ok: true });
     }
