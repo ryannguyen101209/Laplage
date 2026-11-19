@@ -14,7 +14,7 @@ const WEB_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBlJJkAw5ddTTeYBji3bUbnNka
 const FRESH_MS = 15 * 60 * 1000;   // only things that just happened can trigger an email
 const seen = new Map();            // best-effort "send once" memory while the function stays warm
 
-const admins = () => String(process.env.ADMIN_EMAILS || 'lookmanfc@gmail.com,ryannguyen101209@gmail.com').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+const admins = () => String(process.env.ADMIN_EMAILS || 'lookmanfc@gmail.com,ryannguyen101209@gmail.com,yosuke6eguchi@gmail.com').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
 const vnd = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(Number(n) || 0);
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 

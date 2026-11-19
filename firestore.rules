@@ -11,7 +11,8 @@ service cloud.firestore {
       return request.auth != null
         && request.auth.token.email in [
           'lookmanfc@gmail.com',
-          'ryannguyen101209@gmail.com'
+          'ryannguyen101209@gmail.com',
+          'yosuke6eguchi@gmail.com'
         ];
     }
     function signedIn() { return request.auth != null; }

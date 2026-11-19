@@ -28,6 +28,7 @@ window.LAPLAGE_CONFIG = {
   ADMIN_EMAILS: [
     'lookmanfc@gmail.com',
     'ryannguyen101209@gmail.com',
+    'yosuke6eguchi@gmail.com',
   ],
   SHIPPING_FEE: 0,   // free shipping (must match firestore.rules)
   /* How customers pay (shown after they place an order). Fill in what you use; leave a line empty to say "we will send you the details". */
