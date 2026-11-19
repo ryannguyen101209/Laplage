@@ -34,7 +34,7 @@ window.LAPLAGE_CONFIG = {
   PAYMENT: {
     BANK: '',          // e.g. 'Vietcombank · LA PLAGE · 0123456789'
     QR_IMAGE: '',      // e.g. 'assets/pay/qr.png' (put your QR picture in that folder)
-    CASH: 'Pay in cash when we meet you or on delivery.',
+    CASH: 'Pay in cash, in person. We will contact you to arrange where and when to meet.',
   },
   PREORDER_OPENS: '20 November 2026',
   PREORDER_OPENS_AT: '2026-11-20T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
