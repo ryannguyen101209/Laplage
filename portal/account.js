@@ -4,7 +4,7 @@ import {
   onAuthStateChanged, signOut, doc, updateDoc, collection, query, where, getDocs,
 } from './firebase.js';
 import { renderAuthForm, loadProfile } from './auth-form.js';
-import { payPanel, wireCopy } from './pay.js';
+import { payPanel, wireCopy, orderCode } from './pay.js';
 
 const root = document.querySelector('[data-account]');
 const GMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -126,11 +126,11 @@ function orderCard(o) {
   return `
     <article class="pf-order">
       <header class="pf-order__head">
-        <span>${esc(fmtDate(o.createdAt))} · ${esc(PAYMENTS[o.payment] || '')} · ${o.paid ? 'Paid' : 'Payment not received yet'}</span>
+        <span>${esc(orderCode(o.id))} · ${esc(fmtDate(o.createdAt))} · ${esc(PAYMENTS[o.payment] || '')} · ${o.paid ? 'Paid' : 'Payment not received yet'}</span>
         <span class="pf-status pf-status--${esc(String(o.status || '').replace(/\s+/g, '-'))}">${esc(STATUS_LABEL[o.status] || o.status || '')}</span>
       </header>
       ${progress(o.status)}
-      ${o.status === 'awaiting payment' && !o.paid ? payPanel(o.payment, { total: o.total, id: o.id }) : ''}
+      ${o.status === 'awaiting payment' && !o.paid ? payPanel(o.payment, { total: o.total, id: o.id, name: o.customerName }) : ''}
       <ul class="pf-order__items">${(o.items || []).map((it) => `
         <li><span>${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · size ${esc(it.size)} × ${esc(it.quantity)}</span><span>${esc(fmtVND(it.lineTotal))}</span></li>`).join('')}
       </ul>

@@ -244,7 +244,7 @@ if (isConfigured) {
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
           <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. Follow your order's progress in your account.</p>
-          ${payPanel(f.payment, { total: subtotal + SHIPPING_FEE, id: ref.id })}
+          ${payPanel(f.payment, { total: subtotal + SHIPPING_FEE, id: ref.id, name: data.name })}
           <a class="link link--underlined" href="account.html">View my pre-orders</a>
         </div>`;
       wireCopy(body());
