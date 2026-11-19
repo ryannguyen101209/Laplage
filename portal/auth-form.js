@@ -108,7 +108,11 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
         const profile = await loadProfile(cred.user);
         if (!profile) { await signOut(auth); return fail('This account is no longer active. Please contact us.'); }
       }
-    } catch (ex) { return fail(authMessage(ex)); }
+    } catch (ex) {
+      // on the admin page, show exactly what was tried and what Firebase answered, so a failed login can be diagnosed
+      const detail = adminOnly ? ` [tried: ${loginEmailFor(username)} · ${(ex && ex.code) || 'no code'}]` : '';
+      return fail(authMessage(ex) + detail);
+    }
   };
 
   draw();
