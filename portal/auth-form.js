@@ -23,6 +23,9 @@ export async function loadProfile(user) {
   return { id: snap.id, ...snap.data() };
 }
 
+const EYE = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 5.1A9.8 9.8 0 0 1 12 5c6.4 0 10 7 10 7a17.7 17.7 0 0 1-2.9 3.9M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></svg>';
+
 export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = false } = {}) {
   let current = mode;
   const draw = () => {
@@ -40,7 +43,10 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
           ${signup ? `
           <label class="pf-field"><span>Your name</span><input name="name" autocomplete="name" required maxlength="80"></label>` : ''}
           <label class="pf-field"><span>Password</span>
-            <input name="password" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" required></label>
+            <span class="pf-pass">
+              <input name="password" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" required>
+              <button type="button" class="pf-pass__eye" aria-label="Show password" aria-pressed="false" data-show-pass>${EYE}</button>
+            </span></label>
           ${signup ? `
           <p class="pf-hint">Your email is your username. Passwords need 8 characters or more.</p>
           <p class="pf-hint">By creating an account you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>` : ''}
@@ -53,6 +59,18 @@ export function renderAuthForm(box, { mode = 'signin', intro = '', adminOnly = f
       </div>`;
     box.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { current = b.dataset.mode; draw(); }));
     box.querySelector('[data-auth-form]').addEventListener('submit', submit);
+    // the eye shows the password so it can be checked before sending, and hides it again
+    const eye = box.querySelector('[data-show-pass]'), pass = box.querySelector('input[name="password"]');
+    eye.addEventListener('click', (e) => {
+      e.preventDefault();
+      const show = pass.type === 'password';
+      pass.type = show ? 'text' : 'password';
+      eye.setAttribute('aria-pressed', String(show));
+      eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      eye.innerHTML = show ? EYE_OFF : EYE;
+      pass.focus({ preventScroll: true });
+      const end = pass.value.length; pass.setSelectionRange(end, end);
+    });
     const idInput = box.querySelector('input[name="username"]'), preview = box.querySelector('[data-login-preview]');
     if (preview) idInput.addEventListener('input', () => {
       const v = idInput.value.trim().toLowerCase();

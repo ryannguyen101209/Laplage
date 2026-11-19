@@ -30,6 +30,18 @@
 .pf-field input:focus, .pf-field select:focus, .pf-field textarea:focus { outline: none; border-color: var(--sea); background: #fff; }
 .pf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .pf-field--wide { grid-column: 1 / -1; }
+/* password with a show/hide eye inside the field */
+.pf-pass { position: relative; display: block; }
+.pf-pass input { width: 100%; padding-right: 46px; }
+.pf-pass__eye {
+  position: absolute; top: 50%; right: 4px; translate: 0 -50%;
+  width: 38px; height: 38px; display: grid; place-items: center;
+  appearance: none; background: none; border: 0; border-radius: 50%; cursor: pointer;
+  color: var(--ink-soft); transition: color 200ms var(--ease-soft), background-color 200ms var(--ease-soft);
+}
+.pf-pass__eye:hover { color: var(--sea-deep); background: rgba(11, 44, 71, .06); }
+.pf-pass__eye:focus-visible { outline: 1px solid var(--sea); outline-offset: 1px; }
+.pf-pass__eye[aria-pressed="true"] { color: var(--sea); }
 .pf-set { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; }
 .pf-set legend { padding: 0 0 10px; font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--sea-deep); }
 .pf-check { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--ink-soft); }
@@ -387,3 +399,6 @@ body.portal.portal--admin { background: #04192A; }
 
 .pf-login-note { padding: 10px 12px; border-radius: 10px; background: rgba(43, 123, 182, .07); border: 1px dashed rgba(43, 123, 182, .35); }
 .pf-login-note b { font-weight: 500; color: var(--sea-deep); overflow-wrap: anywhere; }
+.portal--admin .pf-pass__eye { color: var(--adm-muted); }
+.portal--admin .pf-pass__eye:hover { color: var(--adm-ink); background: rgba(255, 255, 255, .08); }
+.portal--admin .pf-pass__eye[aria-pressed="true"] { color: var(--adm-ink); }
