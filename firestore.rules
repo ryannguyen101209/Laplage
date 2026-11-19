@@ -64,8 +64,8 @@ service cloud.firestore {
 
       // a signed-in customer with an active (not disabled) account, ordering for themselves,
       // always starting as "awaiting payment", with free shipping (total = subtotal)
-      // pre-orders open 20 November 2026, 00:00 Saigon time (= 17:00 UTC on the 19th); nothing can be placed before that
-      allow create: if request.time >= timestamp.date(2026, 11, 19) + duration.time(17, 0, 0, 0)
+      // pre-orders open 19 November 2026, 00:00 Saigon time (= 17:00 UTC on the 18th); nothing can be placed before that
+      allow create: if request.time >= timestamp.date(2026, 11, 18) + duration.time(17, 0, 0, 0)
         && signedIn()
         && request.resource.data.uid == request.auth.uid
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))

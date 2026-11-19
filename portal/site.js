@@ -46,7 +46,7 @@ if (isConfigured) {
     user = u; profile = null;
     setLinks(u ? 'Account' : 'Sign in');
     if (accessBox) {
-      if (u) accessBox.innerHTML = '<p class="pf-auth__intro">You have an account. We will email you when pre-orders open on 20 November.</p><p><a class="link link--underlined" href="account.html">Go to my account</a></p>';
+      if (u) accessBox.innerHTML = '<p class="pf-auth__intro">You have an account. Pre-orders are open: choose a piece and pre-order it.</p><p><a class="link link--underlined" href="account.html">Go to my account</a></p>';
       else renderAuthForm(accessBox, { mode: 'signup' });
     }
     if (u) { try { profile = await loadProfile(u); } catch (e) { profile = null; } }

@@ -40,8 +40,8 @@ window.LAPLAGE_CONFIG = {
     CASH: 'Pay in cash, in person. We will contact you to arrange where and when to meet.',
   },
 
-  PREORDER_OPENS: '20 November 2026',
-  PREORDER_OPENS_AT: '2026-11-20T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
+  PREORDER_OPENS: '19 November 2026',
+  PREORDER_OPENS_AT: '2026-11-19T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
 
 
   /* Phone notifications for the admins (free ntfy app, https://ntfy.sh): a push for every new message and new pre-order.
