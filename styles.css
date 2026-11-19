@@ -1925,3 +1925,5 @@ body { background: #0B3A5C; }
 
 .access__auth { width: 100%; max-width: 440px; text-align: left; }
 .access__auth .pf-tabs { justify-content: center; }
+
+.footer__give { margin-top: 12px; font-size: 12.5px; letter-spacing: .04em; color: rgba(246, 238, 223, .75); }
