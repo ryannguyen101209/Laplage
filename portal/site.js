@@ -47,7 +47,7 @@ if (isConfigured) {
     setLinks(u ? 'Account' : 'Sign in');
     if (accessBox) {
       if (u) accessBox.innerHTML = '<p class="pf-auth__intro">You have an account. Pre-orders are open: choose a piece and pre-order it.</p><p><a class="link link--underlined" href="account.html">Go to my account</a></p>';
-      else renderAuthForm(accessBox, { mode: 'signup' });
+      else renderAuthForm(accessBox, {});
     }
     if (u) { try { profile = await loadProfile(u); } catch (e) { profile = null; } }
     if (overlay && !overlay.hidden) draw();
@@ -108,7 +108,7 @@ if (isConfigured) {
 
   const draw = () => {
     if (!user) {
-      renderAuthForm(body(), { intro: 'Sign in or create an account to place your pre-order.' });
+      renderAuthForm(body(), { intro: 'Sign in with Google to place your pre-order.' });
       return;
     }
     if (!profile) { body().innerHTML = '<p class="pf-state">Loading your account…</p>'; return; }

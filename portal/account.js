@@ -18,7 +18,7 @@ if (!isConfigured) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       root.innerHTML = '<div class="pf-card pf-card--narrow"><h1 class="pf-title">Your <em>account.</em></h1><div data-auth></div></div>';
-      renderAuthForm(root.querySelector('[data-auth]'), { intro: 'Sign in with your email to see your pre-orders.' });
+      renderAuthForm(root.querySelector('[data-auth]'), { intro: 'Sign in with Google to see your pre-orders.' });
       return;
     }
     if (isAdminUser(user)) {

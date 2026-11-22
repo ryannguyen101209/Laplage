@@ -4,6 +4,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth, connectAuthEmulator, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut, updateProfile, deleteUser,
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc,
@@ -64,6 +65,9 @@ export const titleCase = (s) => String(s).replace(/\b\w/g, (c) => c.toUpperCase(
 // friendly messages for the errors people actually hit
 export const authMessage = (err) => {
   const code = (err && err.code) || '';
+  if (code.includes('unauthorized-domain')) return 'This website address is not allowed to sign in yet. Please tell us and we will fix it.';
+  if (code.includes('operation-not-allowed')) return 'Google sign-in is not switched on yet. Please try again soon.';
+  if (code.includes('account-exists-with-different-credential')) return 'An account with this email already exists. Please contact us.';
   if (code.includes('email-already-in-use')) return 'That username is taken. Please choose another.';
   if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return 'Username or password is not right.';
   if (code.includes('too-many-requests')) return 'Too many attempts. Please wait a moment and try again.';
@@ -83,5 +87,6 @@ export async function loadProducts({ includeHidden = false } = {}) {
 
 export {
   onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, deleteUser,
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect,
   doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, query, where, getDocs, serverTimestamp, onSnapshot,
 };

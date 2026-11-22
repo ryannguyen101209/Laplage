@@ -9,6 +9,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return request.auth != null
+        && request.auth.token.email_verified == true
         && request.auth.token.email in [
           'lookmanfc@gmail.com',
           'ryannguyen101209@gmail.com',
@@ -40,6 +41,7 @@ service cloud.firestore {
         && request.resource.data.username is string && request.resource.data.username.matches('^[a-z0-9._]{3,20}$')
         && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
         && validGmail(request.resource.data.gmail)
+        && request.resource.data.gmail == request.auth.token.email   // the record carries the Google account's own email
         && request.resource.data.phone is string && request.resource.data.phone.size() <= 20
         && validAddress(request.resource.data.address)
         && request.resource.data.disabled == false

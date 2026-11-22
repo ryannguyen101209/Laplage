@@ -402,3 +402,11 @@ body.portal.portal--admin { background: #04192A; }
 .portal--admin .pf-pass__eye { color: var(--adm-muted); }
 .portal--admin .pf-pass__eye:hover { color: var(--adm-ink); background: rgba(255, 255, 255, .08); }
 .portal--admin .pf-pass__eye[aria-pressed="true"] { color: var(--adm-ink); }
+
+/* ---- sign in with Google ---- */
+.pf-google { display: inline-flex; align-items: center; justify-content: center; gap: 12px; width: 100%; max-width: 360px; min-height: 52px; background: #fff; border-color: var(--line); color: var(--sea-deep); }
+.pf-google span { letter-spacing: .12em; }
+.pf-google:hover { border-color: var(--sea); }
+.pf-google:disabled { opacity: .6; cursor: default; }
+.pf-auth { display: grid; gap: 14px; justify-items: start; }
+.portal--admin .pf-google { background: transparent; color: var(--adm-ink); border-color: var(--adm-gold); }
