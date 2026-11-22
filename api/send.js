@@ -3,10 +3,10 @@
    ("order X was placed", "message token Y was updated"). This function reads that record from Firestore with the
    caller's own permissions, checks it is brand new, and builds the emails itself.
 
-   Vercel → Project → Settings → Environment Variables:
-     RESEND_API_KEY   your Resend API key
-     FROM_EMAIL       e.g.  LA PLAGE <hello@yourdomain.com>   (a domain verified in Resend)
-     ADMIN_EMAILS     comma-separated inboxes that get new-order and new-message alerts
+   Vercel → Project → Settings → Environment Variables. Use ONE of these two ways to send:
+     A) Gmail (no domain needed):  GMAIL_USER = the LA PLAGE Gmail address,  GMAIL_APP_PASSWORD = its 16-letter app password
+     B) Resend:                    RESEND_API_KEY = your key,  FROM_EMAIL = LA PLAGE <hello@yourdomain.com>  (a domain verified in Resend)
+     ADMIN_EMAILS     comma-separated inboxes that get new-order and new-message alerts (optional)
    Optional: FIREBASE_PROJECT_ID and FIREBASE_API_KEY (default to the values below). */
 
 const PROJECT = process.env.FIREBASE_PROJECT_ID || 'la-plage-e7af7';
@@ -48,10 +48,17 @@ const mail = async ({ to, subject, text, link, linkLabel, replyTo }) => {
     <div style="white-space:pre-wrap">${esc(text)}</div>
     ${link ? `<p style="margin-top:22px"><a href="${esc(link)}" style="background:#0b2a44;color:#fff;padding:11px 20px;text-decoration:none;border-radius:4px;display:inline-block">${esc(linkLabel || 'Open')}</a></p>` : ''}
     <p style="margin-top:28px;font-size:12px;color:#7a8b98">LA PLAGE · Made in Vietnam</p></div>`;
+  const plain = link ? `${text}\n\n${link}` : text;
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    const nodemailer = require('nodemailer');
+    const tx = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD } });
+    await tx.sendMail({ from: `LA PLAGE <${process.env.GMAIL_USER}>`, to: Array.isArray(to) ? to.join(', ') : to, subject, text: plain, html, ...(replyTo ? { replyTo } : {}) });
+    return;
+  }
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: process.env.FROM_EMAIL, to: Array.isArray(to) ? to : [to], subject, text: link ? `${text}\n\n${link}` : text, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
+    body: JSON.stringify({ from: process.env.FROM_EMAIL, to: Array.isArray(to) ? to : [to], subject, text: plain, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
   });
   if (!r.ok) throw new Error(`Resend ${r.status}: ${await r.text()}`);
 };
@@ -59,7 +66,8 @@ const once = (key) => { if (seen.has(key)) return false; seen.set(key, Date.now(
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
-  if (!process.env.RESEND_API_KEY || !process.env.FROM_EMAIL) return res.status(503).json({ error: 'Email is not configured' });
+  const gmailOn = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD, resendOn = process.env.RESEND_API_KEY && process.env.FROM_EMAIL;
+  if (!gmailOn && !resendOn) return res.status(503).json({ error: 'Email is not configured' });
   const origin = req.headers.origin || '';
   const host = req.headers.host || '';
   if (origin && !origin.endsWith('//' + host)) return res.status(403).json({ error: 'Bad origin' });

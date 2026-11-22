@@ -1,0 +1,7 @@
+{
+  "name": "la-plage",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}
