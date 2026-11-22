@@ -42,7 +42,7 @@ window.LAPLAGE_CONFIG = {
 
   /* Email alerts for every new order and contact message (Web3Forms, https://web3forms.com):
      enter your inbox there, they email you an access key, paste it below. Leave as is to switch off. */
-  WEB3FORMS_KEY: 'PASTE_WEB3FORMS_ACCESS_KEY',
+  WEB3FORMS_KEY: 'bf7cb38b-6927-430d-9a40-8248f65674a4',
 
   PREORDER_OPENS: '19 November 2026',
   PREORDER_OPENS_AT: '2026-11-19T00:00:00+07:00',   // until this moment the Pre-order button says "Get notified" and leads to the sign-up (Saigon midnight; also enforced in firestore.rules)
