@@ -44,10 +44,20 @@ const whoIs = async (idToken) => {
 };
 
 const mail = async ({ to, subject, text, link, linkLabel, replyTo }) => {
-  const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#0b2a44;max-width:560px">
-    <div style="white-space:pre-wrap">${esc(text)}</div>
-    ${link ? `<p style="margin-top:22px"><a href="${esc(link)}" style="background:#0b2a44;color:#fff;padding:11px 20px;text-decoration:none;border-radius:4px;display:inline-block">${esc(linkLabel || 'Open')}</a></p>` : ''}
-    <p style="margin-top:28px;font-size:12px;color:#7a8b98">LA PLAGE · Made in Vietnam</p></div>`;
+  const siteBase = process.env.SITE_URL || 'https://laplage.store';
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#EFE6D6;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EFE6D6;"><tr><td align="center" style="padding:28px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#FBF8F2;border:1px solid #E2D6BF;">
+<tr><td align="center" style="padding:34px 32px 6px;">
+  <img src="${siteBase}/assets/brand/mark.png" width="48" alt="LA PLAGE" style="display:block;border:0;height:auto;">
+  <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;letter-spacing:7px;color:#0B2C47;margin-top:12px;padding-left:7px;">LA PLAGE</div>
+  <div style="font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:13px;color:#8A6A45;margin-top:5px;">Dressed for the tide.</div>
+</td></tr>
+<tr><td style="padding:10px 32px 0;"><div style="border-top:1px solid #C7A272;line-height:1px;font-size:1px;">&nbsp;</div></td></tr>
+<tr><td style="padding:24px 40px 6px;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.75;color:#0B2C47;"><div style="white-space:pre-wrap">${esc(text)}</div></td></tr>
+${link ? `<tr><td align="center" style="padding:20px 40px 8px;"><a href="${esc(link)}" style="display:inline-block;background:#0B2C47;color:#FBF8F2;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:3px;padding:15px 30px;">${esc(String(linkLabel || 'Open').toUpperCase())}</a></td></tr>` : ''}
+<tr><td align="center" style="padding:26px 32px 32px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.7;color:#8A8A8A;">10% of every order goes to Saigon Xanh.<br><a href="${siteBase}" style="color:#2B7BB6;text-decoration:none;">laplage.store</a> &middot; Instagram <a href="https://instagram.com/laplage.vn" style="color:#2B7BB6;text-decoration:none;">@laplage.vn</a></td></tr>
+</table></td></tr></table></body></html>`;
   const plain = link ? `${text}\n\n${link}` : text;
   if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
     const nodemailer = require('nodemailer');
