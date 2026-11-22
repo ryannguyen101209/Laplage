@@ -23,7 +23,7 @@ const [
   { sendOrderEmails },
   { subscribe },
   { notifyAdmins },
-  { payPanel, wireCopy },
+  { payPanel, wireCopy, orderCode, transferNote },
 ] = await load();
 
 // the mailing-list form on the home page (main.js) calls this
@@ -239,7 +239,16 @@ if (isConfigured) {
       // emails to the admins and to the customer; the pre-order is already saved, so a failure here never undoes it
       sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE, username: profile.username || '' })
         .catch((e3) => console.warn('[LA PLAGE] order emails', e3));
-      if (notifyAdmins) notifyAdmins({ title: 'New pre-order', message: `${data.name} · ${fmtVND(subtotal + SHIPPING_FEE)} · ${lines.reduce((n, l) => n + l.quantity, 0)} piece(s): ${lines.map((l) => `${l.title} ${l.size}`).join(', ')}`, path: '/admin.html#orders', tags: ['shopping_bags'], priority: 4 });
+      if (notifyAdmins) {
+        const total = subtotal + SHIPPING_FEE, no = orderCode(ref.id);
+        const addr = [data.address.street, data.address.ward, data.address.district, data.address.city].filter(Boolean).join(', ');
+        notifyAdmins({
+          title: `New order ${no} · ${fmtVND(total)}`,
+          message: `${data.name} · ${fmtVND(total)} · ${lines.reduce((n, l) => n + l.quantity, 0)} piece(s): ${lines.map((l) => `${l.title} ${l.size}`).join(', ')}`,
+          details: `NEW ORDER ${no}\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.gmail}\nAddress: ${addr}\n\n${lines.map((l) => `${l.title}${l.color ? ` (${l.color})` : ''} · size ${l.size} × ${l.quantity} = ${fmtVND(l.lineTotal)}`).join('\n')}\n\nTotal: ${fmtVND(total)} (free shipping)\nPayment: ${PAYMENTS[f.payment] || f.payment}\nTransfer note to look for: ${transferNote(ref.id, data.name)}\nNote from customer: ${data.note || '-'}`,
+          path: '/admin.html#orders', tags: ['shopping_bags'], priority: 4, replyTo: data.gmail,
+        });
+      }
       items = []; pending = null;
       body().innerHTML = `
         <div class="pf-done">

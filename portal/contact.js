@@ -57,7 +57,7 @@ function drawForm(note = '') {
       });
     } catch (ex) { err.textContent = 'We could not send your message. Please check your connection and try again.'; btn.disabled = false; return; }
     remember(t, name);
-    notifyAdmins({ title: `New message · ${name}`, message: text, path: '/admin.html#messages', tags: ['speech_balloon'] });
+    notifyAdmins({ title: `New message from ${name}`, message: text, details: `NEW MESSAGE\n\nFrom: ${name} <${email}>\nAbout: ${TOPICS[f.topic] || 'General'}\n\n${text}`, replyTo: email, path: '/admin.html#messages', tags: ['speech_balloon'] });
     sendContactEmails({ token: t });
     history.replaceState(null, '', `contact.html?t=${t}`);
     load(t, 'Your message was sent. Keep this page (bookmark it): our answer will appear here.');
@@ -95,7 +95,7 @@ async function load(t, note = '') {
         thread: [...thread, { from: 'customer', text, at: Date.now() }], unreadAdmin: true, status: 'open', updatedAt: serverTimestamp(),
       });
     } catch (ex) { err.textContent = 'We could not send that. Please try again.'; btn.disabled = false; return; }
-    notifyAdmins({ title: `New message · ${m.name}`, message: text, path: '/admin.html#messages', tags: ['speech_balloon'] });
+    notifyAdmins({ title: `New message from ${m.name}`, message: text, details: `NEW MESSAGE (follow-up)\n\nFrom: ${m.name} <${m.email}>\n\n${text}`, replyTo: m.email, path: '/admin.html#messages', tags: ['speech_balloon'] });
     sendContactEmails({ token: t });
     load(t, 'Sent.');
   });
