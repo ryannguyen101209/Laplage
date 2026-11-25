@@ -65,7 +65,7 @@ service cloud.firestore {
       allow read: if (signedIn() && resource.data.uid == request.auth.uid) || isAdmin();
 
       // a signed-in customer with an active (not disabled) account, ordering for themselves,
-      // always starting as "awaiting payment", with free shipping (total = subtotal)
+      // always starting as "awaiting payment", delivered to Saigon (free), Hanoi or Hue (50,000 VND), total = subtotal + shipping
       // pre-orders open 19 November 2026, 00:00 Saigon time (= 17:00 UTC on the 18th); nothing can be placed before that
       allow create: if request.time >= timestamp.date(2026, 11, 18) + duration.time(17, 0, 0, 0)
         && signedIn()
@@ -80,8 +80,10 @@ service cloud.firestore {
         && request.resource.data.note is string && request.resource.data.note.size() <= 500
         && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 10
         && request.resource.data.subtotal is int && request.resource.data.subtotal > 0
-        && request.resource.data.shippingFee == 0
-        && request.resource.data.total == request.resource.data.subtotal
+        // we deliver to three cities for now: Saigon ships free, Hanoi and Hue cost 50,000 VND
+        && ((request.resource.data.address.city == 'Ho Chi Minh City' && request.resource.data.shippingFee == 0)
+          || (request.resource.data.address.city in ['Hanoi', 'Hue'] && request.resource.data.shippingFee == 50000))
+        && request.resource.data.total == request.resource.data.subtotal + request.resource.data.shippingFee
         && request.resource.data.payment in ['bank', 'qr', 'cash']
         && request.resource.data.status == 'awaiting payment'
         && request.resource.data.createdAt == request.time;

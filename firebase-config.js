@@ -30,7 +30,8 @@ window.LAPLAGE_CONFIG = {
     'ryannguyen101209@gmail.com',
     'yosuke6eguchi@gmail.com',
   ],
-  SHIPPING_FEE: 0,   // free shipping (must match firestore.rules)
+  SHIPPING_FEE: 0,          // shipping inside Saigon: free (must match firestore.rules)
+  SHIPPING_FEE_OTHER: 50000, // shipping anywhere else in Vietnam (must match firestore.rules)
   /* How customers pay (shown after they place an order). Fill in what you use; leave a line empty to say "we will send you the details". */
   PAYMENT: {
     BANK_NAME: 'VietinBank - CN Tan Binh - PGD Bau Cat',

@@ -101,9 +101,16 @@ if (isConfigured) {
     </div>`;
 
   let items = [];
+  // delivery: free inside Saigon, a flat fee anywhere else in Vietnam (amounts in firebase-config.js; must match firestore.rules)
+  const FEE_OTHER = Number(cfgAll.SHIPPING_FEE_OTHER) || 50000;
+  // we deliver to three cities for now; Saigon ships free, Hanoi and Huế cost the flat fee
+  const CITIES = [['Ho Chi Minh City', 'Saigon · free shipping'], ['Hanoi', `Hanoi · +${fmtVND(FEE_OTHER)}`], ['Hue', `Huế · +${fmtVND(FEE_OTHER)}`]];
+  let city = CITIES[0][0];
+  const feeFor = (c) => (c === 'Ho Chi Minh City' ? SHIPPING_FEE : FEE_OTHER);
+  const shipFee = () => feeFor(city);
   const totals = () => {
     const subtotal = items.reduce((s, it) => s + ((products.find((p) => p.id === it.productId) || {}).price || 0) * it.qty, 0);
-    return { subtotal, total: subtotal + SHIPPING_FEE };
+    return { subtotal, total: subtotal + shipFee() };
   };
 
   const draw = () => {
@@ -138,7 +145,7 @@ if (isConfigured) {
             <label class="pf-field pf-field--wide"><span>Street</span><input name="street" autocomplete="address-line1" required maxlength="120" value="${esc(a.street || '')}"></label>
             <label class="pf-field"><span>Ward</span><input name="ward" required maxlength="60" value="${esc(a.ward || '')}"></label>
             <label class="pf-field"><span>District</span><input name="district" required maxlength="60" value="${esc(a.district || '')}"></label>
-            <label class="pf-field"><span>City</span><input name="city" autocomplete="address-level2" required maxlength="60" value="${esc(a.city || '')}"></label>
+            <label class="pf-field"><span>City <em>shipping</em></span><select name="city" required>${CITIES.map(([v, l]) => `<option value="${esc(v)}"${(a.city === v || (!CITIES.some(([x]) => x === a.city) && v === CITIES[0][0])) ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
           </div>
           <label class="pf-check"><input type="checkbox" name="save" checked> Save this address and phone to my account</label>
         </fieldset>
@@ -151,7 +158,7 @@ if (isConfigured) {
         <label class="pf-field pf-field--wide"><span>Note <em>optional</em></span><textarea name="note" rows="2" maxlength="500"></textarea></label>
         <dl class="pf-sum">
           <div><dt>Subtotal</dt><dd data-subtotal>${esc(fmtVND(subtotal))}</dd></div>
-          <div><dt>Shipping</dt><dd>${SHIPPING_FEE ? esc(fmtVND(SHIPPING_FEE)) : 'Free'}</dd></div>
+          <div><dt>Shipping</dt><dd data-ship>${shipFee() ? esc(fmtVND(shipFee())) : 'Free'}</dd></div>
           <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
         </dl>
         <p class="pf-hint">10% of every order goes to Saigon Xanh.</p>
@@ -173,12 +180,15 @@ if (isConfigured) {
   const refreshSums = () => {
     const { subtotal, total } = totals();
     body().querySelector('[data-subtotal]').textContent = fmtVND(subtotal);
+    body().querySelector('[data-ship]').textContent = shipFee() ? fmtVND(shipFee()) : 'Free';
     body().querySelector('[data-total]').textContent = fmtVND(total);
   };
 
   const wire = () => {
     const form = body().querySelector('[data-order-form]');
     const list = form.querySelector('[data-items]');
+    const citySel = form.querySelector('[name="city"]'); city = citySel.value;
+    citySel.addEventListener('change', () => { city = citySel.value; refreshSums(); });
     list.addEventListener('change', (e) => {
       readItems();
       if (e.target.name === 'product') { list.innerHTML = items.map(itemRow).join(''); }
@@ -215,6 +225,7 @@ if (isConfigured) {
     if (!data.name) { err.textContent = 'Please add your full name.'; return; }
     if (!/^[0-9+\s().-]{8,20}$/.test(data.phone)) { err.textContent = 'Please add a phone number we can reach you on.'; return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.gmail)) { err.textContent = 'Please add your Gmail. We send your pre-order confirmation there.'; return; }
+    if (!CITIES.some(([v]) => v === data.address.city)) { err.textContent = 'Please choose Saigon, Hanoi or Huế.'; return; }
     if (Object.values(data.address).some((v) => !v)) { err.textContent = 'Please complete the street, ward, district and city.'; return; }
     const lines = items.map((it) => {
       const p = products.find((x) => x.id === it.productId);
@@ -222,12 +233,13 @@ if (isConfigured) {
       return { productId: p.id, title: p.title, color, size: it.size, quantity: it.qty, price: p.price, lineTotal: p.price * it.qty };
     });
     const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+    const fee = feeFor(String(f.city || ''));
     btn.disabled = true; btn.classList.add('is-busy');
     try {
       const ref = await addDoc(collection(db, 'orders'), {
         uid: user.uid, username: profile.username || '', gmail: data.gmail,
         customerName: data.name, phone: data.phone, address: data.address, note: data.note,
-        items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE,
+        items: lines, subtotal, shippingFee: fee, total: subtotal + fee,
         payment: PAYMENTS[f.payment] ? f.payment : 'bank', status: 'awaiting payment', createdAt: serverTimestamp(),
       });
       if (f.save) {
@@ -237,24 +249,24 @@ if (isConfigured) {
         } catch (e2) { /* the pre-order is placed; saving the address is a nicety */ }
       }
       // emails to the admins and to the customer; the pre-order is already saved, so a failure here never undoes it
-      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, shippingFee: SHIPPING_FEE, total: subtotal + SHIPPING_FEE, username: profile.username || '' })
+      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, shippingFee: fee, total: subtotal + fee, username: profile.username || '' })
         .catch((e3) => console.warn('[LA PLAGE] order emails', e3));
       if (notifyAdmins) {
-        const total = subtotal + SHIPPING_FEE, no = orderCode(ref.id);
+        const total = subtotal + fee, no = orderCode(ref.id);
         const addr = [data.address.street, data.address.ward, data.address.district, data.address.city].filter(Boolean).join(', ');
         notifyAdmins({
           title: `New order ${no} · ${fmtVND(total)}`,
           message: `${data.name} · ${fmtVND(total)} · ${lines.reduce((n, l) => n + l.quantity, 0)} piece(s): ${lines.map((l) => `${l.title} ${l.size}`).join(', ')}`,
-          details: `NEW ORDER ${no}\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.gmail}\nAddress: ${addr}\n\n${lines.map((l) => `${l.title}${l.color ? ` (${l.color})` : ''} · size ${l.size} × ${l.quantity} = ${fmtVND(l.lineTotal)}`).join('\n')}\n\nTotal: ${fmtVND(total)} (free shipping)\nPayment: ${PAYMENTS[f.payment] || f.payment}\nTransfer note to look for: ${transferNote(ref.id, data.name)}\nNote from customer: ${data.note || '-'}`,
+          details: `NEW ORDER ${no}\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.gmail}\nAddress: ${addr}\n\n${lines.map((l) => `${l.title}${l.color ? ` (${l.color})` : ''} · size ${l.size} × ${l.quantity} = ${fmtVND(l.lineTotal)}`).join('\n')}\n\nTotal: ${fmtVND(total)} (${fee ? `shipping ${fmtVND(fee)}, outside Saigon` : 'free shipping, Saigon'})\nPayment: ${PAYMENTS[f.payment] || f.payment}\nTransfer note to look for: ${transferNote(ref.id, data.name)}\nNote from customer: ${data.note || '-'}`,
           path: '/admin.html#orders', tags: ['shopping_bags'], priority: 4, replyTo: data.gmail,
         });
       }
-      items = []; pending = null;
+      items = []; pending = null; city = CITIES[0][0];
       body().innerHTML = `
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
           <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. Follow your order's progress in your account.</p>
-          ${payPanel(f.payment, { total: subtotal + SHIPPING_FEE, id: ref.id, name: data.name })}
+          ${payPanel(f.payment, { total: subtotal + fee, id: ref.id, name: data.name })}
           <a class="link link--underlined" href="account.html">View my pre-orders</a>
         </div>`;
       wireCopy(body());
