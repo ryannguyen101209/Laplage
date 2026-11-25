@@ -18,3 +18,12 @@ export async function sendContactEmails({ token }) { await call({ type: 'contact
 export const notifyNewCustomerMessage = sendContactEmails;
 // an admin replied in Messages: the customer gets an email with their private link
 export async function sendReplyEmail({ token }) { await call({ type: 'reply', token, idToken: await idToken() }); }
+
+// an admin changed an order's status: the server emails the customer (returns true if an email went out)
+export async function sendStatusEmail({ orderId }) {
+  try {
+    const res = await fetch('/api/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'status', orderId, idToken: await idToken() }) });
+    const j = await res.json().catch(() => ({}));
+    return res.ok && j.sent === true;
+  } catch (err) { return false; }
+}

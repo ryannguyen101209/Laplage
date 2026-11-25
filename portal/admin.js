@@ -6,6 +6,7 @@ import {
 } from './firebase.js';
 import { unsubscribeLink } from './mailing.js';
 import { orderCode, transferNote } from './pay.js';
+import { sendStatusEmail } from './emails.js';
 import { watchMessages, drawMessages, unreadCount, pendingQuestions, openThread } from './admin-messages.js';
 import { renderAuthForm } from './auth-form.js';
 
@@ -299,8 +300,16 @@ function drawOrders(panel) {
       <label class="pf-field pf-field--grow"><span>Search</span><input type="search" data-oq placeholder="Customer, phone, address or order code" value="${esc(view.oq)}"></label>
       <button type="button" class="btn-outline pf-export" data-export>Export CSV</button>
     </div>
+    <p class="pf-hint" role="status" data-mail-msg></p>
     <div data-body></div>`;
   const body = panel.querySelector('[data-body]');
+  const mailMsg = panel.querySelector('[data-mail-msg]');
+  // after a status change: email the customer and say so
+  const tellCustomer = async (o) => {
+    mailMsg.textContent = `Emailing ${o.customerName || 'the customer'}…`;
+    const ok = await sendStatusEmail({ orderId: o.id });
+    mailMsg.textContent = ok ? `Email sent to ${o.gmail}.` : `The status was saved, but the email to ${o.gmail || 'the customer'} could not be sent (email may not be switched on yet).`;
+  };
   const paint = () => {
     const rows = filteredOrders();
     const fulfil = rows.filter(toFulfil), done = rows.filter(isDone), cancelled = rows.filter((o) => o.status === 'cancelled');
@@ -337,7 +346,7 @@ function drawOrders(panel) {
     const patch = { paid: next, paidAt: next ? serverTimestamp() : null, updatedAt: serverTimestamp() };
     if (next && o.status === 'awaiting payment') patch.status = 'in process';   // paid -> the order is now in process
     btn.disabled = true;
-    try { await updateDoc(doc(db, 'orders', o.id), patch); o.paid = next; if (patch.status) o.status = patch.status; paint(); }
+    try { await updateDoc(doc(db, 'orders', o.id), patch); o.paid = next; if (patch.status) { o.status = patch.status; paint(); tellCustomer(o); } else paint(); }
     catch (ex) { alert(authMessage(ex)); btn.disabled = false; }
   });
   body.addEventListener('change', async (e) => {
@@ -348,7 +357,7 @@ function drawOrders(panel) {
     try {
       const patch = { status: sel.value, updatedAt: serverTimestamp() };
       if (prev === 'awaiting payment' && sel.value === 'in process' && !isPaid(o)) { patch.paid = true; patch.paidAt = serverTimestamp(); }   // "in process" means they have paid
-      await updateDoc(doc(db, 'orders', o.id), patch); o.status = sel.value; if (patch.paid) o.paid = true; paint(); }
+      await updateDoc(doc(db, 'orders', o.id), patch); o.status = sel.value; if (patch.paid) o.paid = true; paint(); tellCustomer(o); }
     catch (ex) { alert(authMessage(ex)); sel.value = prev; sel.disabled = false; }
   });
   paint();

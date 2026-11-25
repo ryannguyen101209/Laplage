@@ -40,7 +40,7 @@ const whoIs = async (idToken) => {
   const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${WEB_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
   if (!r.ok) return null;
   const j = await r.json(); const u = (j.users || [])[0];
-  return u ? { uid: u.localId, email: String(u.email || '').toLowerCase() } : null;
+  return u ? { uid: u.localId, email: String(u.email || '').toLowerCase(), verified: u.emailVerified === true } : null;
 };
 
 const mail = async ({ to, subject, text, link, linkLabel, replyTo }) => {
@@ -120,6 +120,29 @@ module.exports = async function handler(req, res) {
       await mail({ to: admins(), replyTo: m.email, subject: `New message from ${m.name}`, link: `${base}/admin.html#messages`, linkLabel: 'Read and reply',
         text: `${m.name} <${m.email}> wrote (${m.topic}):\n\n${last.text}` });
       return res.status(200).json({ ok: true });
+    }
+
+    /* an admin changed an order's status: tell the customer (payment received, being packed, shipped, delivered, cancelled) */
+    if (b.type === 'status') {
+      const me = await whoIs(String(b.idToken || ''));
+      if (!me || !me.verified || !admins().includes(me.email)) return res.status(403).json({ error: 'Admins only' });
+      const id = String(b.orderId || '').replace(/[^A-Za-z0-9]/g, '');
+      const o = await getDoc(`orders/${id}`, b.idToken);
+      if (!o || !o.updatedAt || Date.now() - o.updatedAt > FRESH_MS) return res.status(403).json({ error: 'No recent change to send' });
+      const code = `LP-${id.slice(0, 6).toUpperCase()}`;
+      const first = String(o.customerName || '').trim() || 'there';
+      const msgs = {
+        'in process': ['Payment received', `We have received your payment for order ${code}. Thank you so much!\n\nYour order is now in process, and we are getting started on it.`],
+        packaging: ['Your order is being packed', `Good news: order ${code} is being packed now, with care.`],
+        shipped: ['Your order has shipped', `Order ${code} is on its way to you.\n\nIf you have any question about it, write to us from the contact page.`],
+        delivered: ['Your order was delivered', `Order ${code} is marked as delivered. We hope you love it.\n\nWe would be so happy to see how you wear it. Tag us @laplage.vn.`],
+        cancelled: ['Your order was cancelled', `Order ${code} has been cancelled.\n\nIf you did not expect this, please write to us from the contact page and we will help.`],
+      };
+      const m = msgs[o.status];
+      if (!m) return res.status(200).json({ ok: true, skipped: 'no email for this status' });
+      if (!once(`status:${id}:${o.status}:${o.updatedAt}`)) return res.status(200).json({ ok: true, duplicate: true });
+      await mail({ to: o.gmail, subject: `${m[0]} · ${code}`, link: `${base}/account.html`, linkLabel: 'View your order', text: `Hello ${first},\n\n${m[1]}` });
+      return res.status(200).json({ ok: true, sent: true });
     }
 
     /* an admin replied in Messages: email the customer their private link */
