@@ -33,6 +33,12 @@ if (!isConfigured) {
       root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
       return;
     }
+    if (!user.emailVerified) {
+      root.innerHTML = `<div class="pf-card pf-card--narrow"><p class="pf-state">You are signed in with an old password login, which the database no longer accepts for admins. Please sign out, then sign in again with <b>Continue with Google</b> using your admin Gmail.</p>
+        <p class="pf-actions"><button type="button" class="btn-outline" data-signout>Sign out</button></p></div>`;
+      root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
+      return;
+    }
     await load(user);
   });
 }
@@ -46,7 +52,9 @@ async function load(user) {
     orders = o.docs.map((d) => ({ id: d.id, ...d.data() }));
     subs = sb ? sb.docs.map((d) => ({ id: d.id, ...d.data() })) : [];   // empty until the new firestore.rules are published
   } catch (e) {
-    state(`Could not load the data. ${esc(authMessage(e))} If this persists, check that firestore.rules has your admin Gmail.`);
+    root.innerHTML = `<div class="pf-card pf-card--narrow"><p class="pf-state">Could not load the data. ${esc(authMessage(e))} Check that the latest firestore.rules are published and that you signed in with Google using your admin Gmail.</p>
+      <p class="pf-actions"><button type="button" class="btn-outline" data-signout>Sign out and try again</button></p></div>`;
+    root.querySelector('[data-signout]').addEventListener('click', () => signOut(auth));
     return;
   }
   shell(user);
