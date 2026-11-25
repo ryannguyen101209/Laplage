@@ -122,6 +122,15 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    /* the admin panel's "Send test email to me" button: a real styled email to the signed-in admin */
+    if (b.type === 'test') {
+      const me = await whoIs(String(b.idToken || ''));
+      if (!me || !me.verified || !admins().includes(me.email)) return res.status(403).json({ error: 'Admins only' });
+      await mail({ to: me.email, subject: 'Test · LA PLAGE emails are working', link: `${base}/admin.html#orders`, linkLabel: 'Open the admin panel',
+        text: 'Hello,\n\nThis is a test email from your LA PLAGE website.\n\nIf you can read this, customers will receive their order and status emails the same way.' });
+      return res.status(200).json({ ok: true, sent: true });
+    }
+
     /* an admin changed an order's status: tell the customer (payment received, being packed, shipped, delivered, cancelled) */
     if (b.type === 'status') {
       const me = await whoIs(String(b.idToken || ''));
@@ -162,6 +171,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Unknown type' });
   } catch (e) {
     console.error('[send]', e);
-    return res.status(500).json({ error: 'Could not send' });
+    const adminType = b.type === 'status' || b.type === 'test' || b.type === 'reply';
+    return res.status(500).json({ error: 'Could not send', ...(adminType ? { detail: String((e && e.message) || e).replace(/pass(word)?[^ ]*/gi, '***').slice(0, 220) } : {}) });
   }
 }

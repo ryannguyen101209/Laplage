@@ -6,7 +6,7 @@ import {
 } from './firebase.js';
 import { unsubscribeLink } from './mailing.js';
 import { orderCode, transferNote } from './pay.js';
-import { sendStatusEmail } from './emails.js';
+import { sendStatusEmail, sendTestEmail } from './emails.js';
 import { watchMessages, drawMessages, unreadCount, pendingQuestions, openThread } from './admin-messages.js';
 import { renderAuthForm } from './auth-form.js';
 
@@ -298,6 +298,7 @@ function drawOrders(panel) {
   panel.innerHTML = `
     <div class="pf-toolbar">
       <label class="pf-field pf-field--grow"><span>Search</span><input type="search" data-oq placeholder="Customer, phone, address or order code" value="${esc(view.oq)}"></label>
+      <button type="button" class="btn-outline pf-export" data-test-mail>Send test email to me</button>
       <button type="button" class="btn-outline pf-export" data-export>Export CSV</button>
     </div>
     <p class="pf-hint" role="status" data-mail-msg></p>
@@ -307,9 +308,15 @@ function drawOrders(panel) {
   // after a status change: email the customer and say so
   const tellCustomer = async (o) => {
     mailMsg.textContent = `Emailing ${o.customerName || 'the customer'}…`;
-    const ok = await sendStatusEmail({ orderId: o.id });
-    mailMsg.textContent = ok ? `Email sent to ${o.gmail}.` : `The status was saved, but the email to ${o.gmail || 'the customer'} could not be sent (email may not be switched on yet).`;
+    const r = await sendStatusEmail({ orderId: o.id });
+    mailMsg.textContent = r.ok ? `Email sent to ${o.gmail}.` : `The status was saved, but the email to ${o.gmail || 'the customer'} was NOT sent. Reason: ${r.reason}`;
   };
+  panel.querySelector('[data-test-mail]').addEventListener('click', async (ev) => {
+    ev.target.disabled = true; mailMsg.textContent = 'Sending a test email to you…';
+    const r = await sendTestEmail();
+    mailMsg.textContent = r.ok ? 'Test email sent to you. Check your inbox (and spam).' : `Test email NOT sent. Reason: ${r.reason}`;
+    ev.target.disabled = false;
+  });
   const paint = () => {
     const rows = filteredOrders();
     const fulfil = rows.filter(toFulfil), done = rows.filter(isDone), cancelled = rows.filter((o) => o.status === 'cancelled');

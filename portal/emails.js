@@ -19,11 +19,17 @@ export const notifyNewCustomerMessage = sendContactEmails;
 // an admin replied in Messages: the customer gets an email with their private link
 export async function sendReplyEmail({ token }) { await call({ type: 'reply', token, idToken: await idToken() }); }
 
-// an admin changed an order's status: the server emails the customer (returns true if an email went out)
-export async function sendStatusEmail({ orderId }) {
+// an admin changed an order's status: the server emails the customer. Returns { ok, reason }.
+const adminCall = async (body) => {
   try {
-    const res = await fetch('/api/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'status', orderId, idToken: await idToken() }) });
+    const res = await fetch('/api/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, idToken: await idToken() }) });
     const j = await res.json().catch(() => ({}));
-    return res.ok && j.sent === true;
-  } catch (err) { return false; }
-}
+    if (res.ok && j.sent === true) return { ok: true };
+    if (res.ok) return { ok: false, reason: 'No email is sent for that status.' };
+    if (res.status === 404) return { ok: false, reason: 'The email function is not on the site yet (404). Vercel may not have deployed it.' };
+    if (res.status === 503) return { ok: false, reason: 'Email is not switched on: GMAIL_USER / GMAIL_APP_PASSWORD are missing in Vercel, or the site was not redeployed after adding them.' };
+    return { ok: false, reason: j.detail || j.error || `Error ${res.status}` };
+  } catch (err) { return { ok: false, reason: 'Could not reach the email function.' }; }
+};
+export const sendStatusEmail = ({ orderId }) => adminCall({ type: 'status', orderId });
+export const sendTestEmail = () => adminCall({ type: 'test' });
