@@ -6,7 +6,7 @@ import {
 } from './firebase.js';
 import { unsubscribeLink } from './mailing.js';
 import { orderCode, transferNote } from './pay.js';
-import { sendStatusEmail, sendTestEmail } from './emails.js';
+import { sendStatusEmail, sendPaidEmail, sendTestEmail } from './emails.js';
 import { watchMessages, drawMessages, unreadCount, pendingQuestions, openThread } from './admin-messages.js';
 import { renderAuthForm } from './auth-form.js';
 
@@ -306,9 +306,9 @@ function drawOrders(panel) {
   const body = panel.querySelector('[data-body]');
   const mailMsg = panel.querySelector('[data-mail-msg]');
   // after a status change: email the customer and say so
-  const tellCustomer = async (o) => {
+  const tellCustomer = async (o, paid = false) => {
     mailMsg.textContent = `Emailing ${o.customerName || 'the customer'}…`;
-    const r = await sendStatusEmail({ orderId: o.id });
+    const r = paid ? await sendPaidEmail({ orderId: o.id }) : await sendStatusEmail({ orderId: o.id });
     mailMsg.textContent = r.ok ? `Email sent to ${o.gmail}.` : `The status was saved, but the email to ${o.gmail || 'the customer'} was NOT sent. Reason: ${r.reason}`;
   };
   panel.querySelector('[data-test-mail]').addEventListener('click', async (ev) => {
@@ -353,7 +353,7 @@ function drawOrders(panel) {
     const patch = { paid: next, paidAt: next ? serverTimestamp() : null, updatedAt: serverTimestamp() };
     if (next && o.status === 'awaiting payment') patch.status = 'in process';   // paid -> the order is now in process
     btn.disabled = true;
-    try { await updateDoc(doc(db, 'orders', o.id), patch); o.paid = next; if (patch.status) { o.status = patch.status; paint(); tellCustomer(o); } else paint(); }
+    try { await updateDoc(doc(db, 'orders', o.id), patch); o.paid = next; if (patch.status) o.status = patch.status; paint(); if (next) tellCustomer(o, true); }   // marking paid always emails "Payment received"
     catch (ex) { alert(authMessage(ex)); btn.disabled = false; }
   });
   body.addEventListener('change', async (e) => {

@@ -131,6 +131,21 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true, sent: true });
     }
 
+    /* "Mark as paid" in the admin panel: always tell the customer their payment arrived */
+    if (b.type === 'paid') {
+      const me = await whoIs(String(b.idToken || ''));
+      if (!me || !me.verified || !admins().includes(me.email)) return res.status(403).json({ error: 'Admins only' });
+      const id = String(b.orderId || '').replace(/[^A-Za-z0-9]/g, '');
+      const o = await getDoc(`orders/${id}`, b.idToken);
+      if (!o || o.paid !== true || !o.paidAt || Date.now() - o.paidAt > FRESH_MS) return res.status(403).json({ error: 'This order was not just marked as paid' });
+      const code = `LP-${id.slice(0, 6).toUpperCase()}`;
+      const first = String(o.customerName || '').trim() || 'there';
+      if (!once(`paid:${id}:${o.paidAt}`)) return res.status(200).json({ ok: true, duplicate: true });
+      const more = o.status === 'in process' ? '\n\nYour order is now in process, and we are getting started on it.' : '\n\nYou can follow your order any time in your account.';
+      await mail({ to: o.gmail, subject: `Payment received · ${code}`, link: `${base}/account.html`, linkLabel: 'View your order', text: `Hello ${first},\n\nWe have received your payment for order ${code}. Thank you so much!${more}` });
+      return res.status(200).json({ ok: true, sent: true });
+    }
+
     /* an admin changed an order's status: tell the customer (payment received, being packed, shipped, delivered, cancelled) */
     if (b.type === 'status') {
       const me = await whoIs(String(b.idToken || ''));
@@ -171,7 +186,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Unknown type' });
   } catch (e) {
     console.error('[send]', e);
-    const adminType = b.type === 'status' || b.type === 'test' || b.type === 'reply';
+    const adminType = ['status', 'paid', 'test', 'reply'].includes(b.type);
     return res.status(500).json({ error: 'Could not send', ...(adminType ? { detail: String((e && e.message) || e).replace(/pass(word)?[^ ]*/gi, '***').slice(0, 220) } : {}) });
   }
 }

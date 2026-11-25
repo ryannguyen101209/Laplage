@@ -32,4 +32,5 @@ const adminCall = async (body) => {
   } catch (err) { return { ok: false, reason: 'Could not reach the email function.' }; }
 };
 export const sendStatusEmail = ({ orderId }) => adminCall({ type: 'status', orderId });
+export const sendPaidEmail = ({ orderId }) => adminCall({ type: 'paid', orderId });
 export const sendTestEmail = () => adminCall({ type: 'test' });
