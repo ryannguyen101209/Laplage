@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Help · LA PLAGE</title>
+  <meta name="description" content="Shipping, returns, sizes and how to reach LA PLAGE.">
+  <meta name="theme-color" content="#FBF8F2">
+  <link rel="icon" href="assets/brand/mark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap">
+  <link rel="stylesheet" href="styles.css?v=65">
+  <link rel="stylesheet" href="portal/portal.css?v=54">
+  <style>
+    .help { display: grid; gap: 22px; max-width: 760px; margin-inline: auto; }
+    .help section { scroll-margin-top: 96px; }
+    .help h2 { margin-bottom: 10px; }
+    .help p, .help li { font-size: 15px; line-height: 1.75; color: var(--ink-soft); max-width: 60ch; }
+    .help ul { margin: 8px 0 0; padding-left: 18px; list-style: disc; }
+    .help a { color: var(--sea); text-decoration: underline; text-underline-offset: 3px; }
+    .help-table { width: 100%; max-width: 420px; margin-top: 10px; border-collapse: collapse; font-size: 14px; }
+    .help-table th, .help-table td { padding: 8px 0; border-bottom: 1px solid var(--line); text-align: left; color: var(--sea-deep); }
+    .size-guide { display: grid; gap: 18px; margin: 14px 0; }
+    .size-guide img { width: min(100%, 420px); height: auto; justify-self: center; }
+    .size-scroll { overflow-x: auto; }
+    .help > *, .size-guide > * { min-width: 0; }
+    .size-table { max-width: none; min-width: 320px; font-variant-numeric: tabular-nums; }
+    @media (max-width: 480px) { .size-table { font-size: 13px; } .size-table tbody th { font-size: 9.5px; letter-spacing: .12em; padding-right: 8px; } }
+    .size-table td, .size-table thead th { text-align: center; }
+    .size-table tbody th { text-align: left; }
+    .help-table th { font-weight: 400; font-size: 10.5px; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink-soft); }
+  </style>
+</head>
+<body class="portal">
+  <header class="portal__bar">
+    <a href="index.html" aria-label="LA PLAGE, back to the shop">
+      <img src="assets/brand/mark.png" alt="" width="660" height="603">
+      <span class="nav__wordmark">LA PLAGE</span>
+    </a>
+    <a class="portal__back" href="index.html">Back to the shop</a>
+  </header>
+  <main class="portal__main help">
+    <div class="pf-card">
+      <p class="label">Help</p>
+      <h1 class="pf-title">How can we <em>help?</em></h1>
+      <p class="pf-lead">LA PLAGE is a small brand run by students in Saigon, so every question reaches one of us directly.</p>
+    </div>
+
+    <section class="pf-card" id="shipping" aria-labelledby="h-shipping">
+      <h2 class="pf-h2" id="h-shipping">Shipping</h2>
+      <table class="help-table">
+        <thead><tr><th>Where</th><th>Shipping</th></tr></thead>
+        <tbody>
+          <tr><td>Saigon (Ho Chi Minh City)</td><td>Free</td></tr>
+          <tr><td>Hanoi</td><td>50.000 ₫</td></tr>
+          <tr><td>Huế</td><td>50.000 ₫</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>For now we deliver to Saigon, Hanoi and Huế. Somewhere else? <a href="contact.html">Contact us</a> and we will see what we can do.</li>
+        <li>Every piece is made in a small batch, so pre-orders ship once that batch is finished. We tell you when yours is on its way.</li>
+        <li>You can follow each pre-order in <a href="account.html">your account</a>.</li>
+      </ul>
+    </section>
+
+    <section class="pf-card" id="prices" aria-labelledby="h-prices">
+      <h2 class="pf-h2" id="h-prices">Prices</h2>
+      <ul>
+        <li>Lagon, Corail and Palmier shorts: 500.000 ₫ each.</li>
+        <li>Marée and Sable shorts: 600.000 ₫ each.</li>
+        <li>10% of our profit goes to Sài Gòn Xanh, who clean up Vietnam's beaches.</li>
+      </ul>
+    </section>
+
+    <section class="pf-card" id="returns" aria-labelledby="h-returns">
+      <h2 class="pf-h2" id="h-returns">Returns and exchanges</h2>
+      <p>Something wrong with your piece, or the size is not right? Email us at <a href="mailto:laplage.vn@gmail.com">laplage.vn@gmail.com</a> or message <a href="https://www.instagram.com/laplage.vn/" target="_blank" rel="noopener">@laplage.vn</a> on Instagram with your order name and a photo, and we will sort it out with you.</p>
+    </section>
+
+    <section class="pf-card" id="sizes" aria-labelledby="h-sizes">
+      <h2 class="pf-h2" id="h-sizes">Size guide</h2>
+      <p>Our shorts come in S, M, L and XL, with an elastic waist and a drawcord. Measurements are in centimetres, taken with the short lying flat; the letters match the drawing.</p>
+      <div class="size-guide">
+        <img src="assets/img/guide/size-diagram.jpg" alt="LA PLAGE short with the measuring points: A across the waist, B across the hips, C the length from waist to hem, D across the leg opening" width="580" height="500" loading="lazy">
+        <div class="size-scroll">
+        <table class="help-table size-table">
+          <caption class="visually-hidden">Short measurements in centimetres, by size</caption>
+          <thead><tr><th scope="col">cm</th><th scope="col">S</th><th scope="col">M</th><th scope="col">L</th><th scope="col">XL</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Waist (A)</th><td>82</td><td>85</td><td>87</td><td>90</td></tr>
+            <tr><th scope="row">Hips (B)</th><td>99</td><td>102</td><td>105</td><td>108</td></tr>
+            <tr><th scope="row">Front rise</th><td>30</td><td>31</td><td>32</td><td>33</td></tr>
+            <tr><th scope="row">Back rise</th><td>40</td><td>41</td><td>42</td><td>43</td></tr>
+            <tr><th scope="row">Length (C)</th><td>42</td><td>44</td><td>46</td><td>48</td></tr>
+            <tr><th scope="row">Leg opening (D)</th><td>31</td><td>32</td><td>33</td><td>34</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <p>Between two sizes? Send us your height and waist at <a href="mailto:laplage.vn@gmail.com">laplage.vn@gmail.com</a> and we will recommend one before you pre-order.</p>
+    </section>
+
+    <section class="pf-card" id="contact" aria-labelledby="h-contact">
+      <h2 class="pf-h2" id="h-contact">Contact</h2>
+      <ul>
+        <li><a href="contact.html">Send us a message</a></li>
+        <li>Email: <a href="mailto:laplage.vn@gmail.com">laplage.vn@gmail.com</a></li>
+        <li>Instagram: <a href="https://www.instagram.com/laplage.vn/" target="_blank" rel="noopener">@laplage.vn</a></li>
+      </ul>
+      <p>See also our <a href="privacy.html">privacy policy</a> and <a href="terms.html">terms of use</a>.</p>
+    </section>
+  </main>
+</body>
+</html>

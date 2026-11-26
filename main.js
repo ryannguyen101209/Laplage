@@ -173,6 +173,7 @@
   };
 
   let categories = [];
+  let sizeGuide = null;   // measurements for the product view's "Size guide"
   // one row per line (Shoreline, Soleil, Marée), each on its own stretch of sand
   const renderRows = (products) => {
     const lines = categories.length ? categories : [{ key: '', name: 'Drop 001', kind: '', note: '' }];
@@ -210,6 +211,7 @@
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
       categories = data.categories || [];
+      sizeGuide = data.sizeGuide || null;
       // pieces marked "hidden" in products.json are resting between drops: kept in the data, not shown in the shop
       const live = (data.products || []).filter((p) => !p.hidden);
       renderRows(live);
@@ -249,7 +251,24 @@
     if (piece) spot.classList.add('has-3d');
     let pieceId = '';
     const guideBtn = $('[data-spot-guide-btn]');
-    let index = 0, tone = 0, view = 'front', opener = null, closeTimer = 0, guideOpen = false;
+    const sizeBtn = $('[data-spot-size-btn]');
+    let index = 0, tone = 0, view = 'front', opener = null, closeTimer = 0, guideOpen = false, guideMode = 'print';
+
+    // the size guide (sizeGuide in data/products.json): measurements in cm, shown in the same panel
+    const drawSizes = (sg) => {
+      guide.innerHTML = `
+        <div class="sg__size"><img src="${sg.diagram}" alt="A short with the measuring points: A waist, B hips, C length, D leg opening" width="580" height="500" loading="lazy"></div>
+        <div class="sg__info">
+          <p class="label">Size guide · ${sg.unit}</p>
+          <p class="sg__h">Measured flat</p>
+          <table class="sg__table">
+            <thead><tr><th></th>${sg.sizes.map((s) => `<th scope="col">${s}</th>`).join('')}</tr></thead>
+            <tbody>${sg.rows.map((r) => `<tr><th scope="row">${r.name}</th>${r.values.map((v) => `<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>
+          </table>
+          <a class="link link--underlined sg__more" href="help.html#sizes">Help choosing a size</a>
+        </div>`;
+    };
+
 
     // the colour guide (data/colour-guide.json): each print's pattern, colours and patch, shown over the stage
     let prints = [];
@@ -275,8 +294,11 @@
       guideOpen = on;
       guide.hidden = !on;
       spot.classList.toggle('is-guide', on);
-      guideBtn.setAttribute('aria-pressed', String(on));
-      guideBtn.textContent = on ? 'Back to the piece' : 'Pattern & colours';
+      const print = on && guideMode === 'print', size = on && guideMode === 'size';
+      guideBtn.setAttribute('aria-pressed', String(print));
+      guideBtn.textContent = print ? 'Back to the piece' : 'Pattern & colours';
+      sizeBtn.setAttribute('aria-pressed', String(size));
+      sizeBtn.textContent = size ? 'Back to the piece' : 'Size guide';
     };
 
     const render = (dir = 0) => {
@@ -315,8 +337,9 @@
       // pieces in the colour guide get a "Pattern & colours" view; it stays open while the colour changes
       const g = printFor(p);
       guideBtn.hidden = !g;
-      if (g) drawGuide(g);
-      showGuide(!!g && guideOpen);
+      sizeBtn.hidden = !sizeGuide;
+      if (guideMode === 'size' && sizeGuide) { drawSizes(sizeGuide); showGuide(guideOpen); }
+      else { guideMode = 'print'; if (g) drawGuide(g); showGuide(!!g && guideOpen); }
       tones.querySelector('[data-spot-swatches]').innerHTML = many
         ? base.colors.map((c, k) => `<button type="button" class="swatch" role="radio" aria-checked="${k === tone}" data-tone="${k}"><i style="background:${c.hex}" aria-hidden="true"></i>${c.name}</button>`).join('')
         : '';
@@ -335,7 +358,7 @@
 
     const open = (i, from, t = 0) => {
       clearTimeout(closeTimer);
-      index = i; tone = t; view = 'front'; sizes.dataset.for = ''; guideOpen = false; opener = from || null;
+      index = i; tone = t; view = 'front'; sizes.dataset.for = ''; guideOpen = false; guideMode = 'print'; opener = from || null;
       spot.hidden = false;
       document.documentElement.classList.add('spot-on');
       if (piece) piece.start();
@@ -349,7 +372,7 @@
       closeTimer = setTimeout(() => { spot.hidden = true; if (piece) piece.stop(); }, 450);
       if (opener) opener.focus({ preventScroll: true });
     };
-    const go = (d) => { index = (index + d + products.length) % products.length; tone = 0; view = 'front'; sizes.dataset.for = ''; guideOpen = false; render(d); };
+    const go = (d) => { index = (index + d + products.length) % products.length; tone = 0; view = 'front'; sizes.dataset.for = ''; guideOpen = false; guideMode = 'print'; render(d); };
 
     // The strip captures the pointer while dragging, so the click lands on the viewport:
     // remember which card the press started on.
@@ -394,8 +417,19 @@
       const b = e.target.closest('.size'); if (!b) return;
       sizes.querySelectorAll('.size').forEach((o) => o.setAttribute('aria-checked', String(o === b)));
     });
+    sizeBtn.addEventListener('click', () => {
+      const on = !(guideOpen && guideMode === 'size');
+      guideMode = 'size';
+      if (on) drawSizes(sizeGuide);
+      showGuide(on);
+      if (on && spot.scrollTop > 0) spot.scrollTo({ top: 0, behavior: 'smooth' });
+    });
     guideBtn.addEventListener('click', () => {
-      showGuide(!guideOpen);
+      const on = !(guideOpen && guideMode === 'print');
+      guideMode = 'print';
+      const g = printFor(inColor(products[index], tone));
+      if (on && g) drawGuide(g);
+      showGuide(on);
       if (guideOpen && spot.scrollTop > 0) spot.scrollTo({ top: 0, behavior: 'smooth' });   // phones: the panel sits above the buttons
     });
     // links such as colour-guide.html's "Pre-order" arrive as #product/<handle>/<colour>

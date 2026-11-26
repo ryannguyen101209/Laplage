@@ -269,6 +269,96 @@
           "hex": "#7A1F4B"
         }
       ]
+    },
+    {
+      "key": "maree",
+      "name": "Marée",
+      "kind": "Blue seersucker stripe",
+      "product": "maree-short",
+      "shorts": "assets/img/products/cutouts/shorts-maree-clean.webp",
+      "pattern": "assets/img/guide/maree-pattern.svg",
+      "patch": "assets/img/guide/maree-patch.svg",
+      "patternColours": [
+        {
+          "role": "Base",
+          "hex": "#E1E9F4",
+          "share": 48
+        },
+        {
+          "role": "Main",
+          "hex": "#8D94B4",
+          "share": 26
+        },
+        {
+          "role": "Secondary",
+          "hex": "#B5BCD4",
+          "share": 13
+        },
+        {
+          "role": "Accent",
+          "hex": "#707798",
+          "share": 13
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Embroidery",
+          "hex": "#111111"
+        },
+        {
+          "role": "LA PLAGE text",
+          "hex": "#111111"
+        }
+      ]
+    },
+    {
+      "key": "sable",
+      "name": "Sable",
+      "kind": "Wide sand stripe",
+      "product": "sable-short",
+      "shorts": "assets/img/products/cutouts/shorts-sable-stripe.webp",
+      "pattern": "assets/img/guide/sable-pattern.svg",
+      "patch": "assets/img/guide/sable-patch.svg",
+      "patternColours": [
+        {
+          "role": "Base",
+          "hex": "#E9E5E1",
+          "share": 45
+        },
+        {
+          "role": "Main",
+          "hex": "#CCC0B5",
+          "share": 34
+        },
+        {
+          "role": "Secondary",
+          "hex": "#DAD3CC",
+          "share": 14
+        },
+        {
+          "role": "Accent",
+          "hex": "#B3A598",
+          "share": 7
+        }
+      ],
+      "patchColours": [
+        {
+          "role": "Label",
+          "hex": "#F1EBDF"
+        },
+        {
+          "role": "Stitching",
+          "hex": "#C7A272"
+        },
+        {
+          "role": "Palm",
+          "hex": "#2B7BB6"
+        },
+        {
+          "role": "LA PLAGE text",
+          "hex": "#2B7BB6"
+        }
+      ]
     }
   ],
   "brand": {
