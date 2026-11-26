@@ -482,5 +482,15 @@
         ]
       }
     ]
+  },
+  "bundle": {
+    "size": 2,
+    "price": 925000,
+    "eligible": [
+      "lagon-short",
+      "corail-patch-short",
+      "palmier-short"
+    ],
+    "label": "Any two of Lagon, Corail and Palmier for 925.000 ₫"
   }
 }

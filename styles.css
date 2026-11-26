@@ -1935,3 +1935,7 @@ body { background: #0B3A5C; }
 .sg__table th, .sg__table td { padding: 7px 4px; border-bottom: 1px solid var(--line); text-align: center; color: var(--sea-deep); font-weight: 400; }
 .sg__table thead th { font-size: 10.5px; letter-spacing: var(--track-label); color: var(--ink-soft); }
 .sg__table tbody th { text-align: left; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+
+/* two-for-925k offer line in the product view */
+.spotlight__offer { margin-top: 14px; max-width: 280px; font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.5; color: var(--sand-ink); }
+.spotlight__offer[hidden] { display: none; }
