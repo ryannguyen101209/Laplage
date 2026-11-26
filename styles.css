@@ -1927,3 +1927,11 @@ body { background: #0B3A5C; }
 .access__auth .pf-tabs { justify-content: center; }
 
 .footer__give { margin-top: 12px; font-size: 12.5px; letter-spacing: .04em; color: rgba(246, 238, 223, .75); }
+
+/* size guide panel in the product view */
+.sg__size { display: grid; place-items: center; background: #fff; border-radius: 18px; overflow: hidden; }
+.sg__size img { width: 100%; height: auto; max-height: 100%; object-fit: contain; }
+.sg__table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.sg__table th, .sg__table td { padding: 7px 4px; border-bottom: 1px solid var(--line); text-align: center; color: var(--sea-deep); font-weight: 400; }
+.sg__table thead th { font-size: 10.5px; letter-spacing: var(--track-label); color: var(--ink-soft); }
+.sg__table tbody th { text-align: left; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }

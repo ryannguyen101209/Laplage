@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1600" width="900" height="1600">
+<defs><pattern id="s" width="220" height="40" patternUnits="userSpaceOnUse"><rect width="220" height="40" fill="#E9E5E1"/><rect x="0" width="10" height="40" fill="#DAD3CC"/><rect x="10" width="90" height="40" fill="#CCC0B5"/><rect x="10" width="4" height="40" fill="#B3A598"/><rect x="96" width="4" height="40" fill="#B3A598"/><rect x="100" width="10" height="40" fill="#DAD3CC"/></pattern>
+<pattern id="pucker" width="220" height="18" patternUnits="userSpaceOnUse"><rect y="0" width="220" height="2" fill="#ffffff" opacity=".18"/></pattern></defs>
+<rect width="900" height="1600" fill="url(#s)"/>
+</svg>

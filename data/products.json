@@ -416,5 +416,71 @@
       "cutout": "assets/img/products/cutouts/tee-esprit-cotier-front.webp",
       "cutoutBack": "assets/img/products/cutouts/tee-esprit-cotier-back.webp"
     }
-  ]
+  ],
+  "sizeGuide": {
+    "unit": "cm",
+    "diagram": "assets/img/guide/size-diagram.jpg",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "rows": [
+      {
+        "name": "Waist (A)",
+        "values": [
+          82,
+          85,
+          87,
+          90
+        ]
+      },
+      {
+        "name": "Hips (B)",
+        "values": [
+          99,
+          102,
+          105,
+          108
+        ]
+      },
+      {
+        "name": "Front rise",
+        "values": [
+          30,
+          31,
+          32,
+          33
+        ]
+      },
+      {
+        "name": "Back rise",
+        "values": [
+          40,
+          41,
+          42,
+          43
+        ]
+      },
+      {
+        "name": "Length (C)",
+        "values": [
+          42,
+          44,
+          46,
+          48
+        ]
+      },
+      {
+        "name": "Leg opening (D)",
+        "values": [
+          31,
+          32,
+          33,
+          34
+        ]
+      }
+    ]
+  }
 }
