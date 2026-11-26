@@ -146,7 +146,7 @@ if (isConfigured) {
           <div class="pf-grid">
             <label class="pf-field pf-field--wide"><span>Street</span><input name="street" autocomplete="address-line1" required maxlength="120" value="${esc(a.street || '')}"></label>
             <label class="pf-field"><span>Ward</span><input name="ward" required maxlength="60" value="${esc(a.ward || '')}"></label>
-            <label class="pf-field"><span>District</span><input name="district" required maxlength="60" value="${esc(a.district || '')}"></label>
+            <label class="pf-field"><span>District <em>optional</em></span><input name="district" maxlength="60" value="${esc(a.district || '')}"></label>
             <label class="pf-field"><span>City <em>shipping</em></span><select name="city" required>${CITIES.map(([v, l]) => `<option value="${esc(v)}"${(a.city === v || (!CITIES.some(([x]) => x === a.city) && v === CITIES[0][0])) ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
           </div>
           <label class="pf-check"><input type="checkbox" name="save" checked> Save this address and phone to my account</label>
@@ -155,7 +155,7 @@ if (isConfigured) {
           <div class="pf-pay">
             ${Object.entries(PAYMENTS).map(([k, v], i) => `<label class="pf-check pf-check--box"><input type="radio" name="payment" value="${k}"${i === 0 ? ' checked' : ''}> ${esc(v)}</label>`).join('')}
           </div>
-          <p class="pf-hint">You pay after we confirm your order. Nothing is charged on this site.</p>
+          <p class="pf-hint">After you place your pre-order you will see how to pay (bank transfer or QR, or cash if you choose it). We start making your piece once payment arrives. Nothing is charged on this site.</p>
         </fieldset>
         <label class="pf-field pf-field--wide"><span>Note <em>optional</em></span><textarea name="note" rows="2" maxlength="500"></textarea></label>
         <dl class="pf-sum">
@@ -232,7 +232,8 @@ if (isConfigured) {
     if (!/^[0-9+\s().-]{8,20}$/.test(data.phone)) { err.textContent = 'Please add a phone number we can reach you on.'; return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.gmail)) { err.textContent = 'Please add your Gmail. We send your pre-order confirmation there.'; return; }
     if (!CITIES.some(([v]) => v === data.address.city)) { err.textContent = 'Please choose Saigon, Hanoi or Huế.'; return; }
-    if (Object.values(data.address).some((v) => !v)) { err.textContent = 'Please complete the street, ward, district and city.'; return; }
+    // districts were abolished in July 2025, so only street, ward and city are required
+    if (!data.address.street || !data.address.ward || !data.address.city) { err.textContent = 'Please complete the street, ward and city.'; return; }
     const lines = items.map((it) => {
       const p = products.find((x) => x.id === it.productId);
       const color = (p.colors || []).some((c) => c.name === it.color) ? it.color : p.color.name;

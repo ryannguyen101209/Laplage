@@ -74,7 +74,7 @@ function render(user, profile, orders) {
           <label class="pf-field"><span>Phone</span><input name="phone" type="tel" inputmode="tel" maxlength="20" value="${esc(profile.phone || '')}"></label>
           <label class="pf-field pf-field--wide"><span>Street</span><input name="street" maxlength="120" value="${esc(a.street || '')}"></label>
           <label class="pf-field"><span>Ward</span><input name="ward" maxlength="60" value="${esc(a.ward || '')}"></label>
-          <label class="pf-field"><span>District</span><input name="district" maxlength="60" value="${esc(a.district || '')}"></label>
+          <label class="pf-field"><span>District <em>optional</em></span><input name="district" maxlength="60" value="${esc(a.district || '')}"></label>
           <label class="pf-field"><span>City</span><select name="city"><option value="">Choose a city</option>${[['Ho Chi Minh City', 'Saigon (Ho Chi Minh City)'], ['Hanoi', 'Hanoi'], ['Hue', 'Huế']].map(([v, l]) => `<option value="${v}"${a.city === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
         </div>
         <p class="pf-error" role="status" aria-live="polite" data-profile-msg></p>

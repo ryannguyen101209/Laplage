@@ -394,6 +394,12 @@
     });
     $('[data-spot-close]').addEventListener('click', close);
 
+    // phones: the Pre-order button sits in a bar pinned to the bottom of the screen, so it is always in view
+    const cta = $('[data-spot-access]'), buyBox = $('.spotlight__buy'), phone = matchMedia('(max-width: 860px)');
+    const placeCta = () => { if (phone.matches) { if (cta.parentElement !== spot) spot.appendChild(cta); } else if (cta.parentElement !== buyBox) buyBox.appendChild(cta); };
+    placeCta();
+    phone.addEventListener('change', placeCta);
+
     // a piece tapped anywhere on the page (collections, featured row) opens straight away
     document.addEventListener('laplage:view', (e) => {
       const { index: i, from } = e.detail;
