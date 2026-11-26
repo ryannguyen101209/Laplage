@@ -1939,3 +1939,12 @@ body { background: #0B3A5C; }
 /* two-for-925k offer line in the product view */
 .spotlight__offer { margin-top: 14px; max-width: 280px; font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.5; color: var(--sand-ink); }
 .spotlight__offer[hidden] { display: none; }
+
+/* phones: Pre-order pinned to the bottom of the product view (moved out of .spotlight__buy by main.js) */
+@media (max-width: 860px) {
+  .spotlight { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  .spotlight > .spotlight__cta {
+    position: fixed; left: 24px; right: 24px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 6;
+    display: flex; justify-content: center; background: var(--white); box-shadow: 0 10px 30px -12px rgba(11, 44, 71, .35);
+  }
+}
