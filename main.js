@@ -173,7 +173,8 @@
   };
 
   let categories = [];
-  let sizeGuide = null;   // measurements for the product view's "Size guide"
+  let sizeGuide = null;
+  let bundle = null;   // "any two for 925.000 ₫" in data/products.json   // measurements for the product view's "Size guide"
   // one row per line (Shoreline, Soleil, Marée), each on its own stretch of sand
   const renderRows = (products) => {
     const lines = categories.length ? categories : [{ key: '', name: 'Drop 001', kind: '', note: '' }];
@@ -212,6 +213,7 @@
       const data = await res.json();
       categories = data.categories || [];
       sizeGuide = data.sizeGuide || null;
+      bundle = data.bundle || null;
       // pieces marked "hidden" in products.json are resting between drops: kept in the data, not shown in the shop
       const live = (data.products || []).filter((p) => !p.hidden);
       renderRows(live);
@@ -309,6 +311,10 @@
       $('[data-spot-desc]').textContent = p.description || '';
       $('[data-spot-color]').textContent = p.color.name;
       $('[data-spot-price]').textContent = formatVND.format(p.price);
+      const offer = $('[data-spot-offer]');
+      const two = bundle && (bundle.eligible || []).includes(base.id);
+      offer.hidden = !two;
+      offer.textContent = two ? `Two for ${formatVND.format(bundle.price)}: mix any two of Lagon, Corail and Palmier.` : '';
       // the cut-out version floats on the frosted glass (the photos have a white backdrop)
       const back = view === 'back' && p.imageHover;
       const src = { src: back ? (p.cutoutBack || p.imageHover.src) : (p.cutout || p.image.src) };

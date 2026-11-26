@@ -99,7 +99,7 @@ module.exports = async function handler(req, res) {
       const howToPay = o.payment === 'cash'
         ? 'HOW TO PAY\nPay in cash, in person. We will contact you to arrange where and when to meet.'
         : `HOW TO PAY\nBank: VietinBank - CN Tan Binh - PGD Bau Cat\nAccount name: NGUYEN MINH HY\nAccount number: 105600101209\nAmount: ${vnd(o.total)}\nTransfer note: ${code} ${plainName}\n(You can also scan the QR code on your account page.)`;
-      const sums = `Payment: ${pay}\nSubtotal: ${vnd(o.subtotal)}\nShipping: ${o.shippingFee ? vnd(o.shippingFee) : 'Free'}\nTotal: ${vnd(o.total)}`;
+      const sums = `Payment: ${pay}\nSubtotal: ${vnd(o.subtotal)}${o.discount ? `\nTwo-piece price: -${vnd(o.discount)}` : ''}\nShipping: ${o.shippingFee ? vnd(o.shippingFee) : 'Free'}\nTotal: ${vnd(o.total)}`;
       await Promise.all([
         mail({ to: admins(), replyTo: o.gmail, subject: `New pre-order from ${o.customerName} · ${vnd(o.total)}`, link: `${base}/admin.html#orders`, linkLabel: 'Open admin',
           text: `New pre-order ${id} (order no. LP-${id.slice(0, 6).toUpperCase()})\n\nCustomer: ${o.customerName} (@${o.username})\nEmail: ${o.gmail}   Phone: ${o.phone}\nShip to: ${addr}\n\n${lines}\n\n${sums}\nNote: ${o.note || '-'}` }),

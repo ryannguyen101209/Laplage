@@ -72,7 +72,7 @@ service cloud.firestore {
         && request.resource.data.uid == request.auth.uid
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == false
-        && request.resource.data.keys().hasOnly(['uid', 'username', 'gmail', 'customerName', 'phone', 'address', 'note', 'items', 'subtotal', 'shippingFee', 'total', 'payment', 'status', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'username', 'gmail', 'customerName', 'phone', 'address', 'note', 'items', 'subtotal', 'discount', 'shippingFee', 'total', 'payment', 'status', 'createdAt'])
         && validGmail(request.resource.data.gmail)
         && request.resource.data.customerName is string && request.resource.data.customerName.size() > 0 && request.resource.data.customerName.size() <= 80
         && request.resource.data.phone is string && request.resource.data.phone.size() >= 8 && request.resource.data.phone.size() <= 20
@@ -83,7 +83,11 @@ service cloud.firestore {
         // we deliver to three cities for now: Saigon ships free, Hanoi and Hue cost 50,000 VND
         && ((request.resource.data.address.city == 'Ho Chi Minh City' && request.resource.data.shippingFee == 0)
           || (request.resource.data.address.city in ['Hanoi', 'Hue'] && request.resource.data.shippingFee == 50000))
-        && request.resource.data.total == request.resource.data.subtotal + request.resource.data.shippingFee
+        // optional two-piece discount (any two of Lagon, Corail, Palmier for 925,000 VND)
+        && request.resource.data.get('discount', 0) is int
+        && request.resource.data.get('discount', 0) >= 0
+        && request.resource.data.get('discount', 0) < request.resource.data.subtotal
+        && request.resource.data.total == request.resource.data.subtotal - request.resource.data.get('discount', 0) + request.resource.data.shippingFee
         && request.resource.data.payment in ['bank', 'qr', 'cash']
         && request.resource.data.status == 'awaiting payment'
         && request.resource.data.createdAt == request.time;

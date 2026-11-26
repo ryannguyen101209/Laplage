@@ -16,7 +16,7 @@ const load = async () => {
 };
 const [
   {
-    isConfigured, auth, db, SHIPPING_FEE, PAYMENTS, esc, fmtVND, authMessage, loadProducts,
+    isConfigured, auth, db, SHIPPING_FEE, PAYMENTS, esc, fmtVND, authMessage, loadProducts, bundleDiscount, catalog,
     onAuthStateChanged, doc, updateDoc, addDoc, collection, serverTimestamp,
   },
   { renderAuthForm, loadProfile },
@@ -109,8 +109,10 @@ if (isConfigured) {
   const feeFor = (c) => (c === 'Ho Chi Minh City' ? SHIPPING_FEE : FEE_OTHER);
   const shipFee = () => feeFor(city);
   const totals = () => {
-    const subtotal = items.reduce((s, it) => s + ((products.find((p) => p.id === it.productId) || {}).price || 0) * it.qty, 0);
-    return { subtotal, total: subtotal + shipFee() };
+    const lines = items.map((it) => { const p = products.find((x) => x.id === it.productId) || {}; return { productId: p.id, price: p.price || 0, quantity: it.qty }; });
+    const subtotal = lines.reduce((s, l) => s + l.price * l.quantity, 0);
+    const discount = bundleDiscount(lines);
+    return { subtotal, discount, total: subtotal - discount + shipFee() };
   };
 
   const draw = () => {
@@ -126,7 +128,7 @@ if (isConfigured) {
     if (!products.length) { body().innerHTML = '<p class="pf-state">The pieces could not be loaded. Please refresh and try again.</p>'; return; }
     if (!items.length) items = [pending || { productId: products[0].id, size: (products[0].sizes || ['M'])[1] || 'M', qty: 1 }];
     const a = profile.address || {};
-    const { subtotal, total } = totals();
+    const { subtotal, discount, total } = totals();
     body().innerHTML = `
       <form class="pf-form" novalidate data-order-form>
         <fieldset class="pf-set"><legend>Your pieces</legend>
@@ -158,10 +160,12 @@ if (isConfigured) {
         <label class="pf-field pf-field--wide"><span>Note <em>optional</em></span><textarea name="note" rows="2" maxlength="500"></textarea></label>
         <dl class="pf-sum">
           <div><dt>Subtotal</dt><dd data-subtotal>${esc(fmtVND(subtotal))}</dd></div>
+          <div data-discount-row${discount ? '' : ' hidden'}><dt>Two for ${esc(fmtVND((catalog.bundle || {}).price))}</dt><dd data-discount>−${esc(fmtVND(discount))}</dd></div>
           <div><dt>Shipping</dt><dd data-ship>${shipFee() ? esc(fmtVND(shipFee())) : 'Free'}</dd></div>
           <div class="pf-sum__total"><dt>Total</dt><dd data-total>${esc(fmtVND(total))}</dd></div>
         </dl>
-        <p class="pf-hint">10% of every order goes to Saigon Xanh.</p>
+        ${catalog.bundle && catalog.bundle.label ? `<p class="pf-hint">${esc(catalog.bundle.label)}: the price comes off automatically.</p>` : ''}
+        <p class="pf-hint">10% of our profit goes to Saigon Xanh.</p>
         <p class="pf-error" role="alert" data-order-error></p>
         <p class="pf-hint">By placing a pre-order you agree to our <a class="link link--underlined" href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a class="link link--underlined" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
         <button class="btn-outline pf-submit" type="submit">Place pre-order</button>
@@ -178,8 +182,10 @@ if (isConfigured) {
     }));
   };
   const refreshSums = () => {
-    const { subtotal, total } = totals();
+    const { subtotal, discount, total } = totals();
     body().querySelector('[data-subtotal]').textContent = fmtVND(subtotal);
+    body().querySelector('[data-discount-row]').hidden = !discount;
+    body().querySelector('[data-discount]').textContent = `−${fmtVND(discount)}`;
     body().querySelector('[data-ship]').textContent = shipFee() ? fmtVND(shipFee()) : 'Free';
     body().querySelector('[data-total]').textContent = fmtVND(total);
   };
@@ -234,12 +240,15 @@ if (isConfigured) {
     });
     const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
     const fee = feeFor(String(f.city || ''));
+    const discount = bundleDiscount(lines);
+    const total = subtotal - discount + fee;
     btn.disabled = true; btn.classList.add('is-busy');
     try {
       const ref = await addDoc(collection(db, 'orders'), {
         uid: user.uid, username: profile.username || '', gmail: data.gmail,
         customerName: data.name, phone: data.phone, address: data.address, note: data.note,
-        items: lines, subtotal, shippingFee: fee, total: subtotal + fee,
+        // "discount" is only written when the two-piece price applies
+        items: lines, subtotal, ...(discount ? { discount } : {}), shippingFee: fee, total,
         payment: PAYMENTS[f.payment] ? f.payment : 'bank', status: 'awaiting payment', createdAt: serverTimestamp(),
       });
       if (f.save) {
@@ -249,15 +258,15 @@ if (isConfigured) {
         } catch (e2) { /* the pre-order is placed; saving the address is a nicety */ }
       }
       // emails to the admins and to the customer; the pre-order is already saved, so a failure here never undoes it
-      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, shippingFee: fee, total: subtotal + fee, username: profile.username || '' })
+      sendOrderEmails({ id: ref.id, ...data, items: lines, subtotal, discount, shippingFee: fee, total, username: profile.username || '' })
         .catch((e3) => console.warn('[LA PLAGE] order emails', e3));
       if (notifyAdmins) {
-        const total = subtotal + fee, no = orderCode(ref.id);
+        const no = orderCode(ref.id);
         const addr = [data.address.street, data.address.ward, data.address.district, data.address.city].filter(Boolean).join(', ');
         notifyAdmins({
           title: `New order ${no} · ${fmtVND(total)}`,
           message: `${data.name} · ${fmtVND(total)} · ${lines.reduce((n, l) => n + l.quantity, 0)} piece(s): ${lines.map((l) => `${l.title} ${l.size}`).join(', ')}`,
-          details: `NEW ORDER ${no}\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.gmail}\nAddress: ${addr}\n\n${lines.map((l) => `${l.title}${l.color ? ` (${l.color})` : ''} · size ${l.size} × ${l.quantity} = ${fmtVND(l.lineTotal)}`).join('\n')}\n\nTotal: ${fmtVND(total)} (${fee ? `shipping ${fmtVND(fee)}, outside Saigon` : 'free shipping, Saigon'})\nPayment: ${PAYMENTS[f.payment] || f.payment}\nTransfer note to look for: ${transferNote(ref.id, data.name)}\nNote from customer: ${data.note || '-'}`,
+          details: `NEW ORDER ${no}\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.gmail}\nAddress: ${addr}\n\n${lines.map((l) => `${l.title}${l.color ? ` (${l.color})` : ''} · size ${l.size} × ${l.quantity} = ${fmtVND(l.lineTotal)}`).join('\n')}${discount ? `\n\nTwo-piece price: −${fmtVND(discount)}` : ''}\n\nTotal: ${fmtVND(total)} (${fee ? `shipping ${fmtVND(fee)}, outside Saigon` : 'free shipping, Saigon'})\nPayment: ${PAYMENTS[f.payment] || f.payment}\nTransfer note to look for: ${transferNote(ref.id, data.name)}\nNote from customer: ${data.note || '-'}`,
           path: '/admin.html#orders', tags: ['shopping_bags'], priority: 4, replyTo: data.gmail,
         });
       }
@@ -266,7 +275,7 @@ if (isConfigured) {
         <div class="pf-done">
           <p class="pf-done__title">Thank you, ${esc(data.name.split(' ')[0])}. Your pre-order is in.</p>
           <p class="pf-lead">A confirmation is on its way to ${esc(data.gmail)}. Follow your order's progress in your account.</p>
-          ${payPanel(f.payment, { total: subtotal + fee, id: ref.id, name: data.name })}
+          ${payPanel(f.payment, { total, id: ref.id, name: data.name })}
           <a class="link link--underlined" href="account.html">View my pre-orders</a>
         </div>`;
       wireCopy(body());

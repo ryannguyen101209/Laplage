@@ -81,8 +81,26 @@ export const authMessage = (err) => {
 export async function loadProducts({ includeHidden = false } = {}) {
   const res = await fetch('data/products.json', { cache: 'no-cache' });
   if (!res.ok) throw new Error(`products ${res.status}`);
-  const all = (await res.json()).products || [];
+  const data = await res.json();
+  catalog.bundle = data.bundle || null;
+  const all = data.products || [];
   return includeHidden ? all : all.filter((p) => !p.hidden);
+}
+
+// "bundle" in data/products.json: any two eligible pieces for one price (925.000 ₫).
+// Pieces are paired from the dearest down; each pair saves the difference. lines: [{ productId, price, quantity }]
+export const catalog = { bundle: null };
+export function bundleDiscount(lines) {
+  const b = catalog.bundle;
+  if (!b || !b.price || !b.size) return 0;
+  const units = [];
+  lines.forEach((l) => { if ((b.eligible || []).includes(l.productId)) for (let i = 0; i < l.quantity; i++) units.push(l.price); });
+  units.sort((x, y) => y - x);
+  let off = 0;
+  for (let i = 0; i + b.size <= units.length; i += b.size) {
+    off += Math.max(0, units.slice(i, i + b.size).reduce((s, v) => s + v, 0) - b.price);
+  }
+  return off;
 }
 
 export {

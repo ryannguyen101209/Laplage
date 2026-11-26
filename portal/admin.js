@@ -285,7 +285,7 @@ const orderTable = (rows) => `
         <td data-label="Customer"><strong>${esc(o.customerName)}</strong><small>${esc(o.phone)}</small><small>${esc(o.gmail || '')}</small></td>
         <td data-label="Ship to">${esc(fmtAddress(o.address))}${o.note ? `<small>Note: ${esc(o.note)}</small>` : ''}</td>
         <td data-label="Pieces">${(o.items || []).map((it) => `${esc(it.title)}${it.color ? ` · ${esc(it.color)}` : ''} · <b>size ${esc(it.size)}</b> × ${esc(it.quantity)}`).join('<br>')}</td>
-        <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong><span class="pf-pay-badge">${esc(PAYMENTS[o.payment] || 'Payment ?')}</span><small>Note to look for: ${esc(transferNote(o.id, o.customerName))}</small>
+        <td data-label="Total"><strong>${esc(fmtVND(o.total))}</strong>${o.discount ? `<small>incl. −${esc(fmtVND(o.discount))} two-piece price</small>` : ''}<span class="pf-pay-badge">${esc(PAYMENTS[o.payment] || 'Payment ?')}</span><small>Note to look for: ${esc(transferNote(o.id, o.customerName))}</small>
           ${o.status === 'cancelled' ? '' : `<span class="pf-paid ${isPaid(o) ? 'is-paid' : 'is-unpaid'}">${isPaid(o) ? 'Paid' : 'Not yet paid'}</span><button type="button" class="ui-btn link pf-paid-btn" data-paid="${esc(o.id)}">${isPaid(o) ? 'Mark unpaid' : 'Mark as paid'}</button>`}</td>
         <td data-label="Status"><select class="pf-status-select" data-order="${esc(o.id)}" aria-label="Status for ${esc(o.customerName)}">
           ${STATUSES.map((s) => `<option value="${esc(s)}"${o.status === s ? ' selected' : ''}>${esc(label(s))}</option>`).join('')}
@@ -379,13 +379,13 @@ function exportCSV() {
     if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
     return `"${s.replace(/"/g, '""')}"`;
   };
-  const head = ['Order no.', 'Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Shipping (VND)', 'Total (VND)', 'Payment', 'Paid', 'Status', 'Note'];
+  const head = ['Order no.', 'Order ID', 'Date', 'Customer', 'Username', 'Phone', 'Gmail', 'Street', 'Ward', 'District', 'City', 'Pieces', 'Subtotal (VND)', 'Discount (VND)', 'Shipping (VND)', 'Total (VND)', 'Payment', 'Paid', 'Status', 'Note'];
   const rows = filteredOrders().map((o) => {
     const a = o.address || {};
     const d = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toISOString().slice(0, 10) : '';
     return [orderCode(o.id), o.id, d, o.customerName, o.username, o.phone, o.gmail, a.street, a.ward, a.district, a.city,
       (o.items || []).map((it) => `${it.title}${it.color ? ` - ${it.color}` : ''} (${it.size}) x${it.quantity}`).join('; '),
-      o.subtotal, o.shippingFee, o.total, PAYMENTS[o.payment] || '', isPaid(o) ? 'Paid' : 'Not yet', label(o.status), o.note];
+      o.subtotal, o.discount || 0, o.shippingFee, o.total, PAYMENTS[o.payment] || '', isPaid(o) ? 'Paid' : 'Not yet', label(o.status), o.note];
   });
   const csv = '﻿' + [head, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

@@ -410,3 +410,5 @@ body.portal.portal--admin { background: #04192A; }
 .pf-google:disabled { opacity: .6; cursor: default; }
 .pf-auth { display: grid; gap: 14px; justify-items: start; }
 .portal--admin .pf-google { background: transparent; color: var(--adm-ink); border-color: var(--adm-gold); }
+
+.pf-sum div[hidden] { display: none; }
